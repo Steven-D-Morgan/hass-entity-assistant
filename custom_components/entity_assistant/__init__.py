@@ -12,6 +12,7 @@ import os
 
 import voluptuous as vol
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.helpers import (
     area_registry as ar,
@@ -19,7 +20,6 @@ from homeassistant.helpers import (
     device_registry as dr,
     entity_registry as er,
 )
-from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     ATTR_FILENAME,
@@ -32,8 +32,6 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
 EXPORT_CSV_SCHEMA = vol.Schema(
     {
@@ -127,8 +125,8 @@ def _write_csv(path: str, rows: list[dict[str, str]]) -> None:
         file.write(buffer.getvalue())
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the Entity Assistant integration and register its service."""
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up Entity Assistant from a config entry and register its service."""
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
         filename = call.data[ATTR_FILENAME]
@@ -151,4 +149,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         supports_response=SupportsResponse.OPTIONAL,
     )
 
+    return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload the config entry and remove the service."""
+    hass.services.async_remove(DOMAIN, SERVICE_EXPORT_CSV)
     return True

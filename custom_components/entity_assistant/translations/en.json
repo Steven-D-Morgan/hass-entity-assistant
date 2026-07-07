@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Add Entity Assistant. This provides the entity_assistant.export_csv service for exporting your devices and entities to a CSV file. No configuration is required."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant is already configured. Only a single instance is needed."
+    }
+  }
+}

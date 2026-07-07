@@ -33,13 +33,11 @@ One row per entity, with these columns:
 1. Copy the `custom_components/entity_assistant` folder into your Home Assistant
    `config/custom_components/` directory. The result should be
    `config/custom_components/entity_assistant/`.
-2. Add the following to your `configuration.yaml`:
-
-   ```yaml
-   entity_assistant:
-   ```
-
-3. Restart Home Assistant.
+2. Restart Home Assistant.
+3. Go to **Settings → Devices & Services → Add Integration**, search for
+   **Entity Assistant**, and add it. (It's a single-instance integration with no
+   configuration — this just registers the export service and shows the card in
+   your integrations list.)
 
 ## Usage
 
