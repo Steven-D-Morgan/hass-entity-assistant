@@ -3,6 +3,12 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.2.1 — 2026-07-07
+
+- Added brand icon assets (`brand/icon.png` 256×256, `brand/icon@2x.png`
+  512×512) for submission to the home-assistant/brands repo so the logo shows
+  in the integrations list.
+
 ## 1.2.0 — 2026-07-07
 
 - Added HACS support: `hacs.json` at the repo root so the integration can be
