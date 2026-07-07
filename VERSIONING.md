@@ -18,7 +18,9 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
   full metadata for devices/areas.
 - Added **filters**: `domains`, `areas`, and `only_enabled`; the HTTP endpoint
   and signed URL honor the same options.
-- Added CI: `hassfest` + HACS validation GitHub Actions.
+- Added CI: `hassfest` + HACS validation GitHub Actions. Set `integration_type`
+  to `service` and moved brand icons to
+  `custom_components/entity_assistant/brand/` so HACS validation passes.
 - Refactored `export.py` around an `ExportOptions` dataclass and
   `async_run_export`; added `sensor.py`.
 
