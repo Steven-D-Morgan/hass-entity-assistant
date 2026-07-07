@@ -1,28 +1,58 @@
 """HTTP download endpoint for Entity Assistant.
 
-Serves the entity export as a downloadable CSV on demand, so it can be
-fetched directly instead of writing a file to the config directory.
+Serves the export as a downloadable CSV on demand, so it can be fetched
+directly instead of writing a file to the config directory.
 """
 from __future__ import annotations
+
+from collections.abc import Mapping
 
 from aiohttp import web
 
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
-from .const import DOWNLOAD_FILENAME, DOWNLOAD_URL
-from .export import build_rows, rows_to_csv
+from .const import (
+    DEFAULT_EXPORT_TYPE,
+    DOWNLOAD_FILENAME,
+    DOWNLOAD_URL,
+    EXPORT_TYPES,
+)
+from .export import ExportOptions, build_export, rows_to_csv
 
 
-def _as_bool(value: str | None, default: bool = True) -> bool:
+def _as_bool(value: str | None, default: bool) -> bool:
     """Parse a query-string flag."""
     if value is None:
         return default
     return value.lower() not in ("false", "0", "no")
 
 
+def _as_set(value: str | None) -> frozenset[str] | None:
+    """Parse a comma-separated query value into a set, or None if absent."""
+    if not value:
+        return None
+    items = [part.strip() for part in value.split(",") if part.strip()]
+    return frozenset(items) if items else None
+
+
+def options_from_query(query: Mapping[str, str]) -> ExportOptions:
+    """Build ExportOptions from HTTP/URL query parameters."""
+    export_type = query.get("export_type", DEFAULT_EXPORT_TYPE)
+    if export_type not in EXPORT_TYPES:
+        export_type = DEFAULT_EXPORT_TYPE
+    return ExportOptions(
+        export_type=export_type,
+        include_disabled=_as_bool(query.get("include_disabled"), True),
+        include_hidden=_as_bool(query.get("include_hidden"), True),
+        only_enabled=_as_bool(query.get("only_enabled"), False),
+        domains=_as_set(query.get("domains")),
+        areas=_as_set(query.get("areas")),
+    )
+
+
 class EntityExportView(HomeAssistantView):
-    """Serve the entity export as a downloadable CSV file (authenticated)."""
+    """Serve the export as a downloadable CSV file (authenticated)."""
 
     url = DOWNLOAD_URL
     name = "api:entity_assistant:export"
@@ -33,15 +63,14 @@ class EntityExportView(HomeAssistantView):
         self.hass = hass
 
     async def get(self, request: web.Request) -> web.Response:
-        """Return the current entity registry as a CSV attachment.
+        """Return the current export as a CSV attachment.
 
-        Optional query flags: include_disabled, include_hidden (default true).
+        Query flags: export_type, include_disabled, include_hidden,
+        only_enabled, domains, areas.
         """
-        include_disabled = _as_bool(request.query.get("include_disabled"))
-        include_hidden = _as_bool(request.query.get("include_hidden"))
-
-        rows = build_rows(self.hass, include_disabled, include_hidden)
-        csv_text = rows_to_csv(rows)
+        options = options_from_query(request.query)
+        columns, rows = build_export(self.hass, options)
+        csv_text = rows_to_csv(columns, rows)
 
         return web.Response(
             body=csv_text.encode("utf-8"),

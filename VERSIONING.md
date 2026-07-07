@@ -3,6 +3,25 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.4.0 — 2026-07-07
+
+- Added a `get_download_url` service returning a **signed, time-limited URL**
+  so the download endpoint is click-to-download from a dashboard (no auth
+  header needed).
+- Added a **`last_export` timestamp sensor** on the Entity Assistant device
+  (attributes: `row_count`, `path`, `export_type`, `triggered_by`), restored
+  across restarts.
+- Fire an **`entity_assistant_export_completed`** event after every export.
+- Added **export types**: `entities` (default), `devices` (incl. devices with
+  no entities), and `areas`.
+- Added **richer columns**: `labels`, `floor`, and `config_entry` for entities;
+  full metadata for devices/areas.
+- Added **filters**: `domains`, `areas`, and `only_enabled`; the HTTP endpoint
+  and signed URL honor the same options.
+- Added CI: `hassfest` + HACS validation GitHub Actions.
+- Refactored `export.py` around an `ExportOptions` dataclass and
+  `async_run_export`; added `sensor.py`.
+
 ## 1.3.0 — 2026-07-07
 
 - Added an **Export entity list** button entity, attached to a new

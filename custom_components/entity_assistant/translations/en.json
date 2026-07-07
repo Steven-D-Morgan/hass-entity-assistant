@@ -3,11 +3,81 @@
     "step": {
       "user": {
         "title": "Entity Assistant",
-        "description": "Add Entity Assistant. This provides the entity_assistant.export_csv service for exporting your devices and entities to a CSV file. No configuration is required."
+        "description": "Add Entity Assistant. This provides services, a button, and an HTTP endpoint for exporting your entities, devices, and areas to CSV. No configuration is required."
       }
     },
     "abort": {
       "single_instance_allowed": "Entity Assistant is already configured. Only a single instance is needed."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Export to CSV",
+      "description": "Export entities, devices, or areas from the registry to a CSV file inside the configuration directory.",
+      "fields": {
+        "filename": {
+          "name": "Filename",
+          "description": "File to write, relative to the config directory. Must stay inside the config directory."
+        },
+        "export_type": {
+          "name": "Export type",
+          "description": "What to export: one row per entity, device, or area."
+        },
+        "include_disabled": {
+          "name": "Include disabled",
+          "description": "Include disabled entities and devices."
+        },
+        "include_hidden": {
+          "name": "Include hidden",
+          "description": "Include hidden entities."
+        },
+        "only_enabled": {
+          "name": "Only enabled",
+          "description": "Exclude everything disabled or hidden (overrides the include options)."
+        },
+        "domains": {
+          "name": "Domains",
+          "description": "Only include entities in these domains (entities export type only)."
+        },
+        "areas": {
+          "name": "Areas",
+          "description": "Only include rows in these areas (by area id or name)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Get download URL",
+      "description": "Return a signed, time-limited URL to download the export directly from a browser. Response only; writes no file.",
+      "fields": {
+        "expires": {
+          "name": "Expires (seconds)",
+          "description": "How long the signed URL stays valid."
+        },
+        "export_type": {
+          "name": "Export type",
+          "description": "What to export: one row per entity, device, or area."
+        },
+        "include_disabled": {
+          "name": "Include disabled",
+          "description": "Include disabled entities and devices."
+        },
+        "include_hidden": {
+          "name": "Include hidden",
+          "description": "Include hidden entities."
+        },
+        "only_enabled": {
+          "name": "Only enabled",
+          "description": "Exclude everything disabled or hidden (overrides the include options)."
+        },
+        "domains": {
+          "name": "Domains",
+          "description": "Only include entities in these domains (entities export type only)."
+        },
+        "areas": {
+          "name": "Areas",
+          "description": "Only include rows in these areas (by area id or name)."
+        }
+      }
     }
   }
 }

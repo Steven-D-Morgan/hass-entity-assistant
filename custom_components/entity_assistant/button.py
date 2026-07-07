@@ -15,7 +15,7 @@ from homeassistant.helpers.device_info import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DEFAULT_FILENAME, DOMAIN
-from .export import build_rows, resolve_path, write_csv
+from .export import ExportOptions, async_run_export
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,8 +47,8 @@ class EntityExportButton(ButtonEntity):
         )
 
     async def async_press(self) -> None:
-        """Handle the button press: write the default CSV export."""
-        rows = build_rows(self.hass, include_disabled=True, include_hidden=True)
-        path = resolve_path(self.hass, DEFAULT_FILENAME)
-        await self.hass.async_add_executor_job(write_csv, path, rows)
-        _LOGGER.info("Exported %d entities to %s", len(rows), path)
+        """Handle the button press: write the default entity CSV export."""
+        path, count = await async_run_export(
+            self.hass, ExportOptions(), DEFAULT_FILENAME, triggered_by="button"
+        )
+        _LOGGER.info("Exported %d rows to %s", count, path)

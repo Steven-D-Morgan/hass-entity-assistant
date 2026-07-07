@@ -1,9 +1,8 @@
 export_csv:
-  name: Export entities to CSV
+  name: Export to CSV
   description: >-
-    Export every device/entity in the registry (entity_id, area, device
-    metadata, current state, etc.) to a CSV file inside the Home Assistant
-    configuration directory.
+    Export entities, devices, or areas from the registry to a CSV file inside
+    the Home Assistant configuration directory.
   fields:
     filename:
       name: Filename
@@ -15,17 +14,113 @@ export_csv:
       example: exports/entities.csv
       selector:
         text:
+    export_type:
+      name: Export type
+      description: What to export — one row per entity, device, or area.
+      required: false
+      default: entities
+      selector:
+        select:
+          options:
+            - entities
+            - devices
+            - areas
     include_disabled:
-      name: Include disabled entities
-      description: Include entities that are currently disabled.
+      name: Include disabled
+      description: Include disabled entities/devices.
       required: false
       default: true
       selector:
         boolean:
     include_hidden:
-      name: Include hidden entities
-      description: Include entities that are currently hidden.
+      name: Include hidden
+      description: Include hidden entities.
       required: false
       default: true
       selector:
         boolean:
+    only_enabled:
+      name: Only enabled
+      description: >-
+        Shortcut to exclude everything disabled or hidden (overrides the two
+        options above).
+      required: false
+      default: false
+      selector:
+        boolean:
+    domains:
+      name: Domains
+      description: >-
+        Only include entities in these domains (entities export type only).
+      required: false
+      example: '["light", "switch"]'
+      selector:
+        object:
+    areas:
+      name: Areas
+      description: Only include rows in these areas (by area id or name).
+      required: false
+      selector:
+        object:
+
+get_download_url:
+  name: Get download URL
+  description: >-
+    Return a signed, time-limited URL to download the export directly from a
+    browser (no auth header needed). Response only — does not write a file.
+  fields:
+    expires:
+      name: Expires (seconds)
+      description: How long the signed URL stays valid.
+      required: false
+      default: 300
+      selector:
+        number:
+          min: 30
+          max: 86400
+          unit_of_measurement: seconds
+          mode: box
+    export_type:
+      name: Export type
+      description: What to export — one row per entity, device, or area.
+      required: false
+      default: entities
+      selector:
+        select:
+          options:
+            - entities
+            - devices
+            - areas
+    include_disabled:
+      name: Include disabled
+      description: Include disabled entities/devices.
+      required: false
+      default: true
+      selector:
+        boolean:
+    include_hidden:
+      name: Include hidden
+      description: Include hidden entities.
+      required: false
+      default: true
+      selector:
+        boolean:
+    only_enabled:
+      name: Only enabled
+      description: Shortcut to exclude everything disabled or hidden.
+      required: false
+      default: false
+      selector:
+        boolean:
+    domains:
+      name: Domains
+      description: Only include entities in these domains (entities export type only).
+      required: false
+      selector:
+        object:
+    areas:
+      name: Areas
+      description: Only include rows in these areas (by area id or name).
+      required: false
+      selector:
+        object:

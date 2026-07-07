@@ -1,59 +1,129 @@
 """The Entity Assistant integration.
 
-Exports the Home Assistant device/entity registry (entity_id, area,
-device metadata, current state, etc.) to CSV — via a service call, an
-"Export entity list" button, or an authenticated HTTP download endpoint.
+Exports the Home Assistant registries (entities, devices, or areas) to CSV —
+via a service, an "Export entity list" button, or an authenticated HTTP
+download endpoint (with a signed-URL helper). Fires an event on completion and
+tracks the last export in a sensor.
 """
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
+from urllib.parse import urlencode
 
 import voluptuous as vol
 
+from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+    callback,
+)
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.network import NoURLAvailableError, get_url
 
 from .const import (
+    ATTR_AREAS,
+    ATTR_DOMAINS,
+    ATTR_EXPIRES,
+    ATTR_EXPORT_TYPE,
     ATTR_FILENAME,
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
+    ATTR_ONLY_ENABLED,
+    DEFAULT_EXPIRES,
+    DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
     DOMAIN,
+    DOWNLOAD_URL,
+    EXPORT_TYPES,
     PLATFORMS,
     SERVICE_EXPORT_CSV,
+    SERVICE_GET_DOWNLOAD_URL,
 )
-from .export import build_rows, resolve_path, write_csv
+from .export import ExportOptions, async_run_export
 from .http import EntityExportView
 
 _LOGGER = logging.getLogger(__name__)
 
 _VIEW_REGISTERED = f"{DOMAIN}_view_registered"
 
+# Shared option fields for both services.
+_OPTION_FIELDS = {
+    vol.Optional(ATTR_EXPORT_TYPE, default=DEFAULT_EXPORT_TYPE): vol.In(EXPORT_TYPES),
+    vol.Optional(ATTR_INCLUDE_DISABLED, default=True): cv.boolean,
+    vol.Optional(ATTR_INCLUDE_HIDDEN, default=True): cv.boolean,
+    vol.Optional(ATTR_ONLY_ENABLED, default=False): cv.boolean,
+    vol.Optional(ATTR_DOMAINS): vol.All(cv.ensure_list, [cv.string]),
+    vol.Optional(ATTR_AREAS): vol.All(cv.ensure_list, [cv.string]),
+}
+
 EXPORT_CSV_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_FILENAME, default=DEFAULT_FILENAME): cv.string,
-        vol.Optional(ATTR_INCLUDE_DISABLED, default=True): cv.boolean,
-        vol.Optional(ATTR_INCLUDE_HIDDEN, default=True): cv.boolean,
-    }
+    {vol.Optional(ATTR_FILENAME, default=DEFAULT_FILENAME): cv.string, **_OPTION_FIELDS}
 )
+
+GET_DOWNLOAD_URL_SCHEMA = vol.Schema(
+    {vol.Optional(ATTR_EXPIRES, default=DEFAULT_EXPIRES): cv.positive_int, **_OPTION_FIELDS}
+)
+
+
+def _options_from_call(call: ServiceCall) -> ExportOptions:
+    """Build ExportOptions from a service call's data."""
+    domains = call.data.get(ATTR_DOMAINS)
+    areas = call.data.get(ATTR_AREAS)
+    return ExportOptions(
+        export_type=call.data[ATTR_EXPORT_TYPE],
+        include_disabled=call.data[ATTR_INCLUDE_DISABLED],
+        include_hidden=call.data[ATTR_INCLUDE_HIDDEN],
+        only_enabled=call.data[ATTR_ONLY_ENABLED],
+        domains=frozenset(domains) if domains else None,
+        areas=frozenset(areas) if areas else None,
+    )
+
+
+def _options_to_query(options: ExportOptions) -> dict[str, str]:
+    """Serialize options to download-URL query parameters."""
+    query = {
+        "export_type": options.export_type,
+        "include_disabled": str(options.include_disabled).lower(),
+        "include_hidden": str(options.include_hidden).lower(),
+        "only_enabled": str(options.only_enabled).lower(),
+    }
+    if options.domains:
+        query["domains"] = ",".join(sorted(options.domains))
+    if options.areas:
+        query["areas"] = ",".join(sorted(options.areas))
+    return query
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Entity Assistant from a config entry."""
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
-        filename = call.data[ATTR_FILENAME]
-        include_disabled = call.data[ATTR_INCLUDE_DISABLED]
-        include_hidden = call.data[ATTR_INCLUDE_HIDDEN]
+        options = _options_from_call(call)
+        path, count = await async_run_export(
+            hass, options, call.data[ATTR_FILENAME], triggered_by="service"
+        )
+        return {"path": path, "row_count": count}
 
-        path = resolve_path(hass, filename)
-        rows = build_rows(hass, include_disabled, include_hidden)
-        await hass.async_add_executor_job(write_csv, path, rows)
+    @callback
+    def handle_get_download_url(call: ServiceCall) -> ServiceResponse:
+        options = _options_from_call(call)
+        expires = call.data[ATTR_EXPIRES]
 
-        _LOGGER.info("Exported %d entities to %s", len(rows), path)
+        query = urlencode(_options_to_query(options))
+        path = f"{DOWNLOAD_URL}?{query}"
+        signed = async_sign_path(hass, path, timedelta(seconds=expires))
 
-        return {"path": path, "entity_count": len(rows)}
+        try:
+            url = f"{get_url(hass, prefer_external=True)}{signed}"
+        except NoURLAvailableError:
+            url = signed
+
+        return {"url": url, "expires_in": expires}
 
     hass.services.async_register(
         DOMAIN,
@@ -61,6 +131,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         handle_export_csv,
         schema=EXPORT_CSV_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_DOWNLOAD_URL,
+        handle_get_download_url,
+        schema=GET_DOWNLOAD_URL_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
     )
 
     # HTTP views cannot be unregistered, so register the download view only once.
@@ -74,8 +151,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload the config entry, its platforms, and the service."""
+    """Unload the config entry, its platforms, and the services."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.services.async_remove(DOMAIN, SERVICE_EXPORT_CSV)
+        hass.services.async_remove(DOMAIN, SERVICE_GET_DOWNLOAD_URL)
     return unload_ok
