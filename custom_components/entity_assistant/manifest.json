@@ -1,0 +1,11 @@
+{
+  "domain": "entity_assistant",
+  "name": "Entity Assistant",
+  "codeowners": ["@Steven-D-Morgan"],
+  "config_flow": false,
+  "documentation": "https://github.com/Steven-D-Morgan/hass-entity-assistant",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Steven-D-Morgan/hass-entity-assistant/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}

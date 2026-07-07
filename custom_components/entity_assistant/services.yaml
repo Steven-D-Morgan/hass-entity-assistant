@@ -1,0 +1,31 @@
+export_csv:
+  name: Export entities to CSV
+  description: >-
+    Export every device/entity in the registry (entity_id, area, device
+    metadata, current state, etc.) to a CSV file inside the Home Assistant
+    configuration directory.
+  fields:
+    filename:
+      name: Filename
+      description: >-
+        File to write, relative to the config directory. Must stay inside
+        the config directory.
+      required: false
+      default: entity_export.csv
+      example: exports/entities.csv
+      selector:
+        text:
+    include_disabled:
+      name: Include disabled entities
+      description: Include entities that are currently disabled.
+      required: false
+      default: true
+      selector:
+        boolean:
+    include_hidden:
+      name: Include hidden entities
+      description: Include entities that are currently hidden.
+      required: false
+      default: true
+      selector:
+        boolean:
