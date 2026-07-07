@@ -3,11 +3,12 @@
   "name": "Entity Assistant",
   "codeowners": ["@Steven-D-Morgan"],
   "config_flow": true,
-  "single_config_entry": true,
   "dependencies": ["http"],
   "documentation": "https://github.com/Steven-D-Morgan/hass-entity-assistant",
+  "integration_type": "service",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Steven-D-Morgan/hass-entity-assistant/issues",
   "requirements": [],
+  "single_config_entry": true,
   "version": "1.4.0"
 }
