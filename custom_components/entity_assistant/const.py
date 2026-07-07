@@ -1,6 +1,10 @@
 """Constants for the Entity Assistant integration."""
 
+from homeassistant.const import Platform
+
 DOMAIN = "entity_assistant"
+
+PLATFORMS = [Platform.BUTTON]
 
 SERVICE_EXPORT_CSV = "export_csv"
 
@@ -9,6 +13,10 @@ ATTR_INCLUDE_DISABLED = "include_disabled"
 ATTR_INCLUDE_HIDDEN = "include_hidden"
 
 DEFAULT_FILENAME = "entity_export.csv"
+
+# HTTP download endpoint.
+DOWNLOAD_URL = "/api/entity_assistant/export.csv"
+DOWNLOAD_FILENAME = "entity_export.csv"
 
 CSV_COLUMNS = [
     "entity_id",

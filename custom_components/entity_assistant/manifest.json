@@ -4,9 +4,10 @@
   "codeowners": ["@Steven-D-Morgan"],
   "config_flow": true,
   "single_config_entry": true,
+  "dependencies": ["http"],
   "documentation": "https://github.com/Steven-D-Morgan/hass-entity-assistant",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Steven-D-Morgan/hass-entity-assistant/issues",
   "requirements": [],
-  "version": "1.2.1"
+  "version": "1.3.0"
 }

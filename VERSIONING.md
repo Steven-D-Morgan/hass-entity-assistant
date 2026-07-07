@@ -3,6 +3,18 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.3.0 — 2026-07-07
+
+- Added an **Export entity list** button entity, attached to a new
+  "Entity Assistant" service device, so the export can be triggered from the
+  UI or automations without Developer Tools.
+- Added an authenticated **HTTP download endpoint** at
+  `/api/entity_assistant/export.csv` (supports `include_disabled` /
+  `include_hidden` query flags) for fetching the CSV directly.
+- Refactored shared export logic into `export.py` (used by the service, the
+  button, and the HTTP view); added `button.py` and `http.py`.
+- manifest.json: declare `http` dependency, add the `button` platform.
+
 ## 1.2.1 — 2026-07-07
 
 - Added brand icon assets (`brand/icon.png` 256×256, `brand/icon@2x.png`

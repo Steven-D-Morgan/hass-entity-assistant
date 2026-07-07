@@ -59,6 +59,20 @@ your integrations list.)
 
 ## Usage
 
+There are three ways to export, all producing the same columns:
+
+1. **Button entity** — the quickest.
+2. **Service** — for automations/scripts and custom filenames.
+3. **HTTP endpoint** — for downloading directly (scripts, the HA app, `curl`).
+
+### Button
+
+Adding the integration creates an **Entity Assistant** device with an
+**Export entity list** button. Press it (from the device page, a dashboard, or
+an automation) to write `entity_export.csv` to your config directory.
+
+### Service
+
 Call the `entity_assistant.export_csv` service from
 **Developer Tools → Actions** (or from an automation/script).
 
@@ -82,9 +96,28 @@ The file is written inside your Home Assistant configuration directory (the same
 folder as `configuration.yaml`). The service returns the resolved path and the
 number of entities exported.
 
-### Downloading the file
+### HTTP download endpoint
 
-To grab the CSV from the browser, write it into the `www` folder:
+The integration serves the export at:
+
+```
+/api/entity_assistant/export.csv
+```
+
+This endpoint is **authenticated**, so pass a
+[long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
+It supports the optional `include_disabled` and `include_hidden` query flags
+(default `true`).
+
+```bash
+curl -H "Authorization: Bearer <YOUR_TOKEN>" \
+  "http://homeassistant.local:8123/api/entity_assistant/export.csv?include_hidden=false" \
+  -o entities.csv
+```
+
+Because it requires authentication, a plain browser link won't work (it would
+return 401). For a simple click-to-download in the browser, use the service to
+write into the `www` folder instead:
 
 ```yaml
 action: entity_assistant.export_csv
