@@ -3,6 +3,12 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.4.2 — 2026-07-07
+
+- Fixed a setup crash (`ModuleNotFoundError: homeassistant.helpers.device_info`)
+  in the button and sensor platforms — import `DeviceInfo` from
+  `homeassistant.helpers.device_registry` instead.
+
 ## 1.4.1 — 2026-07-07
 
 - Added UI translations for the config flow and both services in 12 common
