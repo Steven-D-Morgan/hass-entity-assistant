@@ -3,6 +3,12 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.2.0 — 2026-07-07
+
+- Added HACS support: `hacs.json` at the repo root so the integration can be
+  installed as a HACS custom repository.
+- Updated README with HACS installation instructions.
+
 ## 1.1.0 — 2026-07-07
 
 - Added a config flow so the integration appears in **Settings → Devices &

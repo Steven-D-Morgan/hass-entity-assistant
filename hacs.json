@@ -1,0 +1,6 @@
+{
+  "name": "Entity Assistant",
+  "content_in_root": false,
+  "render_readme": true,
+  "homeassistant": "2024.11.0"
+}

@@ -30,14 +30,32 @@ One row per entity, with these columns:
 
 ## Installation
 
+### Via HACS (recommended)
+
+1. In HACS, go to **Integrations → ⋮ → Custom repositories**.
+2. Add `https://github.com/Steven-D-Morgan/hass-entity-assistant` with category
+   **Integration**.
+3. Search for **Entity Assistant** in HACS, install it, and restart Home
+   Assistant.
+4. Continue with **Add the integration** below.
+
+Once this repository is added to the
+[HACS default store](https://hacs.xyz/), steps 1–2 won't be needed — you'll be
+able to find it directly.
+
+### Manual
+
 1. Copy the `custom_components/entity_assistant` folder into your Home Assistant
    `config/custom_components/` directory. The result should be
    `config/custom_components/entity_assistant/`.
 2. Restart Home Assistant.
-3. Go to **Settings → Devices & Services → Add Integration**, search for
-   **Entity Assistant**, and add it. (It's a single-instance integration with no
-   configuration — this just registers the export service and shows the card in
-   your integrations list.)
+
+### Add the integration
+
+Go to **Settings → Devices & Services → Add Integration**, search for
+**Entity Assistant**, and add it. (It's a single-instance integration with no
+configuration — this just registers the export service and shows the card in
+your integrations list.)
 
 ## Usage
 
