@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Adicionar o Entity Assistant. Fornece serviços, um botão e um endpoint HTTP para exportar suas entidades, dispositivos e áreas para CSV. Nenhuma configuração é necessária."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "O Entity Assistant já está configurado. Apenas uma única instância é necessária."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Exportar para CSV",
+      "description": "Exportar entidades, dispositivos ou áreas do registro para um arquivo CSV dentro do diretório de configuração.",
+      "fields": {
+        "filename": {
+          "name": "Nome do arquivo",
+          "description": "Arquivo a ser gravado, relativo ao diretório de configuração. Deve permanecer dentro do diretório de configuração."
+        },
+        "export_type": {
+          "name": "Tipo de exportação",
+          "description": "O que exportar: uma linha por entidade, dispositivo ou área."
+        },
+        "include_disabled": {
+          "name": "Incluir desativados",
+          "description": "Incluir entidades e dispositivos desativados."
+        },
+        "include_hidden": {
+          "name": "Incluir ocultos",
+          "description": "Incluir entidades ocultas."
+        },
+        "only_enabled": {
+          "name": "Apenas ativados",
+          "description": "Excluir tudo o que estiver desativado ou oculto (substitui as opções de inclusão)."
+        },
+        "domains": {
+          "name": "Domínios",
+          "description": "Incluir apenas entidades nesses domínios (somente tipo de exportação de entidades)."
+        },
+        "areas": {
+          "name": "Áreas",
+          "description": "Incluir apenas linhas nessas áreas (por ID ou nome da área)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Obter URL de download",
+      "description": "Retorna uma URL assinada e com tempo limitado para baixar a exportação diretamente de um navegador. Somente resposta; não grava nenhum arquivo.",
+      "fields": {
+        "expires": {
+          "name": "Expira (segundos)",
+          "description": "Por quanto tempo a URL assinada permanece válida."
+        },
+        "export_type": {
+          "name": "Tipo de exportação",
+          "description": "O que exportar: uma linha por entidade, dispositivo ou área."
+        },
+        "include_disabled": {
+          "name": "Incluir desativados",
+          "description": "Incluir entidades e dispositivos desativados."
+        },
+        "include_hidden": {
+          "name": "Incluir ocultos",
+          "description": "Incluir entidades ocultas."
+        },
+        "only_enabled": {
+          "name": "Apenas ativados",
+          "description": "Excluir tudo o que estiver desativado ou oculto (substitui as opções de inclusão)."
+        },
+        "domains": {
+          "name": "Domínios",
+          "description": "Incluir apenas entidades nesses domínios (somente tipo de exportação de entidades)."
+        },
+        "areas": {
+          "name": "Áreas",
+          "description": "Incluir apenas linhas nessas áreas (por ID ou nome da área)."
+        }
+      }
+    }
+  }
+}

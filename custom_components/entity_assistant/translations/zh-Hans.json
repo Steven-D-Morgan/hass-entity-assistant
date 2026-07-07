@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "添加 Entity Assistant。它提供服务、一个按钮和一个 HTTP 端点，用于将您的实体、设备和区域导出为 CSV。无需配置。"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant 已配置。只需一个实例。"
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "导出为 CSV",
+      "description": "将注册表中的实体、设备或区域导出到配置目录中的 CSV 文件。",
+      "fields": {
+        "filename": {
+          "name": "文件名",
+          "description": "要写入的文件，相对于配置目录。必须位于配置目录内。"
+        },
+        "export_type": {
+          "name": "导出类型",
+          "description": "要导出的内容：每个实体、设备或区域一行。"
+        },
+        "include_disabled": {
+          "name": "包含已禁用",
+          "description": "包含已禁用的实体和设备。"
+        },
+        "include_hidden": {
+          "name": "包含已隐藏",
+          "description": "包含已隐藏的实体。"
+        },
+        "only_enabled": {
+          "name": "仅启用",
+          "description": "排除所有已禁用或已隐藏的项（覆盖上述包含选项）。"
+        },
+        "domains": {
+          "name": "域",
+          "description": "仅包含这些域中的实体（仅限实体导出类型）。"
+        },
+        "areas": {
+          "name": "区域",
+          "description": "仅包含这些区域中的行（按区域 ID 或名称）。"
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "获取下载 URL",
+      "description": "返回一个带签名的、有时间限制的 URL，可直接从浏览器下载导出内容。仅响应；不写入文件。",
+      "fields": {
+        "expires": {
+          "name": "过期时间（秒）",
+          "description": "签名 URL 保持有效的时长。"
+        },
+        "export_type": {
+          "name": "导出类型",
+          "description": "要导出的内容：每个实体、设备或区域一行。"
+        },
+        "include_disabled": {
+          "name": "包含已禁用",
+          "description": "包含已禁用的实体和设备。"
+        },
+        "include_hidden": {
+          "name": "包含已隐藏",
+          "description": "包含已隐藏的实体。"
+        },
+        "only_enabled": {
+          "name": "仅启用",
+          "description": "排除所有已禁用或已隐藏的项（覆盖上述包含选项）。"
+        },
+        "domains": {
+          "name": "域",
+          "description": "仅包含这些域中的实体（仅限实体导出类型）。"
+        },
+        "areas": {
+          "name": "区域",
+          "description": "仅包含这些区域中的行（按区域 ID 或名称）。"
+        }
+      }
+    }
+  }
+}

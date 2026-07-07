@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Añadir Entity Assistant. Proporciona servicios, un botón y un punto de conexión HTTP para exportar tus entidades, dispositivos y áreas a CSV. No requiere configuración."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant ya está configurado. Solo se necesita una única instancia."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Exportar a CSV",
+      "description": "Exportar entidades, dispositivos o áreas del registro a un archivo CSV dentro del directorio de configuración.",
+      "fields": {
+        "filename": {
+          "name": "Nombre de archivo",
+          "description": "Archivo a escribir, relativo al directorio de configuración. Debe permanecer dentro del directorio de configuración."
+        },
+        "export_type": {
+          "name": "Tipo de exportación",
+          "description": "Qué exportar: una fila por entidad, dispositivo o área."
+        },
+        "include_disabled": {
+          "name": "Incluir deshabilitados",
+          "description": "Incluir entidades y dispositivos deshabilitados."
+        },
+        "include_hidden": {
+          "name": "Incluir ocultos",
+          "description": "Incluir entidades ocultas."
+        },
+        "only_enabled": {
+          "name": "Solo habilitados",
+          "description": "Excluir todo lo deshabilitado u oculto (anula las opciones de inclusión)."
+        },
+        "domains": {
+          "name": "Dominios",
+          "description": "Incluir solo entidades de estos dominios (solo tipo de exportación de entidades)."
+        },
+        "areas": {
+          "name": "Áreas",
+          "description": "Incluir solo filas de estas áreas (por ID o nombre de área)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Obtener URL de descarga",
+      "description": "Devuelve una URL firmada y de tiempo limitado para descargar la exportación directamente desde un navegador. Solo respuesta; no escribe ningún archivo.",
+      "fields": {
+        "expires": {
+          "name": "Caduca (segundos)",
+          "description": "Cuánto tiempo permanece válida la URL firmada."
+        },
+        "export_type": {
+          "name": "Tipo de exportación",
+          "description": "Qué exportar: una fila por entidad, dispositivo o área."
+        },
+        "include_disabled": {
+          "name": "Incluir deshabilitados",
+          "description": "Incluir entidades y dispositivos deshabilitados."
+        },
+        "include_hidden": {
+          "name": "Incluir ocultos",
+          "description": "Incluir entidades ocultas."
+        },
+        "only_enabled": {
+          "name": "Solo habilitados",
+          "description": "Excluir todo lo deshabilitado u oculto (anula las opciones de inclusión)."
+        },
+        "domains": {
+          "name": "Dominios",
+          "description": "Incluir solo entidades de estos dominios (solo tipo de exportación de entidades)."
+        },
+        "areas": {
+          "name": "Áreas",
+          "description": "Incluir solo filas de estas áreas (por ID o nombre de área)."
+        }
+      }
+    }
+  }
+}

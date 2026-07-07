@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Přidat Entity Assistant. Poskytuje služby, tlačítko a HTTP koncový bod pro export vašich entit, zařízení a oblastí do CSV. Není vyžadována žádná konfigurace."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant je již nakonfigurován. Je potřeba pouze jedna instance."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Exportovat do CSV",
+      "description": "Exportovat entity, zařízení nebo oblasti z registru do souboru CSV v konfiguračním adresáři.",
+      "fields": {
+        "filename": {
+          "name": "Název souboru",
+          "description": "Soubor k zápisu, relativní ke konfiguračnímu adresáři. Musí zůstat uvnitř konfiguračního adresáře."
+        },
+        "export_type": {
+          "name": "Typ exportu",
+          "description": "Co exportovat: jeden řádek na entitu, zařízení nebo oblast."
+        },
+        "include_disabled": {
+          "name": "Zahrnout zakázané",
+          "description": "Zahrnout zakázané entity a zařízení."
+        },
+        "include_hidden": {
+          "name": "Zahrnout skryté",
+          "description": "Zahrnout skryté entity."
+        },
+        "only_enabled": {
+          "name": "Pouze povolené",
+          "description": "Vyloučit vše zakázané nebo skryté (přepíše možnosti zahrnutí)."
+        },
+        "domains": {
+          "name": "Domény",
+          "description": "Zahrnout pouze entity v těchto doménách (pouze typ exportu entity)."
+        },
+        "areas": {
+          "name": "Oblasti",
+          "description": "Zahrnout pouze řádky v těchto oblastech (podle ID nebo názvu oblasti)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Získat URL ke stažení",
+      "description": "Vrátí podepsanou, časově omezenou URL pro stažení exportu přímo z prohlížeče. Pouze odpověď; nezapisuje žádný soubor.",
+      "fields": {
+        "expires": {
+          "name": "Vyprší (sekundy)",
+          "description": "Jak dlouho zůstává podepsaná URL platná."
+        },
+        "export_type": {
+          "name": "Typ exportu",
+          "description": "Co exportovat: jeden řádek na entitu, zařízení nebo oblast."
+        },
+        "include_disabled": {
+          "name": "Zahrnout zakázané",
+          "description": "Zahrnout zakázané entity a zařízení."
+        },
+        "include_hidden": {
+          "name": "Zahrnout skryté",
+          "description": "Zahrnout skryté entity."
+        },
+        "only_enabled": {
+          "name": "Pouze povolené",
+          "description": "Vyloučit vše zakázané nebo skryté (přepíše možnosti zahrnutí)."
+        },
+        "domains": {
+          "name": "Domény",
+          "description": "Zahrnout pouze entity v těchto doménách (pouze typ exportu entity)."
+        },
+        "areas": {
+          "name": "Oblasti",
+          "description": "Zahrnout pouze řádky v těchto oblastech (podle ID nebo názvu oblasti)."
+        }
+      }
+    }
+  }
+}

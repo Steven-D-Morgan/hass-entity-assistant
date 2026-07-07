@@ -3,6 +3,13 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.4.1 — 2026-07-07
+
+- Added UI translations for the config flow and both services in 12 common
+  Home Assistant languages: German, French, Spanish, Italian, Dutch,
+  Portuguese (Brazil), Polish, Russian, Norwegian Bokmål, Swedish, Czech, and
+  Simplified Chinese.
+
 ## 1.4.0 — 2026-07-07
 
 - Added a `get_download_url` service returning a **signed, time-limited URL**

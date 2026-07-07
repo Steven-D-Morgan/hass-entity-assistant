@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Entity Assistant toevoegen. Dit biedt services, een knop en een HTTP-eindpunt om je entiteiten, apparaten en gebieden naar CSV te exporteren. Er is geen configuratie vereist."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant is al geconfigureerd. Er is slechts één instantie nodig."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Exporteren naar CSV",
+      "description": "Exporteer entiteiten, apparaten of gebieden uit het register naar een CSV-bestand in de configuratiemap.",
+      "fields": {
+        "filename": {
+          "name": "Bestandsnaam",
+          "description": "Weg te schrijven bestand, relatief ten opzichte van de configuratiemap. Moet binnen de configuratiemap blijven."
+        },
+        "export_type": {
+          "name": "Exporttype",
+          "description": "Wat te exporteren: één rij per entiteit, apparaat of gebied."
+        },
+        "include_disabled": {
+          "name": "Uitgeschakelde opnemen",
+          "description": "Uitgeschakelde entiteiten en apparaten opnemen."
+        },
+        "include_hidden": {
+          "name": "Verborgen opnemen",
+          "description": "Verborgen entiteiten opnemen."
+        },
+        "only_enabled": {
+          "name": "Alleen ingeschakeld",
+          "description": "Alles wat uitgeschakeld of verborgen is uitsluiten (overschrijft de opnemen-opties)."
+        },
+        "domains": {
+          "name": "Domeinen",
+          "description": "Alleen entiteiten in deze domeinen opnemen (alleen exporttype entiteiten)."
+        },
+        "areas": {
+          "name": "Gebieden",
+          "description": "Alleen rijen in deze gebieden opnemen (op gebieds-ID of naam)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Download-URL ophalen",
+      "description": "Geeft een ondertekende, in tijd beperkte URL terug om de export rechtstreeks vanuit een browser te downloaden. Alleen antwoord; schrijft geen bestand.",
+      "fields": {
+        "expires": {
+          "name": "Verloopt (seconden)",
+          "description": "Hoe lang de ondertekende URL geldig blijft."
+        },
+        "export_type": {
+          "name": "Exporttype",
+          "description": "Wat te exporteren: één rij per entiteit, apparaat of gebied."
+        },
+        "include_disabled": {
+          "name": "Uitgeschakelde opnemen",
+          "description": "Uitgeschakelde entiteiten en apparaten opnemen."
+        },
+        "include_hidden": {
+          "name": "Verborgen opnemen",
+          "description": "Verborgen entiteiten opnemen."
+        },
+        "only_enabled": {
+          "name": "Alleen ingeschakeld",
+          "description": "Alles wat uitgeschakeld of verborgen is uitsluiten (overschrijft de opnemen-opties)."
+        },
+        "domains": {
+          "name": "Domeinen",
+          "description": "Alleen entiteiten in deze domeinen opnemen (alleen exporttype entiteiten)."
+        },
+        "areas": {
+          "name": "Gebieden",
+          "description": "Alleen rijen in deze gebieden opnemen (op gebieds-ID of naam)."
+        }
+      }
+    }
+  }
+}

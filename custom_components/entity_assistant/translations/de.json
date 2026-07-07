@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Entity Assistant hinzufügen. Dies stellt Dienste, eine Schaltfläche und einen HTTP-Endpunkt bereit, um deine Entitäten, Geräte und Bereiche als CSV zu exportieren. Es ist keine Konfiguration erforderlich."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant ist bereits konfiguriert. Es wird nur eine einzige Instanz benötigt."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Als CSV exportieren",
+      "description": "Entitäten, Geräte oder Bereiche aus der Registrierung in eine CSV-Datei im Konfigurationsverzeichnis exportieren.",
+      "fields": {
+        "filename": {
+          "name": "Dateiname",
+          "description": "Zu schreibende Datei, relativ zum Konfigurationsverzeichnis. Muss innerhalb des Konfigurationsverzeichnisses bleiben."
+        },
+        "export_type": {
+          "name": "Exporttyp",
+          "description": "Was exportiert werden soll: eine Zeile pro Entität, Gerät oder Bereich."
+        },
+        "include_disabled": {
+          "name": "Deaktivierte einschließen",
+          "description": "Deaktivierte Entitäten und Geräte einschließen."
+        },
+        "include_hidden": {
+          "name": "Ausgeblendete einschließen",
+          "description": "Ausgeblendete Entitäten einschließen."
+        },
+        "only_enabled": {
+          "name": "Nur aktivierte",
+          "description": "Alles Deaktivierte oder Ausgeblendete ausschließen (überschreibt die Einschließen-Optionen)."
+        },
+        "domains": {
+          "name": "Domains",
+          "description": "Nur Entitäten in diesen Domains einschließen (nur beim Exporttyp Entitäten)."
+        },
+        "areas": {
+          "name": "Bereiche",
+          "description": "Nur Zeilen in diesen Bereichen einschließen (nach Bereichs-ID oder Name)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Download-URL abrufen",
+      "description": "Gibt eine signierte, zeitlich begrenzte URL zurück, um den Export direkt aus einem Browser herunterzuladen. Nur Antwort; schreibt keine Datei.",
+      "fields": {
+        "expires": {
+          "name": "Läuft ab (Sekunden)",
+          "description": "Wie lange die signierte URL gültig bleibt."
+        },
+        "export_type": {
+          "name": "Exporttyp",
+          "description": "Was exportiert werden soll: eine Zeile pro Entität, Gerät oder Bereich."
+        },
+        "include_disabled": {
+          "name": "Deaktivierte einschließen",
+          "description": "Deaktivierte Entitäten und Geräte einschließen."
+        },
+        "include_hidden": {
+          "name": "Ausgeblendete einschließen",
+          "description": "Ausgeblendete Entitäten einschließen."
+        },
+        "only_enabled": {
+          "name": "Nur aktivierte",
+          "description": "Alles Deaktivierte oder Ausgeblendete ausschließen (überschreibt die Einschließen-Optionen)."
+        },
+        "domains": {
+          "name": "Domains",
+          "description": "Nur Entitäten in diesen Domains einschließen (nur beim Exporttyp Entitäten)."
+        },
+        "areas": {
+          "name": "Bereiche",
+          "description": "Nur Zeilen in diesen Bereichen einschließen (nach Bereichs-ID oder Name)."
+        }
+      }
+    }
+  }
+}

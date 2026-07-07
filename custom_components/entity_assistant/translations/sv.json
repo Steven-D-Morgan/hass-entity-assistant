@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Lägg till Entity Assistant. Detta tillhandahåller tjänster, en knapp och en HTTP-slutpunkt för att exportera dina entiteter, enheter och områden till CSV. Ingen konfiguration krävs."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant är redan konfigurerad. Endast en enda instans behövs."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Exportera till CSV",
+      "description": "Exportera entiteter, enheter eller områden från registret till en CSV-fil i konfigurationskatalogen.",
+      "fields": {
+        "filename": {
+          "name": "Filnamn",
+          "description": "Fil att skriva, relativt konfigurationskatalogen. Måste ligga kvar inom konfigurationskatalogen."
+        },
+        "export_type": {
+          "name": "Exporttyp",
+          "description": "Vad som ska exporteras: en rad per entitet, enhet eller område."
+        },
+        "include_disabled": {
+          "name": "Inkludera inaktiverade",
+          "description": "Inkludera inaktiverade entiteter och enheter."
+        },
+        "include_hidden": {
+          "name": "Inkludera dolda",
+          "description": "Inkludera dolda entiteter."
+        },
+        "only_enabled": {
+          "name": "Endast aktiverade",
+          "description": "Uteslut allt som är inaktiverat eller dolt (åsidosätter inkluderingsalternativen)."
+        },
+        "domains": {
+          "name": "Domäner",
+          "description": "Inkludera endast entiteter i dessa domäner (endast exporttypen entiteter)."
+        },
+        "areas": {
+          "name": "Områden",
+          "description": "Inkludera endast rader i dessa områden (efter områdes-ID eller namn)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Hämta nedladdnings-URL",
+      "description": "Returnerar en signerad, tidsbegränsad URL för att ladda ner exporten direkt från en webbläsare. Endast svar; skriver ingen fil.",
+      "fields": {
+        "expires": {
+          "name": "Upphör (sekunder)",
+          "description": "Hur länge den signerade URL:en förblir giltig."
+        },
+        "export_type": {
+          "name": "Exporttyp",
+          "description": "Vad som ska exporteras: en rad per entitet, enhet eller område."
+        },
+        "include_disabled": {
+          "name": "Inkludera inaktiverade",
+          "description": "Inkludera inaktiverade entiteter och enheter."
+        },
+        "include_hidden": {
+          "name": "Inkludera dolda",
+          "description": "Inkludera dolda entiteter."
+        },
+        "only_enabled": {
+          "name": "Endast aktiverade",
+          "description": "Uteslut allt som är inaktiverat eller dolt (åsidosätter inkluderingsalternativen)."
+        },
+        "domains": {
+          "name": "Domäner",
+          "description": "Inkludera endast entiteter i dessa domäner (endast exporttypen entiteter)."
+        },
+        "areas": {
+          "name": "Områden",
+          "description": "Inkludera endast rader i dessa områden (efter områdes-ID eller namn)."
+        }
+      }
+    }
+  }
+}

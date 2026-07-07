@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Aggiungi Entity Assistant. Fornisce servizi, un pulsante e un endpoint HTTP per esportare entità, dispositivi e aree in CSV. Non è richiesta alcuna configurazione."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant è già configurato. È necessaria una sola istanza."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Esporta in CSV",
+      "description": "Esporta entità, dispositivi o aree dal registro in un file CSV all'interno della directory di configurazione.",
+      "fields": {
+        "filename": {
+          "name": "Nome file",
+          "description": "File da scrivere, relativo alla directory di configurazione. Deve rimanere all'interno della directory di configurazione."
+        },
+        "export_type": {
+          "name": "Tipo di esportazione",
+          "description": "Cosa esportare: una riga per entità, dispositivo o area."
+        },
+        "include_disabled": {
+          "name": "Includi disabilitati",
+          "description": "Includi entità e dispositivi disabilitati."
+        },
+        "include_hidden": {
+          "name": "Includi nascosti",
+          "description": "Includi entità nascoste."
+        },
+        "only_enabled": {
+          "name": "Solo abilitati",
+          "description": "Escludi tutto ciò che è disabilitato o nascosto (sostituisce le opzioni di inclusione)."
+        },
+        "domains": {
+          "name": "Domini",
+          "description": "Includi solo entità in questi domini (solo tipo di esportazione entità)."
+        },
+        "areas": {
+          "name": "Aree",
+          "description": "Includi solo righe in queste aree (per ID o nome area)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Ottieni URL di download",
+      "description": "Restituisce un URL firmato e a tempo limitato per scaricare l'esportazione direttamente da un browser. Solo risposta; non scrive alcun file.",
+      "fields": {
+        "expires": {
+          "name": "Scade (secondi)",
+          "description": "Per quanto tempo rimane valido l'URL firmato."
+        },
+        "export_type": {
+          "name": "Tipo di esportazione",
+          "description": "Cosa esportare: una riga per entità, dispositivo o area."
+        },
+        "include_disabled": {
+          "name": "Includi disabilitati",
+          "description": "Includi entità e dispositivi disabilitati."
+        },
+        "include_hidden": {
+          "name": "Includi nascosti",
+          "description": "Includi entità nascoste."
+        },
+        "only_enabled": {
+          "name": "Solo abilitati",
+          "description": "Escludi tutto ciò che è disabilitato o nascosto (sostituisce le opzioni di inclusione)."
+        },
+        "domains": {
+          "name": "Domini",
+          "description": "Includi solo entità in questi domini (solo tipo di esportazione entità)."
+        },
+        "areas": {
+          "name": "Aree",
+          "description": "Includi solo righe in queste aree (per ID o nome area)."
+        }
+      }
+    }
+  }
+}

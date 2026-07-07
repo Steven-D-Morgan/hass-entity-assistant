@@ -1,0 +1,83 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Entity Assistant",
+        "description": "Ajouter Entity Assistant. Fournit des services, un bouton et un point de terminaison HTTP pour exporter vos entités, appareils et zones au format CSV. Aucune configuration n'est requise."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Entity Assistant est déjà configuré. Une seule instance est nécessaire."
+    }
+  },
+  "services": {
+    "export_csv": {
+      "name": "Exporter en CSV",
+      "description": "Exporter les entités, appareils ou zones du registre vers un fichier CSV dans le répertoire de configuration.",
+      "fields": {
+        "filename": {
+          "name": "Nom du fichier",
+          "description": "Fichier à écrire, relatif au répertoire de configuration. Doit rester à l'intérieur du répertoire de configuration."
+        },
+        "export_type": {
+          "name": "Type d'export",
+          "description": "Ce qu'il faut exporter : une ligne par entité, appareil ou zone."
+        },
+        "include_disabled": {
+          "name": "Inclure les désactivés",
+          "description": "Inclure les entités et appareils désactivés."
+        },
+        "include_hidden": {
+          "name": "Inclure les masqués",
+          "description": "Inclure les entités masquées."
+        },
+        "only_enabled": {
+          "name": "Uniquement activés",
+          "description": "Exclure tout ce qui est désactivé ou masqué (remplace les options d'inclusion)."
+        },
+        "domains": {
+          "name": "Domaines",
+          "description": "N'inclure que les entités de ces domaines (type d'export entités uniquement)."
+        },
+        "areas": {
+          "name": "Zones",
+          "description": "N'inclure que les lignes de ces zones (par identifiant ou nom de zone)."
+        }
+      }
+    },
+    "get_download_url": {
+      "name": "Obtenir l'URL de téléchargement",
+      "description": "Renvoie une URL signée à durée limitée pour télécharger l'export directement depuis un navigateur. Réponse uniquement ; n'écrit aucun fichier.",
+      "fields": {
+        "expires": {
+          "name": "Expire (secondes)",
+          "description": "Durée de validité de l'URL signée."
+        },
+        "export_type": {
+          "name": "Type d'export",
+          "description": "Ce qu'il faut exporter : une ligne par entité, appareil ou zone."
+        },
+        "include_disabled": {
+          "name": "Inclure les désactivés",
+          "description": "Inclure les entités et appareils désactivés."
+        },
+        "include_hidden": {
+          "name": "Inclure les masqués",
+          "description": "Inclure les entités masquées."
+        },
+        "only_enabled": {
+          "name": "Uniquement activés",
+          "description": "Exclure tout ce qui est désactivé ou masqué (remplace les options d'inclusion)."
+        },
+        "domains": {
+          "name": "Domaines",
+          "description": "N'inclure que les entités de ces domaines (type d'export entités uniquement)."
+        },
+        "areas": {
+          "name": "Zones",
+          "description": "N'inclure que les lignes de ces zones (par identifiant ou nom de zone)."
+        }
+      }
+    }
+  }
+}
