@@ -34,9 +34,12 @@ from .const import (
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
     ATTR_ONLY_ENABLED,
+    ATTR_STALE_DAYS,
+    ATTR_STALE_ONLY,
     DEFAULT_EXPIRES,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
+    DEFAULT_STALE_DAYS,
     DOMAIN,
     DOWNLOAD_URL,
     EXPORT_TYPES,
@@ -59,6 +62,8 @@ _OPTION_FIELDS = {
     vol.Optional(ATTR_ONLY_ENABLED, default=False): cv.boolean,
     vol.Optional(ATTR_DOMAINS): vol.All(cv.ensure_list, [cv.string]),
     vol.Optional(ATTR_AREAS): vol.All(cv.ensure_list, [cv.string]),
+    vol.Optional(ATTR_STALE_ONLY, default=False): cv.boolean,
+    vol.Optional(ATTR_STALE_DAYS, default=DEFAULT_STALE_DAYS): cv.positive_int,
 }
 
 EXPORT_CSV_SCHEMA = vol.Schema(
@@ -81,6 +86,8 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
         only_enabled=call.data[ATTR_ONLY_ENABLED],
         domains=frozenset(domains) if domains else None,
         areas=frozenset(areas) if areas else None,
+        stale_only=call.data[ATTR_STALE_ONLY],
+        stale_days=call.data[ATTR_STALE_DAYS],
     )
 
 
@@ -91,6 +98,8 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
         "include_disabled": str(options.include_disabled).lower(),
         "include_hidden": str(options.include_hidden).lower(),
         "only_enabled": str(options.only_enabled).lower(),
+        "stale_only": str(options.stale_only).lower(),
+        "stale_days": str(options.stale_days),
     }
     if options.domains:
         query["domains"] = ",".join(sorted(options.domains))

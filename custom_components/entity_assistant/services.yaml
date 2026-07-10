@@ -62,6 +62,26 @@ export_csv:
       required: false
       selector:
         object:
+    stale_only:
+      name: Stale only
+      description: >-
+        Only include stale rows (unavailable, orphaned, restored/not provided,
+        or not changed within stale_days).
+      required: false
+      default: false
+      selector:
+        boolean:
+    stale_days:
+      name: Stale after (days)
+      description: Flag rows whose state has not changed within this many days.
+      required: false
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 3650
+          unit_of_measurement: days
+          mode: box
 
 get_download_url:
   name: Get download URL
@@ -124,3 +144,23 @@ get_download_url:
       required: false
       selector:
         object:
+    stale_only:
+      name: Stale only
+      description: >-
+        Only include stale rows (unavailable, orphaned, restored/not provided,
+        or not changed within stale_days).
+      required: false
+      default: false
+      selector:
+        boolean:
+    stale_days:
+      name: Stale after (days)
+      description: Flag rows whose state has not changed within this many days.
+      required: false
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 3650
+          unit_of_measurement: days
+          mode: box

@@ -3,6 +3,22 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.5.0 — 2026-07-09
+
+- Added **stale detection** for entities, devices, and areas, with a
+  `stale` flag and a categorized `stale_reason` column so end users can see
+  *why* a row is flagged:
+  - Entities: `unavailable`, `orphaned` (config entry/integration gone),
+    `restored` (not provided since restart), `not_changed_<N>d`.
+  - Devices: `orphaned`, `no_entities`, `all_unavailable`.
+  - Areas: `empty` (no devices or entities).
+- Added entity columns `available`, `last_changed`, `last_changed_days`, and
+  device column `available_entity_count`.
+- Added `stale_only` filter and `stale_days` option (default 30) to the
+  `export_csv` and `get_download_url` services and the HTTP endpoint.
+- Note: the 12 non-English translations fall back to English for the two new
+  service fields until backfilled.
+
 ## 1.4.2 — 2026-07-07
 
 - Fixed a setup crash (`ModuleNotFoundError: homeassistant.helpers.device_info`)

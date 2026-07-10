@@ -42,6 +42,14 @@
         "areas": {
           "name": "Areas",
           "description": "Only include rows in these areas (by area id or name)."
+        },
+        "stale_only": {
+          "name": "Stale only",
+          "description": "Only include stale rows (unavailable, orphaned, restored/not provided, or not changed within stale_days)."
+        },
+        "stale_days": {
+          "name": "Stale after (days)",
+          "description": "Flag rows whose state has not changed within this many days."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Areas",
           "description": "Only include rows in these areas (by area id or name)."
+        },
+        "stale_only": {
+          "name": "Stale only",
+          "description": "Only include stale rows (unavailable, orphaned, restored/not provided, or not changed within stale_days)."
+        },
+        "stale_days": {
+          "name": "Stale after (days)",
+          "description": "Flag rows whose state has not changed within this many days."
         }
       }
     }

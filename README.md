@@ -29,6 +29,11 @@ Choose an `export_type`: **entities** (default), **devices**, or **areas**.
 | `device_class` | Device class (e.g. `temperature`, `motion`) |
 | `unit_of_measurement` | Unit, if any |
 | `state` | Current state at export time |
+| `available` | `true`/`false` (blank if not currently provided) |
+| `last_changed` | When the state last changed (ISO 8601) |
+| `last_changed_days` | Days since the last state change |
+| `stale` | `true` if flagged stale (see below) |
+| `stale_reason` | Why it's stale — e.g. `unavailable, orphaned` |
 | `enabled` | `true` / `false` |
 | `disabled_by` | Why it's disabled, if applicable |
 | `hidden_by` | Why it's hidden, if applicable |
@@ -38,12 +43,28 @@ Choose an `export_type`: **entities** (default), **devices**, or **areas**.
 
 `device_id`, `name`, `name_by_user`, `manufacturer`, `model`, `sw_version`,
 `hw_version`, `area_id`, `area_name`, `floor`, `labels`, `config_entries`,
-`via_device_id`, `entity_count`, `disabled_by`.
+`via_device_id`, `entity_count`, `available_entity_count`, `disabled_by`,
+`stale`, `stale_reason`.
 
 ### Areas (one row per area)
 
 `area_id`, `name`, `floor_id`, `floor`, `labels`, `aliases`, `device_count`,
-`entity_count`, `picture`.
+`entity_count`, `picture`, `stale`, `stale_reason`.
+
+### Finding stale entities/devices
+
+Every export includes a `stale` flag and a `stale_reason` column that spells out
+*why* something is flagged, so you can sort/filter in your spreadsheet or pull
+only the offenders with `stale_only: true`.
+
+| Export type | `stale_reason` values |
+| --- | --- |
+| entities | `unavailable` (state is unavailable/unknown), `orphaned` (its config entry/integration is gone), `restored` (in the registry but not provided since the last restart), `not_changed_<N>d` (no state change in `stale_days` days) |
+| devices | `orphaned` (all config entries gone), `no_entities`, `all_unavailable` |
+| areas | `empty` (no devices or entities) |
+
+`stale_days` (default 30) controls the `not_changed_<N>d` threshold. A row can
+have multiple reasons, comma-separated.
 
 ## Installation
 
@@ -114,6 +135,8 @@ All fields are optional:
 | `only_enabled` | `false` | Shortcut to exclude everything disabled/hidden |
 | `domains` | — | Only these entity domains (entities export type) |
 | `areas` | — | Only these areas (by area id or name) |
+| `stale_only` | `false` | Only export rows flagged stale (see [Finding stale entities/devices](#finding-stale-entitiesdevices)) |
+| `stale_days` | `30` | Threshold for the `not_changed_<N>d` stale reason |
 
 The file is written inside your config directory. The service returns
 `{path, row_count}`.

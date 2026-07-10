@@ -2,7 +2,7 @@
 
 Used by the service, the button entity, and the HTTP download view so they
 all produce identical output. Supports three export modes (entities, devices,
-areas) plus filtering, and emits a completion event.
+areas), filtering, staleness detection, and emits a completion event.
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 import voluptuous as vol
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant, State, callback
 from homeassistant.helpers import (
     area_registry as ar,
     device_registry as dr,
@@ -21,14 +21,19 @@ from homeassistant.helpers import (
     floor_registry as fr,
     label_registry as lr,
 )
+from homeassistant.util import dt as dt_util
 
 from .const import (
     COLUMNS_BY_TYPE,
     DEFAULT_EXPORT_TYPE,
+    DEFAULT_STALE_DAYS,
     EVENT_EXPORT_COMPLETED,
     EXPORT_TYPE_AREAS,
     EXPORT_TYPE_DEVICES,
 )
+
+# State values that mean an entity has no usable value right now.
+_DEAD_STATES = ("unavailable", "unknown")
 
 
 @dataclass(slots=True)
@@ -41,6 +46,8 @@ class ExportOptions:
     only_enabled: bool = False
     domains: frozenset[str] | None = None
     areas: frozenset[str] | None = None
+    stale_only: bool = False
+    stale_days: int = DEFAULT_STALE_DAYS
 
     @property
     def want_disabled(self) -> bool:
@@ -87,6 +94,44 @@ def _label_names(label_reg: lr.LabelRegistry, label_ids: set[str] | None) -> str
     return ", ".join(sorted(names))
 
 
+def _entity_staleness(
+    entity: er.RegistryEntry,
+    state: State | None,
+    config_entry_missing: bool,
+    stale_days: int,
+) -> tuple[list[str], str, str]:
+    """Return (reasons, last_changed_iso, last_changed_days) for an entity.
+
+    Reasons are clear category labels: ``orphaned``, ``restored``,
+    ``unavailable``, ``not_changed_<N>d``.
+    """
+    reasons: list[str] = []
+    last_changed_iso = ""
+    last_changed_days = ""
+
+    # Registry entry whose config entry / integration no longer exists.
+    if config_entry_missing:
+        reasons.append("orphaned")
+
+    if state is None:
+        # No live state and not intentionally disabled -> not being provided.
+        if not entity.disabled:
+            reasons.append("restored")
+    else:
+        if state.state in _DEAD_STATES:
+            reasons.append("unavailable")
+        if state.attributes.get("restored") and "restored" not in reasons:
+            reasons.append("restored")
+        if state.last_changed:
+            last_changed_iso = state.last_changed.isoformat()
+            age_days = max(0, (dt_util.utcnow() - state.last_changed).days)
+            last_changed_days = str(age_days)
+            if age_days >= stale_days:
+                reasons.append(f"not_changed_{stale_days}d")
+
+    return reasons, last_changed_iso, last_changed_days
+
+
 @callback
 def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
     """Build one row per entity, enriched with device, area, floor and labels."""
@@ -127,6 +172,7 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
             if entity.config_entry_id
             else None
         )
+        config_entry_missing = bool(entity.config_entry_id) and config_entry is None
 
         state = hass.states.get(entity.entity_id)
         state_value = state.state if state else ""
@@ -136,6 +182,18 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
             unit = state.attributes.get("unit_of_measurement", "") or ""
             if not device_class:
                 device_class = state.attributes.get("device_class", "") or ""
+
+        reasons, last_changed_iso, last_changed_days = _entity_staleness(
+            entity, state, config_entry_missing, options.stale_days
+        )
+
+        if options.stale_only and not reasons:
+            continue
+
+        if state is None:
+            available = ""
+        else:
+            available = "false" if state.state in _DEAD_STATES else "true"
 
         rows.append(
             {
@@ -156,6 +214,11 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
                 "device_class": device_class,
                 "unit_of_measurement": unit,
                 "state": state_value,
+                "available": available,
+                "last_changed": last_changed_iso,
+                "last_changed_days": last_changed_days,
+                "stale": "true" if reasons else "false",
+                "stale_reason": ", ".join(reasons),
                 "enabled": "false" if entity.disabled else "true",
                 "disabled_by": entity.disabled_by or "",
                 "hidden_by": entity.hidden_by or "",
@@ -175,11 +238,18 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
     floor_reg = fr.async_get(hass)
     label_reg = lr.async_get(hass)
 
-    # Count entities per device.
-    entity_counts: dict[str, int] = {}
+    # Total and available (live) entity counts per device.
+    total_counts: dict[str, int] = {}
+    available_counts: dict[str, int] = {}
     for entity in ent_reg.entities.values():
-        if entity.device_id:
-            entity_counts[entity.device_id] = entity_counts.get(entity.device_id, 0) + 1
+        if not entity.device_id:
+            continue
+        total_counts[entity.device_id] = total_counts.get(entity.device_id, 0) + 1
+        state = hass.states.get(entity.entity_id)
+        if state and state.state not in _DEAD_STATES:
+            available_counts[entity.device_id] = (
+                available_counts.get(entity.device_id, 0) + 1
+            )
 
     rows: list[dict[str, str]] = []
 
@@ -199,10 +269,26 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         )
 
         entry_titles = []
+        any_entry = False
         for entry_id in device.config_entries:
             entry = hass.config_entries.async_get_entry(entry_id)
             if entry:
+                any_entry = True
                 entry_titles.append(entry.title)
+
+        total = total_counts.get(device.id, 0)
+        available = available_counts.get(device.id, 0)
+
+        reasons: list[str] = []
+        if device.config_entries and not any_entry:
+            reasons.append("orphaned")
+        if total == 0:
+            reasons.append("no_entities")
+        elif available == 0:
+            reasons.append("all_unavailable")
+
+        if options.stale_only and not reasons:
+            continue
 
         rows.append(
             {
@@ -219,8 +305,11 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
                 "labels": _label_names(label_reg, device.labels),
                 "config_entries": ", ".join(sorted(entry_titles)),
                 "via_device_id": device.via_device_id or "",
-                "entity_count": str(entity_counts.get(device.id, 0)),
+                "entity_count": str(total),
+                "available_entity_count": str(available),
                 "disabled_by": device.disabled_by or "",
+                "stale": "true" if reasons else "false",
+                "stale_reason": ", ".join(reasons),
             }
         )
 
@@ -260,6 +349,16 @@ def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[s
 
         floor = floor_reg.async_get_floor(area.floor_id) if area.floor_id else None
 
+        devices = device_counts.get(area.id, 0)
+        entities = entity_counts.get(area.id, 0)
+
+        reasons: list[str] = []
+        if devices == 0 and entities == 0:
+            reasons.append("empty")
+
+        if options.stale_only and not reasons:
+            continue
+
         rows.append(
             {
                 "area_id": area.id,
@@ -268,9 +367,11 @@ def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[s
                 "floor": floor.name if floor else "",
                 "labels": _label_names(label_reg, area.labels),
                 "aliases": ", ".join(sorted(area.aliases)) if area.aliases else "",
-                "device_count": str(device_counts.get(area.id, 0)),
-                "entity_count": str(entity_counts.get(area.id, 0)),
+                "device_count": str(devices),
+                "entity_count": str(entities),
                 "picture": area.picture or "",
+                "stale": "true" if reasons else "false",
+                "stale_reason": ", ".join(reasons),
             }
         )
 

@@ -14,6 +14,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     DEFAULT_EXPORT_TYPE,
+    DEFAULT_STALE_DAYS,
     DOWNLOAD_FILENAME,
     DOWNLOAD_URL,
     EXPORT_TYPES,
@@ -36,6 +37,15 @@ def _as_set(value: str | None) -> frozenset[str] | None:
     return frozenset(items) if items else None
 
 
+def _as_int(value: str | None, default: int) -> int:
+    """Parse a non-negative integer query value, falling back to default."""
+    try:
+        parsed = int(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed >= 0 else default
+
+
 def options_from_query(query: Mapping[str, str]) -> ExportOptions:
     """Build ExportOptions from HTTP/URL query parameters."""
     export_type = query.get("export_type", DEFAULT_EXPORT_TYPE)
@@ -48,6 +58,8 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
         only_enabled=_as_bool(query.get("only_enabled"), False),
         domains=_as_set(query.get("domains")),
         areas=_as_set(query.get("areas")),
+        stale_only=_as_bool(query.get("stale_only"), False),
+        stale_days=_as_int(query.get("stale_days"), DEFAULT_STALE_DAYS),
     )
 
 

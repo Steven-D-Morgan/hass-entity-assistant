@@ -19,9 +19,12 @@ ATTR_EXPORT_TYPE = "export_type"
 ATTR_DOMAINS = "domains"
 ATTR_AREAS = "areas"
 ATTR_EXPIRES = "expires"
+ATTR_STALE_ONLY = "stale_only"
+ATTR_STALE_DAYS = "stale_days"
 
 DEFAULT_FILENAME = "entity_export.csv"
 DEFAULT_EXPIRES = 300
+DEFAULT_STALE_DAYS = 30
 
 # Export modes
 EXPORT_TYPE_ENTITIES = "entities"
@@ -56,6 +59,11 @@ ENTITY_COLUMNS = [
     "device_class",
     "unit_of_measurement",
     "state",
+    "available",
+    "last_changed",
+    "last_changed_days",
+    "stale",
+    "stale_reason",
     "enabled",
     "disabled_by",
     "hidden_by",
@@ -77,7 +85,10 @@ DEVICE_COLUMNS = [
     "config_entries",
     "via_device_id",
     "entity_count",
+    "available_entity_count",
     "disabled_by",
+    "stale",
+    "stale_reason",
 ]
 
 AREA_COLUMNS = [
@@ -90,6 +101,8 @@ AREA_COLUMNS = [
     "device_count",
     "entity_count",
     "picture",
+    "stale",
+    "stale_reason",
 ]
 
 COLUMNS_BY_TYPE = {
