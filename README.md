@@ -1,8 +1,18 @@
+<div align="center">
+
+<img src="entity-assistant.jpg" alt="Entity Assistant" width="180">
+
 # Entity Assistant
+
+[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5?style=for-the-badge)](https://hacs.xyz/)
+[![Downloads](https://img.shields.io/github/downloads/Steven-D-Morgan/hass-entity-assistant/total?style=for-the-badge&color=41BDF5&label=Downloads)](https://github.com/Steven-D-Morgan/hass-entity-assistant/releases)
+[![Release](https://img.shields.io/github/v/release/Steven-D-Morgan/hass-entity-assistant?style=for-the-badge&color=41BDF5&label=Release)](https://github.com/Steven-D-Morgan/hass-entity-assistant/releases/latest)
 
 A Home Assistant custom integration that exports your registry — entities,
 devices, or areas — to a CSV file, complete with `entity_id`, area, floor,
 labels, device metadata, current state, and more.
+
+</div>
 
 ## What it exports
 
