@@ -42,6 +42,14 @@
         "areas": {
           "name": "Oblasti",
           "description": "Zahrnout pouze řádky v těchto oblastech (podle ID nebo názvu oblasti)."
+        },
+        "stale_only": {
+          "name": "Pouze neaktuální",
+          "description": "Zahrnout pouze neaktuální řádky (nedostupné, osiřelé, obnovené/neposkytnuté nebo bez změny v rámci stale_days)."
+        },
+        "stale_days": {
+          "name": "Neaktuální po (dnech)",
+          "description": "Označit řádky, jejichž stav se nezměnil po tento počet dní."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Oblasti",
           "description": "Zahrnout pouze řádky v těchto oblastech (podle ID nebo názvu oblasti)."
+        },
+        "stale_only": {
+          "name": "Pouze neaktuální",
+          "description": "Zahrnout pouze neaktuální řádky (nedostupné, osiřelé, obnovené/neposkytnuté nebo bez změny v rámci stale_days)."
+        },
+        "stale_days": {
+          "name": "Neaktuální po (dnech)",
+          "description": "Označit řádky, jejichž stav se nezměnil po tento počet dní."
         }
       }
     }

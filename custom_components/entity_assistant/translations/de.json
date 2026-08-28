@@ -42,6 +42,14 @@
         "areas": {
           "name": "Bereiche",
           "description": "Nur Zeilen in diesen Bereichen einschließen (nach Bereichs-ID oder Name)."
+        },
+        "stale_only": {
+          "name": "Nur veraltete",
+          "description": "Nur veraltete Zeilen einschließen (nicht verfügbar, verwaist, wiederhergestellt/nicht bereitgestellt oder ohne Änderung innerhalb von stale_days)."
+        },
+        "stale_days": {
+          "name": "Veraltet nach (Tagen)",
+          "description": "Zeilen markieren, deren Zustand sich innerhalb dieser Anzahl von Tagen nicht geändert hat."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Bereiche",
           "description": "Nur Zeilen in diesen Bereichen einschließen (nach Bereichs-ID oder Name)."
+        },
+        "stale_only": {
+          "name": "Nur veraltete",
+          "description": "Nur veraltete Zeilen einschließen (nicht verfügbar, verwaist, wiederhergestellt/nicht bereitgestellt oder ohne Änderung innerhalb von stale_days)."
+        },
+        "stale_days": {
+          "name": "Veraltet nach (Tagen)",
+          "description": "Zeilen markieren, deren Zustand sich innerhalb dieser Anzahl von Tagen nicht geändert hat."
         }
       }
     }

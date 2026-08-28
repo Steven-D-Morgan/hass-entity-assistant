@@ -42,6 +42,14 @@
         "areas": {
           "name": "Aree",
           "description": "Includi solo righe in queste aree (per ID o nome area)."
+        },
+        "stale_only": {
+          "name": "Solo obsolete",
+          "description": "Includi solo righe obsolete (non disponibili, orfane, ripristinate/non fornite o senza modifiche entro stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsoleto dopo (giorni)",
+          "description": "Contrassegna le righe il cui stato non è cambiato entro questo numero di giorni."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Aree",
           "description": "Includi solo righe in queste aree (per ID o nome area)."
+        },
+        "stale_only": {
+          "name": "Solo obsolete",
+          "description": "Includi solo righe obsolete (non disponibili, orfane, ripristinate/non fornite o senza modifiche entro stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsoleto dopo (giorni)",
+          "description": "Contrassegna le righe il cui stato non è cambiato entro questo numero di giorni."
         }
       }
     }

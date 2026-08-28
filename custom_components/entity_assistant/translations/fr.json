@@ -42,6 +42,14 @@
         "areas": {
           "name": "Zones",
           "description": "N'inclure que les lignes de ces zones (par identifiant ou nom de zone)."
+        },
+        "stale_only": {
+          "name": "Uniquement obsolètes",
+          "description": "N'inclure que les lignes obsolètes (indisponibles, orphelines, restaurées/non fournies ou sans changement dans stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsolète après (jours)",
+          "description": "Signaler les lignes dont l'état n'a pas changé depuis ce nombre de jours."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Zones",
           "description": "N'inclure que les lignes de ces zones (par identifiant ou nom de zone)."
+        },
+        "stale_only": {
+          "name": "Uniquement obsolètes",
+          "description": "N'inclure que les lignes obsolètes (indisponibles, orphelines, restaurées/non fournies ou sans changement dans stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsolète après (jours)",
+          "description": "Signaler les lignes dont l'état n'a pas changé depuis ce nombre de jours."
         }
       }
     }

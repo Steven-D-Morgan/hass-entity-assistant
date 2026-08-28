@@ -42,6 +42,14 @@
         "areas": {
           "name": "Áreas",
           "description": "Incluir solo filas de estas áreas (por ID o nombre de área)."
+        },
+        "stale_only": {
+          "name": "Solo obsoletas",
+          "description": "Incluir solo filas obsoletas (no disponibles, huérfanas, restauradas/no proporcionadas o sin cambios dentro de stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsoleto después de (días)",
+          "description": "Marcar las filas cuyo estado no ha cambiado en esta cantidad de días."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Áreas",
           "description": "Incluir solo filas de estas áreas (por ID o nombre de área)."
+        },
+        "stale_only": {
+          "name": "Solo obsoletas",
+          "description": "Incluir solo filas obsoletas (no disponibles, huérfanas, restauradas/no proporcionadas o sin cambios dentro de stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsoleto después de (días)",
+          "description": "Marcar las filas cuyo estado no ha cambiado en esta cantidad de días."
         }
       }
     }

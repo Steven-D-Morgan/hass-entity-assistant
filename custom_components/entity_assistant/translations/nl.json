@@ -42,6 +42,14 @@
         "areas": {
           "name": "Gebieden",
           "description": "Alleen rijen in deze gebieden opnemen (op gebieds-ID of naam)."
+        },
+        "stale_only": {
+          "name": "Alleen verouderd",
+          "description": "Alleen verouderde rijen opnemen (niet beschikbaar, verweesd, hersteld/niet geleverd of onveranderd binnen stale_days)."
+        },
+        "stale_days": {
+          "name": "Verouderd na (dagen)",
+          "description": "Rijen markeren waarvan de status binnen dit aantal dagen niet is gewijzigd."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Gebieden",
           "description": "Alleen rijen in deze gebieden opnemen (op gebieds-ID of naam)."
+        },
+        "stale_only": {
+          "name": "Alleen verouderd",
+          "description": "Alleen verouderde rijen opnemen (niet beschikbaar, verweesd, hersteld/niet geleverd of onveranderd binnen stale_days)."
+        },
+        "stale_days": {
+          "name": "Verouderd na (dagen)",
+          "description": "Rijen markeren waarvan de status binnen dit aantal dagen niet is gewijzigd."
         }
       }
     }

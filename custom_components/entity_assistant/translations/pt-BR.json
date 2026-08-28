@@ -42,6 +42,14 @@
         "areas": {
           "name": "Áreas",
           "description": "Incluir apenas linhas nessas áreas (por ID ou nome da área)."
+        },
+        "stale_only": {
+          "name": "Apenas obsoletas",
+          "description": "Incluir apenas linhas obsoletas (indisponíveis, órfãs, restauradas/não fornecidas ou sem alteração dentro de stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsoleto após (dias)",
+          "description": "Marcar linhas cujo estado não mudou nesta quantidade de dias."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Áreas",
           "description": "Incluir apenas linhas nessas áreas (por ID ou nome da área)."
+        },
+        "stale_only": {
+          "name": "Apenas obsoletas",
+          "description": "Incluir apenas linhas obsoletas (indisponíveis, órfãs, restauradas/não fornecidas ou sem alteração dentro de stale_days)."
+        },
+        "stale_days": {
+          "name": "Obsoleto após (dias)",
+          "description": "Marcar linhas cujo estado não mudou nesta quantidade de dias."
         }
       }
     }

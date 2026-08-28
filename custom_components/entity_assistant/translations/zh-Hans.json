@@ -42,6 +42,14 @@
         "areas": {
           "name": "区域",
           "description": "仅包含这些区域中的行（按区域 ID 或名称）。"
+        },
+        "stale_only": {
+          "name": "仅失效",
+          "description": "仅包含失效的行（不可用、孤立、已恢复/未提供，或在 stale_days 天内状态未变化）。"
+        },
+        "stale_days": {
+          "name": "失效判定天数",
+          "description": "将状态在此天数内未发生变化的行标记为失效。"
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "区域",
           "description": "仅包含这些区域中的行（按区域 ID 或名称）。"
+        },
+        "stale_only": {
+          "name": "仅失效",
+          "description": "仅包含失效的行（不可用、孤立、已恢复/未提供，或在 stale_days 天内状态未变化）。"
+        },
+        "stale_days": {
+          "name": "失效判定天数",
+          "description": "将状态在此天数内未发生变化的行标记为失效。"
         }
       }
     }

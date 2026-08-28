@@ -42,6 +42,14 @@
         "areas": {
           "name": "Obszary",
           "description": "Uwzględnij tylko wiersze w tych obszarach (według identyfikatora lub nazwy obszaru)."
+        },
+        "stale_only": {
+          "name": "Tylko nieaktualne",
+          "description": "Uwzględnij tylko nieaktualne wiersze (niedostępne, osierocone, przywrócone/niedostarczone lub bez zmian w ciągu stale_days)."
+        },
+        "stale_days": {
+          "name": "Nieaktualne po (dniach)",
+          "description": "Oznacz wiersze, których stan nie zmienił się w ciągu tylu dni."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Obszary",
           "description": "Uwzględnij tylko wiersze w tych obszarach (według identyfikatora lub nazwy obszaru)."
+        },
+        "stale_only": {
+          "name": "Tylko nieaktualne",
+          "description": "Uwzględnij tylko nieaktualne wiersze (niedostępne, osierocone, przywrócone/niedostarczone lub bez zmian w ciągu stale_days)."
+        },
+        "stale_days": {
+          "name": "Nieaktualne po (dniach)",
+          "description": "Oznacz wiersze, których stan nie zmienił się w ciągu tylu dni."
         }
       }
     }

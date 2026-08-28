@@ -3,6 +3,13 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.5.1 — 2026-08-28
+
+- Backfilled the `stale_only` and `stale_days` service field labels and
+  descriptions into all 12 non-English translations (German, French, Spanish,
+  Italian, Dutch, Portuguese (Brazil), Polish, Russian, Norwegian Bokmål,
+  Swedish, Czech, Simplified Chinese), closing the gap noted in 1.5.0.
+
 ## 1.5.0 — 2026-08-28
 
 - Added **stale detection** for entities, devices, and areas, with a

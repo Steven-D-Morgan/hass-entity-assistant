@@ -42,6 +42,14 @@
         "areas": {
           "name": "Områder",
           "description": "Inkluder kun rader i disse områdene (etter område-ID eller navn)."
+        },
+        "stale_only": {
+          "name": "Kun utdaterte",
+          "description": "Inkluder kun utdaterte rader (utilgjengelige, foreldreløse, gjenopprettede/ikke levert eller uendret innen stale_days)."
+        },
+        "stale_days": {
+          "name": "Utdatert etter (dager)",
+          "description": "Merk rader der tilstanden ikke har endret seg innen dette antallet dager."
         }
       }
     },
@@ -76,6 +84,14 @@
         "areas": {
           "name": "Områder",
           "description": "Inkluder kun rader i disse områdene (etter område-ID eller navn)."
+        },
+        "stale_only": {
+          "name": "Kun utdaterte",
+          "description": "Inkluder kun utdaterte rader (utilgjengelige, foreldreløse, gjenopprettede/ikke levert eller uendret innen stale_days)."
+        },
+        "stale_days": {
+          "name": "Utdatert etter (dager)",
+          "description": "Merk rader der tilstanden ikke har endret seg innen dette antallet dager."
         }
       }
     }
