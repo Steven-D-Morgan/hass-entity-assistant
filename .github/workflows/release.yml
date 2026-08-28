@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and attach the asset to"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Verify manifest version matches the tag
+        if: github.event_name == 'push'
+        run: |
+          tag="${{ github.ref_name }}"
+          tag="${tag#v}"
+          manifest=$(python -c "import json;print(json.load(open('custom_components/entity_assistant/manifest.json'))['version'])")
+          if [ "$tag" != "$manifest" ]; then
+            echo "::error::tag $tag does not match manifest version $manifest"
+            exit 1
+          fi
+
+      - name: Build entity_assistant.zip
+        run: |
+          cd custom_components/entity_assistant
+          zip -r "$GITHUB_WORKSPACE/entity_assistant.zip" . -x '*.zip'
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: entity_assistant.zip
