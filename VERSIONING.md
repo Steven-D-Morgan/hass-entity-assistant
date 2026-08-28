@@ -9,6 +9,8 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
   descriptions into all 12 non-English translations (German, French, Spanish,
   Italian, Dutch, Portuguese (Brazil), Polish, Russian, Norwegian Bokmål,
   Swedish, Czech, Simplified Chinese), closing the gap noted in 1.5.0.
+- Docs: the HTTP endpoint's query-flag list was missing `stale_only` and
+  `stale_days`, which it has accepted since 1.5.0.
 
 ## 1.5.0 — 2026-08-28
 
