@@ -178,7 +178,8 @@ This endpoint is **authenticated**, so either use a signed URL from
 `get_download_url`, or pass a
 [long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
 It accepts the same options as query flags: `export_type`, `include_disabled`,
-`include_hidden`, `only_enabled`, `domains`, `areas` (comma-separated).
+`include_hidden`, `only_enabled`, `stale_only`, `stale_days`, `domains`, `areas`
+(the last two comma-separated).
 
 ```bash
 curl -H "Authorization: Bearer <YOUR_TOKEN>" \

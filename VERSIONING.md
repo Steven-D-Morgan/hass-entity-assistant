@@ -3,7 +3,7 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
-## 1.5.0 — 2026-07-09
+## 1.5.0 — 2026-08-28
 
 - Added **stale detection** for entities, devices, and areas, with a
   `stale` flag and a categorized `stale_reason` column so end users can see
@@ -16,6 +16,12 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
   device column `available_entity_count`.
 - Added `stale_only` filter and `stale_days` option (default 30) to the
   `export_csv` and `get_download_url` services and the HTTP endpoint.
+- Packaging: each release now ships an `entity_assistant.zip` asset, built by a
+  new `release` workflow, and `hacs.json` sets `zip_release` so HACS installs
+  from that asset instead of fetching files one at a time. This also makes
+  GitHub's download counter reflect real installs — added a Downloads badge to
+  the README. Versions 1.4.2 and earlier are unaffected and still install the
+  old way, since HACS reads `hacs.json` from the version being installed.
 - Note: the 12 non-English translations fall back to English for the two new
   service fields until backfilled.
 
