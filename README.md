@@ -205,3 +205,9 @@ browser downloads.
   when their integration is temporarily offline.
 - File writes are restricted to the config directory to prevent path traversal.
 - The HTTP endpoint is authenticated because it exposes your registry layout.
+
+## Roadmap
+
+See [roadmap.md](roadmap.md) for recommended future capabilities — where this
+integration could grow from a read-only exporter into a genuine registry
+assistant. It's a recommendation, not a commitment.
