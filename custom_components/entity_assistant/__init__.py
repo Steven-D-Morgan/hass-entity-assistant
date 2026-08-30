@@ -1,10 +1,4 @@
-"""The Entity Assistant integration.
-
-Exports the Home Assistant registries (entities, devices, or areas) to CSV —
-via a service, an "Export entity list" button, or an authenticated HTTP
-download endpoint (with a signed-URL helper). Fires an event on completion and
-tracks the last export in a sensor.
-"""
+"""The Entity Assistant integration."""
 from __future__ import annotations
 
 import logging
@@ -54,7 +48,6 @@ _LOGGER = logging.getLogger(__name__)
 
 _VIEW_REGISTERED = f"{DOMAIN}_view_registered"
 
-# Shared option fields for both services.
 _OPTION_FIELDS = {
     vol.Optional(ATTR_EXPORT_TYPE, default=DEFAULT_EXPORT_TYPE): vol.In(EXPORT_TYPES),
     vol.Optional(ATTR_INCLUDE_DISABLED, default=True): cv.boolean,
@@ -76,7 +69,6 @@ GET_DOWNLOAD_URL_SCHEMA = vol.Schema(
 
 
 def _options_from_call(call: ServiceCall) -> ExportOptions:
-    """Build ExportOptions from a service call's data."""
     domains = call.data.get(ATTR_DOMAINS)
     areas = call.data.get(ATTR_AREAS)
     return ExportOptions(
@@ -92,7 +84,6 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
 
 
 def _options_to_query(options: ExportOptions) -> dict[str, str]:
-    """Serialize options to download-URL query parameters."""
     query = {
         "export_type": options.export_type,
         "include_disabled": str(options.include_disabled).lower(),
@@ -109,7 +100,6 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Entity Assistant from a config entry."""
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
         options = _options_from_call(call)
@@ -149,7 +139,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         supports_response=SupportsResponse.ONLY,
     )
 
-    # HTTP views cannot be unregistered, so register the download view only once.
     if not hass.data.get(_VIEW_REGISTERED):
         hass.http.register_view(EntityExportView(hass))
         hass.data[_VIEW_REGISTERED] = True
@@ -160,7 +149,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload the config entry, its platforms, and the services."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.services.async_remove(DOMAIN, SERVICE_EXPORT_CSV)

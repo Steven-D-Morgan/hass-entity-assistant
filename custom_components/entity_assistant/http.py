@@ -1,8 +1,4 @@
-"""HTTP download endpoint for Entity Assistant.
-
-Serves the export as a downloadable CSV on demand, so it can be fetched
-directly instead of writing a file to the config directory.
-"""
+"""HTTP download endpoint for Entity Assistant."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -23,14 +19,12 @@ from .export import ExportOptions, build_export, rows_to_csv
 
 
 def _as_bool(value: str | None, default: bool) -> bool:
-    """Parse a query-string flag."""
     if value is None:
         return default
     return value.lower() not in ("false", "0", "no")
 
 
 def _as_set(value: str | None) -> frozenset[str] | None:
-    """Parse a comma-separated query value into a set, or None if absent."""
     if not value:
         return None
     items = [part.strip() for part in value.split(",") if part.strip()]
@@ -38,7 +32,6 @@ def _as_set(value: str | None) -> frozenset[str] | None:
 
 
 def _as_int(value: str | None, default: int) -> int:
-    """Parse a non-negative integer query value, falling back to default."""
     try:
         parsed = int(value)  # type: ignore[arg-type]
     except (TypeError, ValueError):
@@ -47,7 +40,6 @@ def _as_int(value: str | None, default: int) -> int:
 
 
 def options_from_query(query: Mapping[str, str]) -> ExportOptions:
-    """Build ExportOptions from HTTP/URL query parameters."""
     export_type = query.get("export_type", DEFAULT_EXPORT_TYPE)
     if export_type not in EXPORT_TYPES:
         export_type = DEFAULT_EXPORT_TYPE
@@ -64,22 +56,15 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
 
 
 class EntityExportView(HomeAssistantView):
-    """Serve the export as a downloadable CSV file (authenticated)."""
 
     url = DOWNLOAD_URL
     name = "api:entity_assistant:export"
     requires_auth = True
 
     def __init__(self, hass: HomeAssistant) -> None:
-        """Store the hass instance."""
         self.hass = hass
 
     async def get(self, request: web.Request) -> web.Response:
-        """Return the current export as a CSV attachment.
-
-        Query flags: export_type, include_disabled, include_hidden,
-        only_enabled, domains, areas.
-        """
         options = options_from_query(request.query)
         columns, rows = build_export(self.hass, options)
         csv_text = rows_to_csv(columns, rows)

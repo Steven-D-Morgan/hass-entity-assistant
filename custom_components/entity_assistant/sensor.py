@@ -1,8 +1,4 @@
-"""Sensor platform for Entity Assistant.
-
-Exposes a "Last export" timestamp sensor that updates whenever an export
-completes (via the button, service, or HTTP endpoint's write path).
-"""
+"""Sensor platform for Entity Assistant."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -25,12 +21,10 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the last-export sensor from a config entry."""
     async_add_entities([LastExportSensor(entry)])
 
 
 class LastExportSensor(SensorEntity, RestoreEntity):
-    """Timestamp of the most recent export, with details as attributes."""
 
     _attr_has_entity_name = True
     _attr_name = "Last export"
@@ -39,7 +33,6 @@ class LastExportSensor(SensorEntity, RestoreEntity):
     _attr_should_poll = False
 
     def __init__(self, entry: ConfigEntry) -> None:
-        """Initialize the sensor and attach it to the integration device."""
         self._attr_unique_id = f"{entry.entry_id}_last_export"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
@@ -51,7 +44,6 @@ class LastExportSensor(SensorEntity, RestoreEntity):
         self._attr_extra_state_attributes: dict[str, str | int | None] = {}
 
     async def async_added_to_hass(self) -> None:
-        """Restore the last value and subscribe to export events."""
         await super().async_added_to_hass()
 
         if (last_state := await self.async_get_last_state()) is not None:
@@ -66,7 +58,6 @@ class LastExportSensor(SensorEntity, RestoreEntity):
 
     @callback
     def _handle_export(self, event: Event) -> None:
-        """Update state when an export completes."""
         self._attr_native_value = event.time_fired
         self._attr_extra_state_attributes = {
             "row_count": event.data.get("row_count"),

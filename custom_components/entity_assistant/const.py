@@ -6,11 +6,9 @@ DOMAIN = "entity_assistant"
 
 PLATFORMS = [Platform.BUTTON, Platform.SENSOR]
 
-# Services
 SERVICE_EXPORT_CSV = "export_csv"
 SERVICE_GET_DOWNLOAD_URL = "get_download_url"
 
-# Service / option attributes
 ATTR_FILENAME = "filename"
 ATTR_INCLUDE_DISABLED = "include_disabled"
 ATTR_INCLUDE_HIDDEN = "include_hidden"
@@ -26,21 +24,17 @@ DEFAULT_FILENAME = "entity_export.csv"
 DEFAULT_EXPIRES = 300
 DEFAULT_STALE_DAYS = 30
 
-# Export modes
 EXPORT_TYPE_ENTITIES = "entities"
 EXPORT_TYPE_DEVICES = "devices"
 EXPORT_TYPE_AREAS = "areas"
 EXPORT_TYPES = [EXPORT_TYPE_ENTITIES, EXPORT_TYPE_DEVICES, EXPORT_TYPE_AREAS]
 DEFAULT_EXPORT_TYPE = EXPORT_TYPE_ENTITIES
 
-# Event fired after every export
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
 
-# HTTP download endpoint
 DOWNLOAD_URL = "/api/entity_assistant/export.csv"
 DOWNLOAD_FILENAME = "entity_export.csv"
 
-# CSV columns per export type
 ENTITY_COLUMNS = [
     "entity_id",
     "name",

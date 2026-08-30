@@ -1,9 +1,4 @@
-"""Shared export logic for Entity Assistant.
-
-Used by the service, the button entity, and the HTTP download view so they
-all produce identical output. Supports three export modes (entities, devices,
-areas), filtering, staleness detection, and emits a completion event.
-"""
+"""Shared export logic for Entity Assistant."""
 from __future__ import annotations
 
 import csv
@@ -32,13 +27,11 @@ from .const import (
     EXPORT_TYPE_DEVICES,
 )
 
-# State values that mean an entity has no usable value right now.
 _DEAD_STATES = ("unavailable", "unknown")
 
 
 @dataclass(slots=True)
 class ExportOptions:
-    """Options controlling what gets exported."""
 
     export_type: str = DEFAULT_EXPORT_TYPE
     include_disabled: bool = True
@@ -51,16 +44,13 @@ class ExportOptions:
 
     @property
     def want_disabled(self) -> bool:
-        """Whether disabled items should be included."""
         return self.include_disabled and not self.only_enabled
 
     @property
     def want_hidden(self) -> bool:
-        """Whether hidden items should be included."""
         return self.include_hidden and not self.only_enabled
 
     def area_matches(self, area_id: str | None, area_name: str | None) -> bool:
-        """Whether a row's area passes the area filter (by id or name)."""
         if self.areas is None:
             return True
         return (area_id in self.areas) or (
@@ -69,11 +59,6 @@ class ExportOptions:
 
 
 def resolve_path(hass: HomeAssistant, filename: str) -> str:
-    """Resolve a user-supplied filename to a path inside the config dir.
-
-    Guards against path traversal so the export can only be written
-    somewhere under the Home Assistant configuration directory.
-    """
     config_dir = os.path.realpath(hass.config.config_dir)
     target = os.path.realpath(os.path.join(config_dir, filename))
     if target != config_dir and not target.startswith(config_dir + os.sep):
@@ -84,7 +69,6 @@ def resolve_path(hass: HomeAssistant, filename: str) -> str:
 
 
 def _label_names(label_reg: lr.LabelRegistry, label_ids: set[str] | None) -> str:
-    """Resolve label ids to a sorted, comma-joined list of label names."""
     if not label_ids:
         return ""
     names = []
@@ -100,21 +84,14 @@ def _entity_staleness(
     config_entry_missing: bool,
     stale_days: int,
 ) -> tuple[list[str], str, str]:
-    """Return (reasons, last_changed_iso, last_changed_days) for an entity.
-
-    Reasons are clear category labels: ``orphaned``, ``restored``,
-    ``unavailable``, ``not_changed_<N>d``.
-    """
     reasons: list[str] = []
     last_changed_iso = ""
     last_changed_days = ""
 
-    # Registry entry whose config entry / integration no longer exists.
     if config_entry_missing:
         reasons.append("orphaned")
 
     if state is None:
-        # No live state and not intentionally disabled -> not being provided.
         if not entity.disabled:
             reasons.append("restored")
     else:
@@ -134,7 +111,6 @@ def _entity_staleness(
 
 @callback
 def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
-    """Build one row per entity, enriched with device, area, floor and labels."""
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
     area_reg = ar.async_get(hass)
@@ -153,7 +129,6 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
 
         device = dev_reg.async_get(entity.device_id) if entity.device_id else None
 
-        # Entity-level area override falls back to the device's area.
         area_id = entity.area_id or (device.area_id if device else None)
         area = area_reg.async_get_area(area_id) if area_id else None
         area_name = area.name if area else None
@@ -231,14 +206,12 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
 
 @callback
 def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
-    """Build one row per device, including devices with no entities."""
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
     area_reg = ar.async_get(hass)
     floor_reg = fr.async_get(hass)
     label_reg = lr.async_get(hass)
 
-    # Total and available (live) entity counts per device.
     total_counts: dict[str, int] = {}
     available_counts: dict[str, int] = {}
     for entity in ent_reg.entities.values():
@@ -318,20 +291,17 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
 
 @callback
 def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
-    """Build one row per area with device and entity counts."""
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
     area_reg = ar.async_get(hass)
     floor_reg = fr.async_get(hass)
     label_reg = lr.async_get(hass)
 
-    # Devices per area.
     device_counts: dict[str, int] = {}
     for device in dev_reg.devices.values():
         if device.area_id:
             device_counts[device.area_id] = device_counts.get(device.area_id, 0) + 1
 
-    # Entities per effective area (entity override, else its device's area).
     entity_counts: dict[str, int] = {}
     for entity in ent_reg.entities.values():
         area_id = entity.area_id
@@ -382,7 +352,6 @@ def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[s
 def build_export(
     hass: HomeAssistant, options: ExportOptions
 ) -> tuple[list[str], list[dict[str, str]]]:
-    """Return (columns, rows) for the requested export type."""
     if options.export_type == EXPORT_TYPE_DEVICES:
         rows = _build_device_rows(hass, options)
     elif options.export_type == EXPORT_TYPE_AREAS:
@@ -393,7 +362,6 @@ def build_export(
 
 
 def rows_to_csv(columns: list[str], rows: list[dict[str, str]]) -> str:
-    """Serialize rows to a CSV string."""
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=columns)
     writer.writeheader()
@@ -402,7 +370,6 @@ def rows_to_csv(columns: list[str], rows: list[dict[str, str]]) -> str:
 
 
 def write_csv(path: str, columns: list[str], rows: list[dict[str, str]]) -> None:
-    """Write rows to disk (runs in the executor — blocking IO)."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as file:
         file.write(rows_to_csv(columns, rows))
@@ -414,10 +381,6 @@ async def async_run_export(
     filename: str,
     triggered_by: str,
 ) -> tuple[str, int]:
-    """Run an export to a file and fire the completion event.
-
-    Returns (path, row_count).
-    """
     path = resolve_path(hass, filename)
     columns, rows = build_export(hass, options)
     await hass.async_add_executor_job(write_csv, path, columns, rows)
