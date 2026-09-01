@@ -10,7 +10,8 @@
 
 A Home Assistant custom integration that exports your registry — entities,
 devices, or areas — to a CSV file, complete with `entity_id`, area, floor,
-labels, device metadata, current state, and more.
+labels, device metadata, current state, and more. Also identifies and removes
+orphaned entities, orphaned devices, and empty areas.
 
 </div>
 
@@ -107,6 +108,8 @@ your integrations list.)
 
 ## Usage
 
+### Export
+
 Four ways to export, all sharing the same options:
 
 1. **Button entity** — the quickest.
@@ -114,11 +117,26 @@ Four ways to export, all sharing the same options:
 3. **Signed URL** (`get_download_url`) — a click-to-download link for dashboards.
 4. **HTTP endpoint** — direct download for scripts, the HA app, or `curl`.
 
-### Button
+### Registry cleanup
 
-Adding the integration creates an **Entity Assistant** device with an
-**Export entity list** button. Press it (from the device page, a dashboard, or
-an automation) to write `entity_export.csv` to your config directory.
+Two additional buttons and a service for removing orphaned registry entries:
+
+1. **Export orphaned entities** button — writes only stale rows to `entity_export_stale.csv`.
+2. **Remove orphaned entries** button — deletes orphaned entries from the registries.
+3. **Service** (`remove_orphaned`) — same removal logic, callable from automations/scripts.
+
+### Buttons
+
+Adding the integration creates an **Entity Assistant** device with three
+buttons:
+
+- **Export entity list** — writes `entity_export.csv` to your config directory.
+- **Export orphaned entities** — writes only stale rows (orphaned, unavailable,
+  restored, not changed) to `entity_export_stale.csv`.
+- **Remove orphaned entries** — deletes orphaned entities (config entry removed),
+  orphaned devices (all config entries removed), and empty areas (no devices or
+  entities) from the registries. **This is destructive** — a Home Assistant
+  backup is the only complete undo.
 
 ### Service: `export_csv`
 
@@ -166,6 +184,20 @@ response_variable: dl
 # dl.url -> https://<your-ha>/api/entity_assistant/export.csv?...&authSig=...
 ```
 
+### Service: `remove_orphaned`
+
+Removes orphaned entities (config entry removed), orphaned devices (all config
+entries removed), and empty areas (no devices or entities) from the registries.
+Area emptiness is recalculated after entity/device removal, so cascading cleanup
+works in a single call.
+
+```yaml
+action: entity_assistant.remove_orphaned
+```
+
+No parameters. Returns `{entities_removed, devices_removed, areas_removed,
+entity_ids, device_ids, area_ids}`.
+
 ### HTTP download endpoint
 
 The integration also serves the export directly at:
@@ -198,6 +230,9 @@ browser downloads.
 - **`entity_assistant_export_completed` event** — fired after each export with
   `path`, `row_count`, `export_type`, and `triggered_by`. Use it to, e.g.,
   email the file once it's written.
+- **`entity_assistant_orphaned_removed` event** — fired after each removal with
+  `entities_removed`, `devices_removed`, `areas_removed`, and the corresponding
+  ID lists.
 
 ## Notes
 

@@ -13,7 +13,7 @@ The headline evolution: turn the read-only exporter into a curation tool that ca
 | Bulk label curation (add / remove / replace) | Set-union / set-difference / set-replace of labels across the filtered set of entities, devices, and areas, auto-creating missing labels (`lr.async_create`). Organisational metadata; lowest-risk mutation and a good confidence-builder. | M | low | Next |
 | Bulk enable / disable / hide / unhide | Flip `disabled_by` / `hidden_by` across the filtered set (pairs with `stale_only` to disable dead entities), preview showing each id's current→target state. Reversible, but disabling removes an entity's state, so the plan warns when a target is referenced. (Devices have `disabled_by` but no `hidden_by`.) | M | medium | Next |
 | Bulk set friendly name | Bulk-set the **friendly name override** (`name`) across the filtered set (`name=None` clears it). Deliberately excludes `entity_id` rewrites — see Non-goals. Low-risk, separately gated from any id change. | S | low | Next |
-| Remove orphaned & empty registry entries | The flagship cleanup: delete only entries the existing classifier already flags stale — orphaned entities/devices, restored-but-never-provided entities, no-entity/all-unavailable devices, and empty areas / unused labels / unused floors. Candidate set intersected with the staleness classification so a live entity can never be a target. Genuinely destructive and only partly reversible; hard-gated (mandatory dry-run, explicit confirm, backup recommended in the plan) and never scheduled. | L | high | Later |
+| ~~Remove orphaned & empty registry entries~~ | ~~The flagship cleanup: delete only entries the existing classifier already flags stale — orphaned entities/devices, restored-but-never-provided entities, no-entity/all-unavailable devices, and empty areas / unused labels / unused floors. Candidate set intersected with the staleness classification so a live entity can never be a target. Genuinely destructive and only partly reversible; hard-gated (mandatory dry-run, explicit confirm, backup recommended in the plan) and never scheduled.~~ **Shipped in 1.6.0** — scoped to orphaned entities (config entry removed), orphaned devices (all config entries removed), and empty areas; available as a button and a `remove_orphaned` service. | L | high | ~~Later~~ Done |
 
 ### 2. Registry health, analytics & linting
 
@@ -121,7 +121,7 @@ Build the safety scaffolding, then the low-risk mutations on top of it, plus the
 
 The highest-risk work, deferred until the spine and the reversible mutations are proven in the field.
 
-- **Remove orphaned & empty registry entries** — the destructive cleanup, hard-gated (mandatory dry-run, explicit confirm, backup recommended in the plan, restricted to already-flagged stale items, never scheduled).
+- ~~**Remove orphaned & empty registry entries**~~ — shipped in 1.6.0 (orphaned entities, orphaned devices, empty areas; button + `remove_orphaned` service).
 - **Guided fix-flows in Repairs**, layered over the same gated removal/reassignment.
 - **Change-count sensors** and **snapshot retention management**, once diffs run on a regular cadence.
 - **`quality_scale` / core-submission readiness**, once the feature surface has settled.

@@ -53,6 +53,10 @@
         }
       }
     },
+    "remove_orphaned": {
+      "name": "Remove orphaned entries",
+      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+    },
     "get_download_url": {
       "name": "Download-URL abrufen",
       "description": "Gibt eine signierte, zeitlich begrenzte URL zurück, um den Export direkt aus einem Browser herunterzuladen. Nur Antwort; schreibt keine Datei.",

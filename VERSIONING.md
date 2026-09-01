@@ -3,6 +3,19 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.6.0 — 2026-09-01
+
+- Added **Export orphaned entities** button — writes only stale rows
+  (orphaned, unavailable, restored, not changed) to `entity_export_stale.csv`.
+- Added **Remove orphaned entries** button — deletes orphaned entities (config
+  entry removed), orphaned devices (all config entries removed), and empty
+  areas (no devices or entities) from the Home Assistant registries.
+- Added `entity_assistant.remove_orphaned` service with optional response
+  support, returning `{entities_removed, devices_removed, areas_removed,
+  entity_ids, device_ids, area_ids}`.
+- New `entity_assistant_orphaned_removed` event fired after each removal.
+- All 13 translations updated with the new service strings.
+
 ## 1.5.1 — 2026-08-28
 
 - Backfilled the `stale_only` and `stale_days` service field labels and

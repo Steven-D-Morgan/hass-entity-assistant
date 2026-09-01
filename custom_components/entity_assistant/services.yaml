@@ -164,3 +164,11 @@ get_download_url:
           max: 3650
           unit_of_measurement: days
           mode: box
+
+remove_orphaned:
+  name: Remove orphaned entries
+  description: >-
+    Remove orphaned entities (config entry removed), orphaned devices (all
+    config entries removed), and empty areas (no devices or entities) from
+    the Home Assistant registries. This is destructive and cannot be fully
+    undone — a Home Assistant backup is the only complete undo.

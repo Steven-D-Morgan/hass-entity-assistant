@@ -23,6 +23,7 @@ from .const import (
     DEFAULT_EXPORT_TYPE,
     DEFAULT_STALE_DAYS,
     EVENT_EXPORT_COMPLETED,
+    EVENT_ORPHANED_REMOVED,
     EXPORT_TYPE_AREAS,
     EXPORT_TYPE_DEVICES,
 )
@@ -395,3 +396,67 @@ async def async_run_export(
         },
     )
     return path, len(rows)
+
+
+@callback
+def remove_orphaned(
+    hass: HomeAssistant, triggered_by: str
+) -> dict[str, int | list[str]]:
+    ent_reg = er.async_get(hass)
+    dev_reg = dr.async_get(hass)
+    area_reg = ar.async_get(hass)
+
+    removed_entities: list[str] = []
+    for entity in list(ent_reg.entities.values()):
+        if (
+            entity.config_entry_id
+            and hass.config_entries.async_get_entry(entity.config_entry_id) is None
+        ):
+            ent_reg.async_remove(entity.entity_id)
+            removed_entities.append(entity.entity_id)
+
+    removed_devices: list[str] = []
+    for device in list(dev_reg.devices.values()):
+        if device.config_entries and not any(
+            hass.config_entries.async_get_entry(eid) for eid in device.config_entries
+        ):
+            dev_reg.async_remove_device(device.id)
+            removed_devices.append(device.id)
+
+    device_area_counts: dict[str, int] = {}
+    for device in dev_reg.devices.values():
+        if device.area_id:
+            device_area_counts[device.area_id] = (
+                device_area_counts.get(device.area_id, 0) + 1
+            )
+
+    entity_area_counts: dict[str, int] = {}
+    for entity in ent_reg.entities.values():
+        area_id = entity.area_id
+        if not area_id and entity.device_id:
+            device = dev_reg.async_get(entity.device_id)
+            area_id = device.area_id if device else None
+        if area_id:
+            entity_area_counts[area_id] = entity_area_counts.get(area_id, 0) + 1
+
+    removed_areas: list[str] = []
+    for area in list(area_reg.areas.values()):
+        if (
+            device_area_counts.get(area.id, 0) == 0
+            and entity_area_counts.get(area.id, 0) == 0
+        ):
+            area_reg.async_delete(area.id)
+            removed_areas.append(area.id)
+
+    result = {
+        "entities_removed": len(removed_entities),
+        "devices_removed": len(removed_devices),
+        "areas_removed": len(removed_areas),
+        "entity_ids": removed_entities,
+        "device_ids": removed_devices,
+        "area_ids": removed_areas,
+        "triggered_by": triggered_by,
+    }
+
+    hass.bus.async_fire(EVENT_ORPHANED_REMOVED, result)
+    return result

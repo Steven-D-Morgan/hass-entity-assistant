@@ -40,8 +40,9 @@ from .const import (
     PLATFORMS,
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
+    SERVICE_REMOVE_ORPHANED,
 )
-from .export import ExportOptions, async_run_export
+from .export import ExportOptions, async_run_export, remove_orphaned
 from .http import EntityExportView
 
 _LOGGER = logging.getLogger(__name__)
@@ -139,6 +140,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         supports_response=SupportsResponse.ONLY,
     )
 
+    @callback
+    def handle_remove_orphaned(call: ServiceCall) -> ServiceResponse:
+        return remove_orphaned(hass, triggered_by="service")
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_REMOVE_ORPHANED,
+        handle_remove_orphaned,
+        schema=vol.Schema({}),
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+
     if not hass.data.get(_VIEW_REGISTERED):
         hass.http.register_view(EntityExportView(hass))
         hass.data[_VIEW_REGISTERED] = True
@@ -153,4 +166,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.services.async_remove(DOMAIN, SERVICE_EXPORT_CSV)
         hass.services.async_remove(DOMAIN, SERVICE_GET_DOWNLOAD_URL)
+        hass.services.async_remove(DOMAIN, SERVICE_REMOVE_ORPHANED)
     return unload_ok
