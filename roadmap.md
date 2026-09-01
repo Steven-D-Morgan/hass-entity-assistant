@@ -2,18 +2,6 @@
 
 Entity Assistant today is a read-only exporter: it walks the entity, device, and area registries and writes them to CSV (plus a `stale`/`stale_reason` audit), triggered from a button, two services, or an authenticated HTTP endpoint. This roadmap sketches how it could grow into what its name promises — a genuine registry *assistant* that not only reports on registry hygiene but helps you act on it safely — while adding native Home Assistant surfaces (sensors, diagnostics, repairs) around the same registry walk. It is a recommendation and a set of options, not a commitment; horizons and priorities will shift with maintainer time and user demand.
 
-## Guiding principles
-
-- **Local-only and private.** No cloud calls, no telemetry, no external services — ever. Every feature computes from the local registries and writes only to the config directory or the integration's own storage.
-- **Safe-by-default, especially for mutation.** The integration is read-only today. Any capability that *writes* to a registry must be opt-in, preview/dry-run first, reversible or backed up, and must never run unattended. No feature auto-mutates.
-- **Low maintenance burden.** Single volunteer maintainer. Favor high-value, low-upkeep features; apply YAGNI; avoid anything that creates a large ongoing support or compatibility surface (new runtime dependencies, bespoke frontend, opinionated formulas).
-- **HA-native conventions.** Prefer standard platforms (diagnostics, repairs, coordinators, options flow, blueprints) so the integration stays idiomatic, keeps passing `hassfest` + HACS validation, and leaves a future `home-assistant/core` submission possible.
-- **Backward compatible.** CSV stays the default output; existing button/service/HTTP callers keep working. The CSV column schema is treated as a public API and changed only deliberately.
-
-## Themed tracks
-
-Each track groups related capabilities. Tables use **Effort** (S/M/L/XL) and **Risk** (low/medium/high) consistently, and **Horizon** (Now/Next/Later). Capabilities are the surviving, de-duplicated set after feasibility and completeness review; items judged out-of-scope appear under [Non-goals](#non-goals).
-
 ### 1. Registry maintenance — the "assistant" track
 
 The headline evolution: turn the read-only exporter into a curation tool that can fix what it already flags. This is the highest-value, highest-risk track, and it is gated. Every write rides a shared safety spine (dry-run by default, change plan for review, explicit confirm, timestamped JSON journal + registry backup, `undo`), and nothing here ships before the automated test suite lands. The spine can fully reverse *updates* (area, labels, enable/hide, name) but cannot resurrect a *removed* registry entry — a HA backup is the only real undo for removals, which the plan states plainly.
