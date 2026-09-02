@@ -20,6 +20,7 @@ ATTR_AREAS = "areas"
 ATTR_EXPIRES = "expires"
 ATTR_STALE_ONLY = "stale_only"
 ATTR_STALE_DAYS = "stale_days"
+ATTR_UTF8_BOM = "utf8_bom"
 
 DEFAULT_FILENAME = "entity_export.csv"
 DEFAULT_STALE_FILENAME = "entity_export_stale.csv"

@@ -52,6 +52,7 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
         areas=_as_set(query.get("areas")),
         stale_only=_as_bool(query.get("stale_only"), False),
         stale_days=_as_int(query.get("stale_days"), DEFAULT_STALE_DAYS),
+        utf8_bom=_as_bool(query.get("utf8_bom"), False),
     )
 
 
@@ -67,7 +68,7 @@ class EntityExportView(HomeAssistantView):
     async def get(self, request: web.Request) -> web.Response:
         options = options_from_query(request.query)
         columns, rows = build_export(self.hass, options)
-        csv_text = rows_to_csv(columns, rows)
+        csv_text = rows_to_csv(columns, rows, utf8_bom=options.utf8_bom)
 
         return web.Response(
             body=csv_text.encode("utf-8"),

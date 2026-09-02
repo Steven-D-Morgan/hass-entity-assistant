@@ -50,6 +50,10 @@
         "stale_days": {
           "name": "失效判定天数",
           "description": "将状态在此天数内未发生变化的行标记为失效。"
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     },
@@ -96,6 +100,10 @@
         "stale_days": {
           "name": "失效判定天数",
           "description": "将状态在此天数内未发生变化的行标记为失效。"
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     }

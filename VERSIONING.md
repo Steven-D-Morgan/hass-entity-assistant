@@ -3,6 +3,21 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.6.1 — 2026-09-01
+
+- **Security:** CSV formula-injection hardening — cell values starting with
+  `=`, `+`, `-`, `@`, tab, or newline are now prefixed with a tab character so
+  spreadsheet applications treat them as text instead of executable formulas.
+  Always on; no opt-in needed.
+- Added opt-in **UTF-8 BOM** (`utf8_bom`) option to the `export_csv`,
+  `get_download_url` services, and the HTTP endpoint. When enabled, the CSV
+  starts with a UTF-8 byte order mark so Excel on Windows renders non-ASCII
+  characters correctly. Default off.
+- Removed the **Remove orphaned entries** button to prevent accidental presses.
+  The `entity_assistant.remove_orphaned` service remains available for
+  intentional use from Developer Tools or automations.
+- All 13 translations updated with the new `utf8_bom` field strings.
+
 ## 1.6.0 — 2026-09-01
 
 - Added **Export orphaned entities** button — writes only stale rows

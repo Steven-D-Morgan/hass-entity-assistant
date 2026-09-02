@@ -50,6 +50,10 @@
         "stale_days": {
           "name": "Utdaterad efter (dagar)",
           "description": "Markera rader vars tillstånd inte har ändrats inom detta antal dagar."
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     },
@@ -96,6 +100,10 @@
         "stale_days": {
           "name": "Utdaterad efter (dagar)",
           "description": "Markera rader vars tillstånd inte har ändrats inom detta antal dagar."
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     }

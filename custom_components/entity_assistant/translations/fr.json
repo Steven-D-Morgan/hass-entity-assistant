@@ -50,6 +50,10 @@
         "stale_days": {
           "name": "Obsolète après (jours)",
           "description": "Signaler les lignes dont l'état n'a pas changé depuis ce nombre de jours."
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     },
@@ -96,6 +100,10 @@
         "stale_days": {
           "name": "Obsolète après (jours)",
           "description": "Signaler les lignes dont l'état n'a pas changé depuis ce nombre de jours."
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     }

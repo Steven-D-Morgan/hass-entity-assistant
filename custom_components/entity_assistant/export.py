@@ -29,6 +29,13 @@ from .const import (
 )
 
 _DEAD_STATES = ("unavailable", "unknown")
+_FORMULA_CHARS = frozenset("=+@-\t\r\n")
+
+
+def _sanitize_csv_value(value: str) -> str:
+    if value and value[0] in _FORMULA_CHARS:
+        return "\t" + value
+    return value
 
 
 @dataclass(slots=True)
@@ -42,6 +49,7 @@ class ExportOptions:
     areas: frozenset[str] | None = None
     stale_only: bool = False
     stale_days: int = DEFAULT_STALE_DAYS
+    utf8_bom: bool = False
 
     @property
     def want_disabled(self) -> bool:
@@ -362,18 +370,25 @@ def build_export(
     return COLUMNS_BY_TYPE[options.export_type], rows
 
 
-def rows_to_csv(columns: list[str], rows: list[dict[str, str]]) -> str:
+def rows_to_csv(
+    columns: list[str], rows: list[dict[str, str]], utf8_bom: bool = False
+) -> str:
     buffer = io.StringIO()
+    if utf8_bom:
+        buffer.write("﻿")
     writer = csv.DictWriter(buffer, fieldnames=columns)
     writer.writeheader()
-    writer.writerows(rows)
+    for row in rows:
+        writer.writerow({k: _sanitize_csv_value(v) for k, v in row.items()})
     return buffer.getvalue()
 
 
-def write_csv(path: str, columns: list[str], rows: list[dict[str, str]]) -> None:
+def write_csv(
+    path: str, columns: list[str], rows: list[dict[str, str]], utf8_bom: bool = False
+) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as file:
-        file.write(rows_to_csv(columns, rows))
+        file.write(rows_to_csv(columns, rows, utf8_bom=utf8_bom))
 
 
 async def async_run_export(
@@ -384,7 +399,7 @@ async def async_run_export(
 ) -> tuple[str, int]:
     path = resolve_path(hass, filename)
     columns, rows = build_export(hass, options)
-    await hass.async_add_executor_job(write_csv, path, columns, rows)
+    await hass.async_add_executor_job(write_csv, path, columns, rows, options.utf8_bom)
 
     hass.bus.async_fire(
         EVENT_EXPORT_COMPLETED,

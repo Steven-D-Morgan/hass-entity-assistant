@@ -30,6 +30,7 @@ from .const import (
     ATTR_ONLY_ENABLED,
     ATTR_STALE_DAYS,
     ATTR_STALE_ONLY,
+    ATTR_UTF8_BOM,
     DEFAULT_EXPIRES,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
@@ -58,6 +59,7 @@ _OPTION_FIELDS = {
     vol.Optional(ATTR_AREAS): vol.All(cv.ensure_list, [cv.string]),
     vol.Optional(ATTR_STALE_ONLY, default=False): cv.boolean,
     vol.Optional(ATTR_STALE_DAYS, default=DEFAULT_STALE_DAYS): cv.positive_int,
+    vol.Optional(ATTR_UTF8_BOM, default=False): cv.boolean,
 }
 
 EXPORT_CSV_SCHEMA = vol.Schema(
@@ -81,6 +83,7 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
         areas=frozenset(areas) if areas else None,
         stale_only=call.data[ATTR_STALE_ONLY],
         stale_days=call.data[ATTR_STALE_DAYS],
+        utf8_bom=call.data[ATTR_UTF8_BOM],
     )
 
 
@@ -92,6 +95,7 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
         "only_enabled": str(options.only_enabled).lower(),
         "stale_only": str(options.stale_only).lower(),
         "stale_days": str(options.stale_days),
+        "utf8_bom": str(options.utf8_bom).lower(),
     }
     if options.domains:
         query["domains"] = ",".join(sorted(options.domains))

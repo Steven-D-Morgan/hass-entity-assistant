@@ -50,6 +50,10 @@
         "stale_days": {
           "name": "Устаревшее через (дней)",
           "description": "Отмечать строки, состояние которых не менялось указанное число дней."
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     },
@@ -96,6 +100,10 @@
         "stale_days": {
           "name": "Устаревшее через (дней)",
           "description": "Отмечать строки, состояние которых не менялось указанное число дней."
+        },
+        "utf8_bom": {
+          "name": "UTF-8 BOM",
+          "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
     }

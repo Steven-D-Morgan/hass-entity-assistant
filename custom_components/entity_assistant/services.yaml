@@ -82,6 +82,15 @@ export_csv:
           max: 3650
           unit_of_measurement: days
           mode: box
+    utf8_bom:
+      name: UTF-8 BOM
+      description: >-
+        Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII
+        characters correctly.
+      required: false
+      default: false
+      selector:
+        boolean:
 
 get_download_url:
   name: Get download URL
@@ -164,6 +173,15 @@ get_download_url:
           max: 3650
           unit_of_measurement: days
           mode: box
+    utf8_bom:
+      name: UTF-8 BOM
+      description: >-
+        Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII
+        characters correctly.
+      required: false
+      default: false
+      selector:
+        boolean:
 
 remove_orphaned:
   name: Remove orphaned entries

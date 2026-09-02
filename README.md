@@ -119,24 +119,19 @@ Four ways to export, all sharing the same options:
 
 ### Registry cleanup
 
-Two additional buttons and a service for removing orphaned registry entries:
+An additional button and a service for removing orphaned registry entries:
 
 1. **Export orphaned entities** button — writes only stale rows to `entity_export_stale.csv`.
-2. **Remove orphaned entries** button — deletes orphaned entries from the registries.
-3. **Service** (`remove_orphaned`) — same removal logic, callable from automations/scripts.
+2. **Service** (`remove_orphaned`) — deletes orphaned entries, callable from
+   Developer Tools or automations/scripts (no button, to prevent accidental use).
 
 ### Buttons
 
-Adding the integration creates an **Entity Assistant** device with three
-buttons:
+Adding the integration creates an **Entity Assistant** device with two buttons:
 
 - **Export entity list** — writes `entity_export.csv` to your config directory.
 - **Export orphaned entities** — writes only stale rows (orphaned, unavailable,
   restored, not changed) to `entity_export_stale.csv`.
-- **Remove orphaned entries** — deletes orphaned entities (config entry removed),
-  orphaned devices (all config entries removed), and empty areas (no devices or
-  entities) from the registries. **This is destructive** — a Home Assistant
-  backup is the only complete undo.
 
 ### Service: `export_csv`
 
@@ -165,6 +160,7 @@ All fields are optional:
 | `areas` | — | Only these areas (by area id or name) |
 | `stale_only` | `false` | Only export rows flagged stale (see [Finding stale entities/devices](#finding-stale-entitiesdevices)) |
 | `stale_days` | `30` | Threshold for the `not_changed_<N>d` stale reason |
+| `utf8_bom` | `false` | Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly |
 
 The file is written inside your config directory. The service returns
 `{path, row_count}`.
@@ -210,8 +206,8 @@ This endpoint is **authenticated**, so either use a signed URL from
 `get_download_url`, or pass a
 [long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
 It accepts the same options as query flags: `export_type`, `include_disabled`,
-`include_hidden`, `only_enabled`, `stale_only`, `stale_days`, `domains`, `areas`
-(the last two comma-separated).
+`include_hidden`, `only_enabled`, `stale_only`, `stale_days`, `utf8_bom`,
+`domains`, `areas` (the last two comma-separated).
 
 ```bash
 curl -H "Authorization: Bearer <YOUR_TOKEN>" \
@@ -238,6 +234,8 @@ browser downloads.
 
 - Exports reflect the **registries**, so they include entities/devices even
   when their integration is temporarily offline.
+- Cell values starting with `=`, `+`, `-`, `@`, tab, or newline are
+  automatically prefixed to prevent spreadsheet formula injection.
 - File writes are restricted to the config directory to prevent path traversal.
 - The HTTP endpoint is authenticated because it exposes your registry layout.
 
