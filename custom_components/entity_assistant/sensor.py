@@ -11,9 +11,18 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, EVENT_EXPORT_COMPLETED
+from .const import DOMAIN, EVENT_EXPORT_COMPLETED, EVENT_EXPORT_FAILED
 
-_RESTORED_ATTRS = ("row_count", "path", "export_type", "triggered_by")
+_RESTORED_ATTRS = (
+    "row_count",
+    "path",
+    "export_type",
+    "triggered_by",
+    "last_error",
+    "last_error_at",
+    "last_error_type",
+    "last_error_triggered_by",
+)
 
 
 async def async_setup_entry(
@@ -55,14 +64,35 @@ class LastExportSensor(SensorEntity, RestoreEntity):
         self.async_on_remove(
             self.hass.bus.async_listen(EVENT_EXPORT_COMPLETED, self._handle_export)
         )
+        self.async_on_remove(
+            self.hass.bus.async_listen(EVENT_EXPORT_FAILED, self._handle_failure)
+        )
 
     @callback
     def _handle_export(self, event: Event) -> None:
         self._attr_native_value = event.time_fired
-        self._attr_extra_state_attributes = {
-            "row_count": event.data.get("row_count"),
-            "path": event.data.get("path"),
-            "export_type": event.data.get("export_type"),
-            "triggered_by": event.data.get("triggered_by"),
-        }
+        attrs = dict(self._attr_extra_state_attributes)
+        attrs.update(
+            {
+                "row_count": event.data.get("row_count"),
+                "path": event.data.get("path"),
+                "export_type": event.data.get("export_type"),
+                "triggered_by": event.data.get("triggered_by"),
+            }
+        )
+        self._attr_extra_state_attributes = attrs
+        self.async_write_ha_state()
+
+    @callback
+    def _handle_failure(self, event: Event) -> None:
+        attrs = dict(self._attr_extra_state_attributes)
+        attrs.update(
+            {
+                "last_error": event.data.get("error"),
+                "last_error_at": event.time_fired.isoformat(),
+                "last_error_type": event.data.get("error_type"),
+                "last_error_triggered_by": event.data.get("triggered_by"),
+            }
+        )
+        self._attr_extra_state_attributes = attrs
         self.async_write_ha_state()

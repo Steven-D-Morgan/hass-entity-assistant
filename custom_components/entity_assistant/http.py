@@ -15,7 +15,7 @@ from .const import (
     DOWNLOAD_URL,
     EXPORT_TYPES,
 )
-from .export import ExportOptions, build_export, rows_to_csv
+from .export import ExportOptions, build_export, fire_export_failed, rows_to_csv
 
 
 def _as_bool(value: str | None, default: bool) -> bool:
@@ -67,8 +67,15 @@ class EntityExportView(HomeAssistantView):
 
     async def get(self, request: web.Request) -> web.Response:
         options = options_from_query(request.query)
-        columns, rows = build_export(self.hass, options)
-        csv_text = rows_to_csv(columns, rows, utf8_bom=options.utf8_bom)
+        try:
+            columns, rows = build_export(self.hass, options)
+            csv_text = rows_to_csv(columns, rows, utf8_bom=options.utf8_bom)
+        except Exception as err:
+            fire_export_failed(self.hass, options, "http", "", err)
+            return web.Response(
+                status=500,
+                text=f"Entity Assistant export failed: {type(err).__name__}",
+            )
 
         return web.Response(
             body=csv_text.encode("utf-8"),

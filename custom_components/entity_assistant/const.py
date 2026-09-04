@@ -34,6 +34,7 @@ EXPORT_TYPES = [EXPORT_TYPE_ENTITIES, EXPORT_TYPE_DEVICES, EXPORT_TYPE_AREAS]
 DEFAULT_EXPORT_TYPE = EXPORT_TYPE_ENTITIES
 
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
+EVENT_EXPORT_FAILED = "entity_assistant_export_failed"
 EVENT_ORPHANED_REMOVED = "entity_assistant_orphaned_removed"
 
 DOWNLOAD_URL = "/api/entity_assistant/export.csv"

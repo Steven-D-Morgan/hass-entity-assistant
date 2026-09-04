@@ -42,9 +42,12 @@ class EntityExportButton(ButtonEntity):
         )
 
     async def async_press(self) -> None:
-        path, count = await async_run_export(
-            self.hass, ExportOptions(), DEFAULT_FILENAME, triggered_by="button"
-        )
+        try:
+            path, count = await async_run_export(
+                self.hass, ExportOptions(), DEFAULT_FILENAME, triggered_by="button"
+            )
+        except Exception:
+            return
         _LOGGER.info("Exported %d rows to %s", count, path)
 
 
@@ -65,9 +68,12 @@ class ExportOrphanedButton(ButtonEntity):
 
     async def async_press(self) -> None:
         options = ExportOptions(stale_only=True)
-        path, count = await async_run_export(
-            self.hass, options, DEFAULT_STALE_FILENAME, triggered_by="button"
-        )
+        try:
+            path, count = await async_run_export(
+                self.hass, options, DEFAULT_STALE_FILENAME, triggered_by="button"
+            )
+        except Exception:
+            return
         _LOGGER.info("Exported %d stale rows to %s", count, path)
 
 

@@ -221,11 +221,17 @@ browser downloads.
 ## Automations
 
 - **`last_export` sensor** — a timestamp sensor on the Entity Assistant device,
-  updated on every export, with `row_count`, `path`, `export_type`, and
-  `triggered_by` attributes.
-- **`entity_assistant_export_completed` event** — fired after each export with
-  `path`, `row_count`, `export_type`, and `triggered_by`. Use it to, e.g.,
-  email the file once it's written.
+  updated on every successful export, with `row_count`, `path`, `export_type`,
+  and `triggered_by` attributes. If an export fails, the state stays pinned to
+  the last successful timestamp and four additional attributes appear:
+  `last_error`, `last_error_at`, `last_error_type`, and
+  `last_error_triggered_by`.
+- **`entity_assistant_export_completed` event** — fired after each successful
+  export with `path`, `row_count`, `export_type`, and `triggered_by`. Use it
+  to, e.g., email the file once it's written.
+- **`entity_assistant_export_failed` event** — fired after each failed export
+  with `path`, `error`, `error_type`, `export_type`, and `triggered_by`. Use
+  it to alert on disk-full or permission problems without scraping the log.
 - **`entity_assistant_orphaned_removed` event** — fired after each removal with
   `entities_removed`, `devices_removed`, `areas_removed`, and the corresponding
   ID lists.

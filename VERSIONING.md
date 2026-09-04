@@ -3,6 +3,25 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.6.2 — 2026-09-04
+
+- **Reliability:** wrapped every export trigger (services, buttons, HTTP
+  endpoint) in explicit error handling. A disk-full, permission, or path
+  error now surfaces as an actionable log message instead of a raw traceback,
+  and the sensor no longer silently ignores the failure.
+- Added `entity_assistant_export_failed` event fired on any failing export,
+  carrying `path`, `error`, `error_type`, `export_type`, and `triggered_by`
+  so automations can react to failures the same way they already react to
+  `entity_assistant_export_completed`.
+- The **Last export** sensor now records the most recent failure as four
+  attributes (`last_error`, `last_error_at`, `last_error_type`,
+  `last_error_triggered_by`) while keeping its state pinned to the last
+  **successful** export timestamp. Attributes survive a restart via
+  `RestoreEntity`.
+- The HTTP endpoint now returns a clean `500` with the exception class name
+  on failure instead of a Home Assistant error page, and fires the same
+  failure event so the sensor stays consistent across trigger paths.
+
 ## 1.6.1 — 2026-09-01
 
 - **Security:** CSV formula-injection hardening — cell values starting with

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import io
+import logging
 import os
 from dataclasses import dataclass
 
@@ -23,10 +24,13 @@ from .const import (
     DEFAULT_EXPORT_TYPE,
     DEFAULT_STALE_DAYS,
     EVENT_EXPORT_COMPLETED,
+    EVENT_EXPORT_FAILED,
     EVENT_ORPHANED_REMOVED,
     EXPORT_TYPE_AREAS,
     EXPORT_TYPE_DEVICES,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 _DEAD_STATES = ("unavailable", "unknown")
 _FORMULA_CHARS = frozenset("=+@-\t\r\n")
@@ -391,15 +395,50 @@ def write_csv(
         file.write(rows_to_csv(columns, rows, utf8_bom=utf8_bom))
 
 
+@callback
+def fire_export_failed(
+    hass: HomeAssistant,
+    options: ExportOptions,
+    triggered_by: str,
+    path: str,
+    err: BaseException,
+) -> None:
+    _LOGGER.error(
+        "Entity Assistant export failed (export_type=%s, triggered_by=%s, path=%r): %s: %s",
+        options.export_type,
+        triggered_by,
+        path,
+        type(err).__name__,
+        err,
+    )
+    hass.bus.async_fire(
+        EVENT_EXPORT_FAILED,
+        {
+            "path": path,
+            "error": str(err),
+            "error_type": type(err).__name__,
+            "export_type": options.export_type,
+            "triggered_by": triggered_by,
+        },
+    )
+
+
 async def async_run_export(
     hass: HomeAssistant,
     options: ExportOptions,
     filename: str,
     triggered_by: str,
 ) -> tuple[str, int]:
-    path = resolve_path(hass, filename)
-    columns, rows = build_export(hass, options)
-    await hass.async_add_executor_job(write_csv, path, columns, rows, options.utf8_bom)
+    path = ""
+    try:
+        path = resolve_path(hass, filename)
+        columns, rows = build_export(hass, options)
+        await hass.async_add_executor_job(
+            write_csv, path, columns, rows, options.utf8_bom
+        )
+    except Exception as err:
+        fire_export_failed(hass, options, triggered_by, path, err)
+        raise
 
     hass.bus.async_fire(
         EVENT_EXPORT_COMPLETED,
