@@ -441,7 +441,7 @@ def remove_orphaned(
     triggered_by: str,
     *,
     dry_run: bool = True,
-) -> dict[str, int | list[str] | bool]:
+) -> dict[str, int | list[str] | bool | str]:
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
     area_reg = ar.async_get(hass)
@@ -497,7 +497,7 @@ def remove_orphaned(
         for area_id in empty_areas:
             area_reg.async_delete(area_id)
 
-    result: dict[str, int | list[str] | bool] = {
+    result: dict[str, int | list[str] | bool | str] = {
         "dry_run": dry_run,
         "entities_removed": len(orphaned_entities),
         "devices_removed": len(orphaned_devices),
