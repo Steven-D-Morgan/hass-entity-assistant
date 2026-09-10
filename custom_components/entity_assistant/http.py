@@ -1,10 +1,10 @@
 """HTTP download endpoint for Entity Assistant."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
 
 from aiohttp import web
-
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
@@ -57,7 +57,6 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
 
 
 class EntityExportView(HomeAssistantView):
-
     url = DOWNLOAD_URL
     name = "api:entity_assistant:export"
     requires_auth = True

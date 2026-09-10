@@ -26,11 +26,16 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]
+"tests/*" = ["S101", "S108"]
 
 [tool.ruff.lint.isort]
 force-sort-within-sections = true
+combine-as-imports = true
+split-on-trailing-comma = false
 known-first-party = ["custom_components.entity_assistant"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
 
 [tool.mypy]
 python_version = "3.12"

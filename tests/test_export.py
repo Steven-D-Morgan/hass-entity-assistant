@@ -4,9 +4,6 @@ from datetime import timedelta
 import os
 
 from freezegun import freeze_time
-import pytest
-import voluptuous as vol
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import (
     area_registry as ar,
@@ -16,14 +13,11 @@ from homeassistant.helpers import (
     label_registry as lr,
 )
 from homeassistant.util import dt as dt_util
-
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+import voluptuous as vol
 
-from custom_components.entity_assistant.const import (
-    AREA_COLUMNS,
-    DEVICE_COLUMNS,
-    ENTITY_COLUMNS,
-)
+from custom_components.entity_assistant.const import AREA_COLUMNS, DEVICE_COLUMNS, ENTITY_COLUMNS
 from custom_components.entity_assistant.export import (
     ExportOptions,
     _sanitize_csv_value,
@@ -101,9 +95,7 @@ def _seed_basic(hass: HomeAssistant) -> dict:
         original_name="Disabled Sensor",
         suggested_object_id="disabled",
     )
-    ent_reg.async_update_entity(
-        disabled.entity_id, disabled_by=er.RegistryEntryDisabler.USER
-    )
+    ent_reg.async_update_entity(disabled.entity_id, disabled_by=er.RegistryEntryDisabler.USER)
 
     hidden = ent_reg.async_get_or_create(
         "binary_sensor",
@@ -113,9 +105,7 @@ def _seed_basic(hass: HomeAssistant) -> dict:
         original_name="Hidden Sensor",
         suggested_object_id="hidden",
     )
-    ent_reg.async_update_entity(
-        hidden.entity_id, hidden_by=er.RegistryEntryHider.USER
-    )
+    ent_reg.async_update_entity(hidden.entity_id, hidden_by=er.RegistryEntryHider.USER)
     hass.states.async_set(hidden.entity_id, "off")
 
     return {
@@ -273,9 +263,7 @@ async def test_entity_staleness_restored_attribute(hass: HomeAssistant) -> None:
 
 async def test_build_device_rows_default(hass: HomeAssistant) -> None:
     refs = _seed_basic(hass)
-    columns, rows = build_export(
-        hass, ExportOptions(export_type="devices")
-    )
+    columns, rows = build_export(hass, ExportOptions(export_type="devices"))
     assert columns == DEVICE_COLUMNS
     device_ids = {r["device_id"] for r in rows}
     assert refs["device_a"].id in device_ids

@@ -1,13 +1,12 @@
 """Shared export logic for Entity Assistant."""
+
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
 import io
 import logging
 import os
-from dataclasses import dataclass
-
-import voluptuous as vol
 
 from homeassistant.core import HomeAssistant, State, callback
 from homeassistant.helpers import (
@@ -18,6 +17,7 @@ from homeassistant.helpers import (
     label_registry as lr,
 )
 from homeassistant.util import dt as dt_util
+import voluptuous as vol
 
 from .const import (
     COLUMNS_BY_TYPE,
@@ -44,7 +44,6 @@ def _sanitize_csv_value(value: str) -> str:
 
 @dataclass(slots=True)
 class ExportOptions:
-
     export_type: str = DEFAULT_EXPORT_TYPE
     include_disabled: bool = True
     include_hidden: bool = True
@@ -66,9 +65,7 @@ class ExportOptions:
     def area_matches(self, area_id: str | None, area_name: str | None) -> bool:
         if self.areas is None:
             return True
-        return (area_id in self.areas) or (
-            area_name is not None and area_name in self.areas
-        )
+        return (area_id in self.areas) or (area_name is not None and area_name in self.areas)
 
 
 def resolve_path(hass: HomeAssistant, filename: str) -> str:
@@ -149,11 +146,7 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         if not options.area_matches(area_id, area_name):
             continue
 
-        floor = (
-            floor_reg.async_get_floor(area.floor_id)
-            if area and area.floor_id
-            else None
-        )
+        floor = floor_reg.async_get_floor(area.floor_id) if area and area.floor_id else None
 
         config_entry = (
             hass.config_entries.async_get_entry(entity.config_entry_id)
@@ -233,9 +226,7 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         total_counts[entity.device_id] = total_counts.get(entity.device_id, 0) + 1
         state = hass.states.get(entity.entity_id)
         if state and state.state not in _DEAD_STATES:
-            available_counts[entity.device_id] = (
-                available_counts.get(entity.device_id, 0) + 1
-            )
+            available_counts[entity.device_id] = available_counts.get(entity.device_id, 0) + 1
 
     rows: list[dict[str, str]] = []
 
@@ -248,11 +239,7 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         if not options.area_matches(device.area_id, area_name):
             continue
 
-        floor = (
-            floor_reg.async_get_floor(area.floor_id)
-            if area and area.floor_id
-            else None
-        )
+        floor = floor_reg.async_get_floor(area.floor_id) if area and area.floor_id else None
 
         entry_titles = []
         any_entry = False
@@ -374,9 +361,7 @@ def build_export(
     return COLUMNS_BY_TYPE[options.export_type], rows
 
 
-def rows_to_csv(
-    columns: list[str], rows: list[dict[str, str]], utf8_bom: bool = False
-) -> str:
+def rows_to_csv(columns: list[str], rows: list[dict[str, str]], utf8_bom: bool = False) -> str:
     buffer = io.StringIO()
     if utf8_bom:
         buffer.write("﻿")
@@ -433,9 +418,7 @@ async def async_run_export(
     try:
         path = resolve_path(hass, filename)
         columns, rows = build_export(hass, options)
-        await hass.async_add_executor_job(
-            write_csv, path, columns, rows, options.utf8_bom
-        )
+        await hass.async_add_executor_job(write_csv, path, columns, rows, options.utf8_bom)
     except Exception as err:
         fire_export_failed(hass, options, triggered_by, path, err)
         raise
@@ -486,9 +469,7 @@ def remove_orphaned(
         if device.id in orphaned_device_set:
             continue
         if device.area_id:
-            device_area_counts[device.area_id] = (
-                device_area_counts.get(device.area_id, 0) + 1
-            )
+            device_area_counts[device.area_id] = device_area_counts.get(device.area_id, 0) + 1
 
     entity_area_counts: dict[str, int] = {}
     for entity in ent_reg.entities.values():
@@ -505,10 +486,7 @@ def remove_orphaned(
 
     empty_areas: list[str] = []
     for area in list(area_reg.areas.values()):
-        if (
-            device_area_counts.get(area.id, 0) == 0
-            and entity_area_counts.get(area.id, 0) == 0
-        ):
+        if device_area_counts.get(area.id, 0) == 0 and entity_area_counts.get(area.id, 0) == 0:
             empty_areas.append(area.id)
 
     if not dry_run:

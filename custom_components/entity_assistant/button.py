@@ -1,4 +1,5 @@
 """Button platform for Entity Assistant."""
+
 from __future__ import annotations
 
 import logging
@@ -20,14 +21,15 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    async_add_entities([
-        EntityExportButton(entry),
-        ExportOrphanedButton(entry),
-    ])
+    async_add_entities(
+        [
+            EntityExportButton(entry),
+            ExportOrphanedButton(entry),
+        ]
+    )
 
 
 class EntityExportButton(ButtonEntity):
-
     _attr_has_entity_name = True
     _attr_name = "Export entity list"
     _attr_icon = "mdi:file-delimited-outline"
@@ -52,7 +54,6 @@ class EntityExportButton(ButtonEntity):
 
 
 class ExportOrphanedButton(ButtonEntity):
-
     _attr_has_entity_name = True
     _attr_name = "Export orphaned entities"
     _attr_icon = "mdi:file-alert-outline"
@@ -75,5 +76,3 @@ class ExportOrphanedButton(ButtonEntity):
         except Exception:
             return
         _LOGGER.info("Exported %d stale rows to %s", count, path)
-
-

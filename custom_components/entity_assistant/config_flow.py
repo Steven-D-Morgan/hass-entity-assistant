@@ -1,4 +1,5 @@
 """Config flow for the Entity Assistant integration."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -9,12 +10,9 @@ from .const import DOMAIN
 
 
 class EntityAssistantConfigFlow(ConfigFlow, domain=DOMAIN):
-
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
 

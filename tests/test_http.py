@@ -88,9 +88,7 @@ async def test_download_requires_auth(
     assert resp.status == 401
 
 
-async def test_download_returns_csv(
-    hass: HomeAssistant, setup_integration, hass_client
-) -> None:
+async def test_download_returns_csv(hass: HomeAssistant, setup_integration, hass_client) -> None:
     client = await hass_client()
     resp = await client.get(DOWNLOAD_URL)
     assert resp.status == 200

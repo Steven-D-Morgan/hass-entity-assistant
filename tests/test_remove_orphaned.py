@@ -2,16 +2,10 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
-
 from homeassistant.core import Context, HomeAssistant
 from homeassistant.exceptions import Unauthorized
-from homeassistant.helpers import (
-    area_registry as ar,
-    device_registry as dr,
-    entity_registry as er,
-)
-
+from homeassistant.helpers import area_registry as ar, device_registry as dr, entity_registry as er
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.entity_assistant.const import (
@@ -43,9 +37,7 @@ def _seed_orphans(hass: HomeAssistant) -> dict:
     return {"entity_id": entity.entity_id, "device_id": device.id}
 
 
-async def test_dry_run_default_returns_preview(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_dry_run_default_returns_preview(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_orphans(hass)
 
     response = await hass.services.async_call(
@@ -64,9 +56,7 @@ async def test_dry_run_default_returns_preview(
     assert ent_reg.async_get(seed["entity_id"]) is not None
 
 
-async def test_dry_run_explicit_true(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_dry_run_explicit_true(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_orphans(hass)
 
     response = await hass.services.async_call(
@@ -81,9 +71,7 @@ async def test_dry_run_explicit_true(
     assert ent_reg.async_get(seed["entity_id"]) is not None
 
 
-async def test_confirm_true_removes_entries(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_confirm_true_removes_entries(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_orphans(hass)
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
@@ -101,9 +89,7 @@ async def test_confirm_true_removes_entries(
     assert dev_reg.async_get(seed["device_id"]) is None
 
 
-async def test_confirm_alone_applies(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_confirm_alone_applies(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_orphans(hass)
     ent_reg = er.async_get(hass)
 
@@ -117,9 +103,7 @@ async def test_confirm_alone_applies(
     assert ent_reg.async_get(seed["entity_id"]) is None
 
 
-async def test_dry_run_does_not_fire_event(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_dry_run_does_not_fire_event(hass: HomeAssistant, setup_integration) -> None:
     _seed_orphans(hass)
     events = []
     hass.bus.async_listen(EVENT_ORPHANED_REMOVED, events.append)
@@ -135,9 +119,7 @@ async def test_dry_run_does_not_fire_event(
     assert events == []
 
 
-async def test_confirm_fires_event(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_confirm_fires_event(hass: HomeAssistant, setup_integration) -> None:
     _seed_orphans(hass)
     events = []
     hass.bus.async_listen(EVENT_ORPHANED_REMOVED, events.append)
@@ -153,9 +135,7 @@ async def test_confirm_fires_event(
     assert len(events) == 1
 
 
-async def test_non_admin_user_rejected(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_non_admin_user_rejected(hass: HomeAssistant, setup_integration) -> None:
     _seed_orphans(hass)
 
     mock_user = MagicMock()
@@ -173,9 +153,7 @@ async def test_non_admin_user_rejected(
         )
 
 
-async def test_admin_user_allowed(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_admin_user_allowed(hass: HomeAssistant, setup_integration) -> None:
     _seed_orphans(hass)
 
     mock_user = MagicMock()
@@ -193,9 +171,7 @@ async def test_admin_user_allowed(
     assert response is not None
 
 
-async def test_missing_user_rejected(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_missing_user_rejected(hass: HomeAssistant, setup_integration) -> None:
     _seed_orphans(hass)
 
     hass.auth.async_get_user = AsyncMock(return_value=None)
@@ -211,9 +187,7 @@ async def test_missing_user_rejected(
         )
 
 
-async def test_system_call_no_user_allowed(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_system_call_no_user_allowed(hass: HomeAssistant, setup_integration) -> None:
     _seed_orphans(hass)
     response = await hass.services.async_call(
         DOMAIN,
@@ -225,9 +199,7 @@ async def test_system_call_no_user_allowed(
     assert response is not None
 
 
-async def test_empty_registries_zero_counts(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_empty_registries_zero_counts(hass: HomeAssistant, setup_integration) -> None:
     response = await hass.services.async_call(
         DOMAIN,
         SERVICE_REMOVE_ORPHANED,
@@ -240,9 +212,7 @@ async def test_empty_registries_zero_counts(
     assert response["areas_removed"] == 0
 
 
-async def test_cascading_area_cleanup(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_cascading_area_cleanup(hass: HomeAssistant, setup_integration) -> None:
     area_reg = ar.async_get(hass)
     orphan_only_area = area_reg.async_create("Orphan Only Room")
 

@@ -2,22 +2,15 @@ from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
 
-from custom_components.entity_assistant.const import (
-    EVENT_EXPORT_COMPLETED,
-    EVENT_EXPORT_FAILED,
-)
+from custom_components.entity_assistant.const import EVENT_EXPORT_COMPLETED, EVENT_EXPORT_FAILED
 
 
-async def test_sensor_present_after_setup(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_sensor_present_after_setup(hass: HomeAssistant, setup_integration) -> None:
     state = hass.states.get("sensor.entity_assistant_last_export")
     assert state is not None
 
 
-async def test_sensor_updates_on_export_completed(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_sensor_updates_on_export_completed(hass: HomeAssistant, setup_integration) -> None:
     hass.bus.async_fire(
         EVENT_EXPORT_COMPLETED,
         {
@@ -36,9 +29,7 @@ async def test_sensor_updates_on_export_completed(
     assert state.attributes["triggered_by"] == "service"
 
 
-async def test_sensor_updates_on_export_failed(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_sensor_updates_on_export_failed(hass: HomeAssistant, setup_integration) -> None:
     hass.bus.async_fire(
         EVENT_EXPORT_FAILED,
         {

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import pytest
-
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
-
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.entity_assistant.const import DOMAIN

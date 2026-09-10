@@ -1,11 +1,10 @@
 """The Entity Assistant integration."""
+
 from __future__ import annotations
 
-import logging
 from datetime import timedelta
+import logging
 from urllib.parse import urlencode
-
-import voluptuous as vol
 
 from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
@@ -20,6 +19,7 @@ from homeassistant.core import (
 from homeassistant.exceptions import Unauthorized
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.network import NoURLAvailableError, get_url
+import voluptuous as vol
 
 from .const import (
     ATTR_AREAS,

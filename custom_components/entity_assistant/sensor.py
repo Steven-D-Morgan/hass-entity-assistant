@@ -1,4 +1,5 @@
 """Sensor platform for Entity Assistant."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -34,7 +35,6 @@ async def async_setup_entry(
 
 
 class LastExportSensor(SensorEntity, RestoreEntity):
-
     _attr_has_entity_name = True
     _attr_name = "Last export"
     _attr_icon = "mdi:history"
@@ -64,9 +64,7 @@ class LastExportSensor(SensorEntity, RestoreEntity):
         self.async_on_remove(
             self.hass.bus.async_listen(EVENT_EXPORT_COMPLETED, self._handle_export)
         )
-        self.async_on_remove(
-            self.hass.bus.async_listen(EVENT_EXPORT_FAILED, self._handle_failure)
-        )
+        self.async_on_remove(self.hass.bus.async_listen(EVENT_EXPORT_FAILED, self._handle_failure))
 
     @callback
     def _handle_export(self, event: Event) -> None:
