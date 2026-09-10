@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Verweesde items verwijderen",
+      "description": "Voorbeeld of verwijdering van verweesde entiteiten, verweesde apparaten en lege gebieden uit de Home Assistant-registers. Standaard alleen voorbeeld; zet bevestigen op true om toe te passen. Vereist beheerdersrechten.",
+      "fields": {
+        "dry_run": {
+          "name": "Testmodus",
+          "description": "Voorbeeld van wat er verwijderd zou worden zonder wijzigingen aan te brengen."
+        },
+        "confirm": {
+          "name": "Bevestigen",
+          "description": "Zet op true om de verweesde items daadwerkelijk te verwijderen."
+        }
+      }
     },
     "get_download_url": {
       "name": "Download-URL ophalen",

@@ -454,31 +454,37 @@ async def async_run_export(
 
 @callback
 def remove_orphaned(
-    hass: HomeAssistant, triggered_by: str
-) -> dict[str, int | list[str]]:
+    hass: HomeAssistant,
+    triggered_by: str,
+    *,
+    dry_run: bool = True,
+) -> dict[str, int | list[str] | bool]:
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
     area_reg = ar.async_get(hass)
 
-    removed_entities: list[str] = []
+    orphaned_entities: list[str] = []
     for entity in list(ent_reg.entities.values()):
         if (
             entity.config_entry_id
             and hass.config_entries.async_get_entry(entity.config_entry_id) is None
         ):
-            ent_reg.async_remove(entity.entity_id)
-            removed_entities.append(entity.entity_id)
+            orphaned_entities.append(entity.entity_id)
 
-    removed_devices: list[str] = []
+    orphaned_devices: list[str] = []
     for device in list(dev_reg.devices.values()):
         if device.config_entries and not any(
             hass.config_entries.async_get_entry(eid) for eid in device.config_entries
         ):
-            dev_reg.async_remove_device(device.id)
-            removed_devices.append(device.id)
+            orphaned_devices.append(device.id)
+
+    orphaned_entity_set = set(orphaned_entities)
+    orphaned_device_set = set(orphaned_devices)
 
     device_area_counts: dict[str, int] = {}
     for device in dev_reg.devices.values():
+        if device.id in orphaned_device_set:
+            continue
         if device.area_id:
             device_area_counts[device.area_id] = (
                 device_area_counts.get(device.area_id, 0) + 1
@@ -486,31 +492,45 @@ def remove_orphaned(
 
     entity_area_counts: dict[str, int] = {}
     for entity in ent_reg.entities.values():
+        if entity.entity_id in orphaned_entity_set:
+            continue
         area_id = entity.area_id
         if not area_id and entity.device_id:
+            if entity.device_id in orphaned_device_set:
+                continue
             device = dev_reg.async_get(entity.device_id)
             area_id = device.area_id if device else None
         if area_id:
             entity_area_counts[area_id] = entity_area_counts.get(area_id, 0) + 1
 
-    removed_areas: list[str] = []
+    empty_areas: list[str] = []
     for area in list(area_reg.areas.values()):
         if (
             device_area_counts.get(area.id, 0) == 0
             and entity_area_counts.get(area.id, 0) == 0
         ):
-            area_reg.async_delete(area.id)
-            removed_areas.append(area.id)
+            empty_areas.append(area.id)
 
-    result = {
-        "entities_removed": len(removed_entities),
-        "devices_removed": len(removed_devices),
-        "areas_removed": len(removed_areas),
-        "entity_ids": removed_entities,
-        "device_ids": removed_devices,
-        "area_ids": removed_areas,
+    if not dry_run:
+        for entity_id in orphaned_entities:
+            ent_reg.async_remove(entity_id)
+        for device_id in orphaned_devices:
+            dev_reg.async_remove_device(device_id)
+        for area_id in empty_areas:
+            area_reg.async_delete(area_id)
+
+    result: dict[str, int | list[str] | bool] = {
+        "dry_run": dry_run,
+        "entities_removed": len(orphaned_entities),
+        "devices_removed": len(orphaned_devices),
+        "areas_removed": len(empty_areas),
+        "entity_ids": orphaned_entities,
+        "device_ids": orphaned_devices,
+        "area_ids": empty_areas,
         "triggered_by": triggered_by,
     }
 
-    hass.bus.async_fire(EVENT_ORPHANED_REMOVED, result)
+    if not dry_run:
+        hass.bus.async_fire(EVENT_ORPHANED_REMOVED, result)
+
     return result

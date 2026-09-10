@@ -59,7 +59,17 @@
     },
     "remove_orphaned": {
       "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "description": "Preview or remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries. Defaults to a dry run; pass confirm to apply. Requires admin.",
+      "fields": {
+        "dry_run": {
+          "name": "Dry run",
+          "description": "Preview what would be removed without making changes."
+        },
+        "confirm": {
+          "name": "Confirm",
+          "description": "Set to true to actually remove the orphaned entries."
+        }
+      }
     },
     "get_download_url": {
       "name": "Get download URL",

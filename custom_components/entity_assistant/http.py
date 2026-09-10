@@ -75,6 +75,7 @@ class EntityExportView(HomeAssistantView):
             return web.Response(
                 status=500,
                 text=f"Entity Assistant export failed: {type(err).__name__}",
+                headers={"Cache-Control": "no-store"},
             )
 
         return web.Response(
@@ -82,6 +83,7 @@ class EntityExportView(HomeAssistantView):
             content_type="text/csv",
             charset="utf-8",
             headers={
-                "Content-Disposition": f'attachment; filename="{DOWNLOAD_FILENAME}"'
+                "Content-Disposition": f'attachment; filename="{DOWNLOAD_FILENAME}"',
+                "Cache-Control": "no-store",
             },
         )

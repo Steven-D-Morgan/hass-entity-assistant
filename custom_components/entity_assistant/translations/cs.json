@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Odstranit osiřelé záznamy",
+      "description": "Náhled nebo odstranění osiřelých entit, osiřelých zařízení a prázdných oblastí z registrů Home Assistant. Ve výchozím nastavení pouze náhled; pro provedení nastavte potvrdit na true. Vyžaduje oprávnění správce.",
+      "fields": {
+        "dry_run": {
+          "name": "Zkušební běh",
+          "description": "Náhled toho, co by bylo odstraněno, bez provedení změn."
+        },
+        "confirm": {
+          "name": "Potvrdit",
+          "description": "Nastavte na true pro skutečné odstranění osiřelých záznamů."
+        }
+      }
     },
     "get_download_url": {
       "name": "Získat URL ke stažení",

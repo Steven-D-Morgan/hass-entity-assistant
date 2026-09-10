@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Eliminar entradas huérfanas",
+      "description": "Previsualizar o eliminar entidades huérfanas, dispositivos huérfanos y áreas vacías de los registros de Home Assistant. Por defecto solo previsualiza; establece confirmar en true para aplicar. Requiere administrador.",
+      "fields": {
+        "dry_run": {
+          "name": "Simulación",
+          "description": "Previsualizar lo que se eliminaría sin realizar cambios."
+        },
+        "confirm": {
+          "name": "Confirmar",
+          "description": "Establecer en true para eliminar realmente las entradas huérfanas."
+        }
+      }
     },
     "get_download_url": {
       "name": "Obtener URL de descarga",

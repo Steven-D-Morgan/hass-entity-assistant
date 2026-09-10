@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Rimuovi voci orfane",
+      "description": "Anteprima o rimozione di entità orfane, dispositivi orfani e aree vuote dai registri di Home Assistant. Solo anteprima per impostazione predefinita; impostare conferma su true per applicare. Richiede privilegi di amministratore.",
+      "fields": {
+        "dry_run": {
+          "name": "Simulazione",
+          "description": "Anteprima di ciò che verrebbe rimosso senza apportare modifiche."
+        },
+        "confirm": {
+          "name": "Conferma",
+          "description": "Impostare su true per rimuovere effettivamente le voci orfane."
+        }
+      }
     },
     "get_download_url": {
       "name": "Ottieni URL di download",

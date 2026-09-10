@@ -186,7 +186,27 @@ get_download_url:
 remove_orphaned:
   name: Remove orphaned entries
   description: >-
-    Remove orphaned entities (config entry removed), orphaned devices (all
-    config entries removed), and empty areas (no devices or entities) from
-    the Home Assistant registries. This is destructive and cannot be fully
+    Preview or remove orphaned entities (config entry removed), orphaned
+    devices (all config entries removed), and empty areas (no devices or
+    entities) from the Home Assistant registries. Defaults to a dry run;
+    pass confirm: true to apply. Requires admin. Removals cannot be fully
     undone — a Home Assistant backup is the only complete undo.
+  fields:
+    dry_run:
+      name: Dry run
+      description: >-
+        Preview what would be removed without making changes. Defaults to
+        true.
+      required: false
+      default: true
+      selector:
+        boolean:
+    confirm:
+      name: Confirm
+      description: >-
+        Set to true to actually remove the orphaned entries. When false
+        (default), the service returns a preview only.
+      required: false
+      default: false
+      selector:
+        boolean:

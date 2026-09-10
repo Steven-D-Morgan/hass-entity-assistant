@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "删除孤立条目",
+      "description": "预览或删除孤立实体、孤立设备和空区域。默认仅预览；将确认设置为 true 以执行。需要管理员权限。",
+      "fields": {
+        "dry_run": {
+          "name": "试运行",
+          "description": "预览将被删除的内容，不进行任何更改。"
+        },
+        "confirm": {
+          "name": "确认",
+          "description": "设置为 true 以实际删除孤立条目。"
+        }
+      }
     },
     "get_download_url": {
       "name": "获取下载 URL",

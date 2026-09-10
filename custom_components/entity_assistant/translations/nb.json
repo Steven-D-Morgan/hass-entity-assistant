@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Fjern foreldreløse oppføringer",
+      "description": "Forhåndsvis eller fjern foreldreløse entiteter, foreldreløse enheter og tomme områder fra Home Assistant-registrene. Kun forhåndsvisning som standard; sett bekreft til true for å utføre. Krever administrator.",
+      "fields": {
+        "dry_run": {
+          "name": "Testkjøring",
+          "description": "Forhåndsvis hva som vil bli fjernet uten å gjøre endringer."
+        },
+        "confirm": {
+          "name": "Bekreft",
+          "description": "Sett til true for å faktisk fjerne de foreldreløse oppføringene."
+        }
+      }
     },
     "get_download_url": {
       "name": "Hent nedlastings-URL",

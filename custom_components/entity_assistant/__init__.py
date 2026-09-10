@@ -10,18 +10,22 @@ import voluptuous as vol
 from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import (
+    Context,
     HomeAssistant,
     ServiceCall,
     ServiceResponse,
     SupportsResponse,
     callback,
 )
+from homeassistant.exceptions import Unauthorized
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 
 from .const import (
     ATTR_AREAS,
+    ATTR_CONFIRM,
     ATTR_DOMAINS,
+    ATTR_DRY_RUN,
     ATTR_EXPIRES,
     ATTR_EXPORT_TYPE,
     ATTR_FILENAME,
@@ -49,6 +53,22 @@ from .http import EntityExportView
 _LOGGER = logging.getLogger(__name__)
 
 _VIEW_REGISTERED = f"{DOMAIN}_view_registered"
+
+REMOVE_ORPHANED_SCHEMA = vol.Schema(
+    {
+        vol.Optional(ATTR_DRY_RUN, default=True): cv.boolean,
+        vol.Optional(ATTR_CONFIRM, default=False): cv.boolean,
+    }
+)
+
+
+async def _async_require_admin(hass: HomeAssistant, context: Context) -> None:
+    if context.user_id is None:
+        return
+    user = await hass.auth.async_get_user(context.user_id)
+    if user is None or not user.is_admin:
+        raise Unauthorized(context=context)
+
 
 _OPTION_FIELDS = {
     vol.Optional(ATTR_EXPORT_TYPE, default=DEFAULT_EXPORT_TYPE): vol.In(EXPORT_TYPES),
@@ -144,15 +164,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         supports_response=SupportsResponse.ONLY,
     )
 
-    @callback
-    def handle_remove_orphaned(call: ServiceCall) -> ServiceResponse:
-        return remove_orphaned(hass, triggered_by="service")
+    async def handle_remove_orphaned(call: ServiceCall) -> ServiceResponse:
+        await _async_require_admin(hass, call.context)
+        should_apply = call.data[ATTR_CONFIRM]
+        return remove_orphaned(hass, triggered_by="service", dry_run=not should_apply)
 
     hass.services.async_register(
         DOMAIN,
         SERVICE_REMOVE_ORPHANED,
         handle_remove_orphaned,
-        schema=vol.Schema({}),
+        schema=REMOVE_ORPHANED_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
     )
 

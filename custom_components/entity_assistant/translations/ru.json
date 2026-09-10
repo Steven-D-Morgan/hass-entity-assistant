@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Удалить осиротевшие записи",
+      "description": "Предварительный просмотр или удаление осиротевших сущностей, осиротевших устройств и пустых зон из реестров Home Assistant. По умолчанию только просмотр; установите подтвердить в true для применения. Требуются права администратора.",
+      "fields": {
+        "dry_run": {
+          "name": "Пробный запуск",
+          "description": "Предварительный просмотр того, что будет удалено, без внесения изменений."
+        },
+        "confirm": {
+          "name": "Подтвердить",
+          "description": "Установите в true для фактического удаления осиротевших записей."
+        }
+      }
     },
     "get_download_url": {
       "name": "Получить URL для скачивания",

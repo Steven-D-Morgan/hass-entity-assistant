@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Usuń osierocone wpisy",
+      "description": "Podgląd lub usunięcie osieroconych encji, osieroconych urządzeń i pustych obszarów z rejestrów Home Assistant. Domyślnie tylko podgląd; ustaw potwierdź na true, aby zastosować. Wymaga uprawnień administratora.",
+      "fields": {
+        "dry_run": {
+          "name": "Próba",
+          "description": "Podgląd tego, co zostałoby usunięte, bez wprowadzania zmian."
+        },
+        "confirm": {
+          "name": "Potwierdź",
+          "description": "Ustaw na true, aby faktycznie usunąć osierocone wpisy."
+        }
+      }
     },
     "get_download_url": {
       "name": "Pobierz adres URL do pobrania",

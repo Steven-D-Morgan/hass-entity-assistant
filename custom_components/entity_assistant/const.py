@@ -21,10 +21,12 @@ ATTR_EXPIRES = "expires"
 ATTR_STALE_ONLY = "stale_only"
 ATTR_STALE_DAYS = "stale_days"
 ATTR_UTF8_BOM = "utf8_bom"
+ATTR_DRY_RUN = "dry_run"
+ATTR_CONFIRM = "confirm"
 
 DEFAULT_FILENAME = "entity_export.csv"
 DEFAULT_STALE_FILENAME = "entity_export_stale.csv"
-DEFAULT_EXPIRES = 300
+DEFAULT_EXPIRES = 120
 DEFAULT_STALE_DAYS = 30
 
 EXPORT_TYPE_ENTITIES = "entities"

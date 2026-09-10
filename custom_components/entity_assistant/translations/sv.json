@@ -58,8 +58,18 @@
       }
     },
     "remove_orphaned": {
-      "name": "Remove orphaned entries",
-      "description": "Remove orphaned entities, orphaned devices, and empty areas from the Home Assistant registries."
+      "name": "Ta bort föräldralösa poster",
+      "description": "Förhandsgranska eller ta bort föräldralösa entiteter, föräldralösa enheter och tomma områden från Home Assistants register. Enbart förhandsgranskning som standard; sätt bekräfta till true för att tillämpa. Kräver administratör.",
+      "fields": {
+        "dry_run": {
+          "name": "Testkörning",
+          "description": "Förhandsgranska vad som skulle tas bort utan att göra ändringar."
+        },
+        "confirm": {
+          "name": "Bekräfta",
+          "description": "Sätt till true för att faktiskt ta bort de föräldralösa posterna."
+        }
+      }
     },
     "get_download_url": {
       "name": "Hämta nedladdnings-URL",
