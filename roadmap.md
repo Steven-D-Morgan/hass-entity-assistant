@@ -1,10 +1,10 @@
 # Roadmap
 
-Entity Assistant 1.6.2 is a hardened read-only exporter with one (insufficiently gated) destructive service. The destination is what the name promises: a **true entity assistant** — export the registries in any useful shape, edit them anywhere (a spreadsheet, a text editor, an automation), and apply the result back safely. Every sequencing decision below serves one north star:
+Where Entity Assistant is going: from a hardened exporter to a **true entity assistant** — export the registries in any useful shape, edit them anywhere (a spreadsheet, a text editor, an automation), and apply the result back safely.
 
 > **Export anything → edit anywhere → import safely.**
 
-The roadmap is grounded in what Home Assistant's public helper APIs actually support (next section) and sequenced as versioned milestones toward the import capability. It remains a recommendation, not a commitment; milestone version numbers are indicative and will shift with maintainer time and user demand.
+Milestone versions are indicative and will shift with maintainer time. For what has actually shipped, see [CHANGELOG.md](CHANGELOG.md).
 
 ## Reality: what Home Assistant allows
 
@@ -40,26 +40,9 @@ Three unifications keep the assistant coherent as it grows:
 
 Standing rules for every write: `dry_run: true` by default, explicit non-default `confirm: true` to apply, admin-only, journaled, evented, and undoable when it's an update.
 
-## Shipped so far
+## 1.7 — Trust gate — ✅ shipped
 
-1.5.x staleness classification → 1.6.0 orphan removal (`remove_orphaned` service; its button was removed in 1.6.1 to prevent accidental presses) → 1.6.1 CSV formula-injection hardening + opt-in UTF-8 BOM → 1.6.2 export failure handling & observability.
-
-Known debt: `remove_orphaned` shipped **without** dry-run, confirm, or an admin check — it mutates immediately and any authenticated user can call it. It predates the rules above, so retrofitting it comes first.
-
-## 1.7 — Trust gate
-
-Tests, CI, and bringing the one shipped mutation up to the safety rules. Nothing else mutating lands before this milestone is green.
-
-| Capability | What it adds | Effort | Risk |
-| --- | --- | --- | --- |
-| Core pytest suite | `pytest-homeassistant-custom-component` seeding the entity/device/area/floor/label registries; asserts row generation, staleness categorization, the `ExportOptions` filters, the `resolve_path` traversal guard, and the HTTP endpoint's auth. Runs in CI against min-supported + latest HA. The hard prerequisite for the entire mutation track. | M | low |
-| CSV output-contract snapshot tests (syrupy) | Golden-file snapshots of header + rows per export type against a committed fixture registry; any column/order/format change fails CI and forces a deliberate, versioned decision. The CSV schema is the tool's real public API — and is about to become an import contract too. | S | low |
-| `remove_orphaned` safety retrofit | `dry_run: true` default returning the would-remove lists, explicit `confirm: true` to apply, admin check, `services.yaml` + strings for the new fields. Technically a behavior change for automations calling it bare today (they become previews) — called out loudly in the changelog; whether that forces the major bump early is a release-time call. | S | medium |
-| CI quality gate: ruff + mypy + Dependabot | Lint/type job mirroring HA core's ruff config, `mypy` over the package, Dependabot scoped to `github-actions`. Cheap on a dependency-free codebase; keeps an eventual core submission realistic. | S | low |
-| Translation-coverage CI guard | Key-parity assertion across `translations/*.json` vs `strings.json`, hard-failing when a new string isn't backfilled to all 13 locales. Essential once import/spine/options-flow strings start landing. | S | low |
-| HTTP response hardening | `Cache-Control: no-store` on the download so registry data isn't cached by browsers/intermediaries; document the signed URL's bearer-token nature; shorter safe default `expires`. | S | low |
-| Docs & examples cookbook | Per-export-type column data dictionary, recipes (nightly export, notify-on-failure via the 1.6.2 event), committed sample outputs that double as the syrupy fixtures, troubleshooting/FAQ. | S | low |
-| *(standing)* services.yaml + strings discipline | Every new service field is a `services.yaml` + `strings.json` + 13-locale edit; the translation guard enforces the locale half automatically. | S | low (per feature) |
+Tests, CI, and safety-gating on the one shipped mutation. Delivered in 1.7.0 (2026-09-09) and hardened in 1.7.1 (2026-09-13). See [CHANGELOG.md](CHANGELOG.md).
 
 ## 1.8 — Round-trip-ready export
 

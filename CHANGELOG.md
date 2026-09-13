@@ -1,7 +1,46 @@
-# Versioning
+# Changelog
 
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
+
+## 1.7.1 — 2026-09-13
+
+- **CI:** committed the missing `tests/snapshots/test_snapshots.ambr` file so
+  the six 1.7 snapshot tests actually pass. `pytest-homeassistant-custom-component`
+  overrides syrupy's default snapshot directory to `snapshots/` (no
+  underscores), so the file has to live at `tests/snapshots/`, not the
+  syrupy-default `tests/__snapshots__/`. No integration behavior change.
+- Bumped Dependabot-managed CI action versions: `actions/checkout` 4 → 7,
+  `actions/setup-python` 5 → 7, `softprops/action-gh-release` 2 → 3.
+
+## 1.7.0 — 2026-09-09
+
+The **trust gate** milestone from the roadmap: tests, CI, and safety gating
+on the one shipped mutation. No new user-facing features.
+
+- **Safety:** `remove_orphaned` now defaults to `dry_run: true`, returning
+  the would-remove lists without touching the registries. Applying requires
+  explicit `confirm: true`, and the caller must be an admin — a
+  non-admin call raises `Unauthorized`. Automations that called the service
+  bare will now preview instead of mutate; opt back into the old behavior
+  with `confirm: true`.
+- **Tests:** first real pytest suite (`pytest-homeassistant-custom-component`)
+  covering row generation, staleness classification, `ExportOptions` filters,
+  path-traversal guard, HTTP endpoint auth, admin gating, the button, and
+  translation key parity across all 13 locales. syrupy golden-file snapshots
+  lock down the CSV column contract so any column addition, reorder, or
+  rename fails CI and forces a deliberate `--snapshot-update`.
+- **CI:** new `ci.yml` running ruff (check + format) and mypy strict on every
+  push/PR — mirrors HA core's ruff selection (`B, C, E, F, I, N, RUF, S, UP,
+  W`) with a 100-char line length. Dependabot enabled for the
+  `github-actions` ecosystem, weekly. Python 3.13 required (`requires-python`
+  bumped) — HA 2026.9+ parses on 3.13/3.14 only.
+- **HTTP:** download responses now send `Cache-Control: no-store` so
+  registry data isn't cached by browsers or intermediaries. Shorter safe
+  default `expires` (120s) on signed URLs.
+- **Source hygiene:** stripped all comments from the integration source;
+  design notes live in the private code-notes doc so the shipped package
+  stays lean.
 
 ## 1.6.2 — 2026-09-04
 

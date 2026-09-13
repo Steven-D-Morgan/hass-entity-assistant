@@ -245,6 +245,10 @@ browser downloads.
 - File writes are restricted to the config directory to prevent path traversal.
 - The HTTP endpoint is authenticated because it exposes your registry layout.
 
+## Changelog
+
+Per-version release notes live in [CHANGELOG.md](CHANGELOG.md).
+
 ## Roadmap
 
 See [roadmap.md](roadmap.md) for recommended future capabilities — where this
