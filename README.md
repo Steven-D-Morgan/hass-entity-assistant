@@ -245,6 +245,12 @@ browser downloads.
 - File writes are restricted to the config directory to prevent path traversal.
 - The HTTP endpoint is authenticated because it exposes your registry layout.
 
+## Recipes
+
+Task-driven recipes (filtered exports, dashboard download links, orphan
+cleanup with a backup, failure alerts, and more) live in
+[COOKBOOK.md](COOKBOOK.md).
+
 ## Changelog
 
 Per-version release notes live in [CHANGELOG.md](CHANGELOG.md).

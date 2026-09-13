@@ -4,7 +4,7 @@ Where Entity Assistant is going: from a hardened exporter to a **true entity ass
 
 > **Export anything → edit anywhere → import safely.**
 
-Milestone versions are indicative and will shift with maintainer time. For what has actually shipped, see [CHANGELOG.md](CHANGELOG.md).
+Milestone versions are indicative and will shift with maintainer time. For what has actually shipped, see [CHANGELOG.md](CHANGELOG.md); for task-driven recipes against shipped features, see [COOKBOOK.md](COOKBOOK.md).
 
 ## Reality: what Home Assistant allows
 
