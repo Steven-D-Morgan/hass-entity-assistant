@@ -1,0 +1,77 @@
+# serializer version: 1
+# name: test_area_columns_list_snapshot
+  list([
+    'area_id',
+    'name',
+    'floor_id',
+    'floor',
+    'labels',
+    'aliases',
+    'device_count',
+    'entity_count',
+    'picture',
+    'stale',
+    'stale_reason',
+  ])
+# ---
+# name: test_area_csv_header_snapshot
+  'area_id,name,floor_id,floor,labels,aliases,device_count,entity_count,picture,stale,stale_reason'
+# ---
+# name: test_device_columns_list_snapshot
+  list([
+    'device_id',
+    'name',
+    'name_by_user',
+    'manufacturer',
+    'model',
+    'sw_version',
+    'hw_version',
+    'area_id',
+    'area_name',
+    'floor',
+    'labels',
+    'config_entries',
+    'via_device_id',
+    'entity_count',
+    'available_entity_count',
+    'disabled_by',
+    'stale',
+    'stale_reason',
+  ])
+# ---
+# name: test_device_csv_header_snapshot
+  'device_id,name,name_by_user,manufacturer,model,sw_version,hw_version,area_id,area_name,floor,labels,config_entries,via_device_id,entity_count,available_entity_count,disabled_by,stale,stale_reason'
+# ---
+# name: test_entity_columns_list_snapshot
+  list([
+    'entity_id',
+    'name',
+    'original_name',
+    'platform',
+    'config_entry',
+    'device_id',
+    'device_name',
+    'device_manufacturer',
+    'device_model',
+    'area_id',
+    'area_name',
+    'floor',
+    'labels',
+    'entity_category',
+    'device_class',
+    'unit_of_measurement',
+    'state',
+    'available',
+    'last_changed',
+    'last_changed_days',
+    'stale',
+    'stale_reason',
+    'enabled',
+    'disabled_by',
+    'hidden_by',
+    'unique_id',
+  ])
+# ---
+# name: test_entity_csv_header_snapshot
+  'entity_id,name,original_name,platform,config_entry,device_id,device_name,device_manufacturer,device_model,area_id,area_name,floor,labels,entity_category,device_class,unit_of_measurement,state,available,last_changed,last_changed_days,stale,stale_reason,enabled,disabled_by,hidden_by,unique_id'
+# ---
