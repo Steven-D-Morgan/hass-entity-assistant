@@ -89,11 +89,24 @@ export_csv:
       name: UTF-8 BOM
       description: >-
         Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII
-        characters correctly.
+        characters correctly (CSV only).
       required: false
       default: false
       selector:
         boolean:
+    output_format:
+      name: Output format
+      description: >-
+        File format to write: CSV (default), JSON, or YAML. JSON and YAML are
+        lossless structured formats; CSV is best for spreadsheets.
+      required: false
+      default: csv
+      selector:
+        select:
+          options:
+            - csv
+            - json
+            - yaml
 
 get_download_url:
   name: Get download URL
@@ -183,11 +196,24 @@ get_download_url:
       name: UTF-8 BOM
       description: >-
         Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII
-        characters correctly.
+        characters correctly (CSV only).
       required: false
       default: false
       selector:
         boolean:
+    output_format:
+      name: Output format
+      description: >-
+        File format to write: CSV (default), JSON, or YAML. JSON and YAML are
+        lossless structured formats; CSV is best for spreadsheets.
+      required: false
+      default: csv
+      selector:
+        select:
+          options:
+            - csv
+            - json
+            - yaml
 
 remove_orphaned:
   name: Remove orphaned entries

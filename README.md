@@ -175,8 +175,9 @@ All fields are optional:
 
 | Field | Default | Description |
 | --- | --- | --- |
-| `filename` | `entity_export.csv` | Output path, relative to the config directory. Subfolders are created automatically. Must stay inside the config directory. |
-| `export_type` | `entities` | `entities`, `devices`, or `areas` |
+| `filename` | `entity_export.csv` | Output path, relative to the config directory. Subfolders are created automatically. Must stay inside the config directory. Give it a `.json`/`.yaml` extension to match `output_format`. |
+| `export_type` | `entities` | `entities`, `devices`, `areas`, `floors`, or `labels` |
+| `output_format` | `csv` | Serialization format: `csv`, `json`, or `yaml`. JSON and YAML are lossless structured formats; CSV is best for spreadsheets |
 | `include_disabled` | `true` | Include disabled entities/devices |
 | `include_hidden` | `true` | Include hidden entities |
 | `only_enabled` | `false` | Shortcut to exclude everything disabled/hidden |
@@ -184,16 +185,23 @@ All fields are optional:
 | `areas` | — | Only these areas (by area id or name) |
 | `stale_only` | `false` | Only export rows flagged stale (see [Finding stale entities/devices](#finding-stale-entitiesdevices)) |
 | `stale_days` | `30` | Threshold for the `not_changed_<N>d` stale reason |
-| `utf8_bom` | `false` | Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly |
+| `utf8_bom` | `false` | Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly (CSV only) |
 
 The file is written inside your config directory. The service returns
 `{path, row_count}`.
 
+**Output formats:** `csv` (default) is one header row plus one row per object,
+with formula-injection guarding and the optional Excel BOM. `json` and `yaml`
+emit a list of objects (one per row) preserving the column order — the lossless
+shape a future import will read back. The CSV-only formula guard and BOM don't
+apply to JSON/YAML, so their values are verbatim.
+
 ### Service: `get_download_url`
 
-Returns a **signed, time-limited URL** that downloads the CSV without an auth
-header — ideal for a dashboard link. Accepts the same options plus `expires`
-(seconds, default 300). Response only; writes no file.
+Returns a **signed, time-limited URL** that downloads the export without an auth
+header — ideal for a dashboard link. Accepts the same options (including
+`output_format`) plus `expires` (seconds, default 300). Response only; writes no
+file.
 
 ```yaml
 action: entity_assistant.get_download_url
@@ -229,9 +237,10 @@ The integration also serves the export directly at:
 This endpoint is **authenticated**, so either use a signed URL from
 `get_download_url`, or pass a
 [long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
-It accepts the same options as query flags: `export_type`, `include_disabled`,
-`include_hidden`, `only_enabled`, `stale_only`, `stale_days`, `utf8_bom`,
-`domains`, `areas` (the last two comma-separated).
+It accepts the same options as query flags: `export_type`, `output_format`,
+`include_disabled`, `include_hidden`, `only_enabled`, `stale_only`, `stale_days`,
+`utf8_bom`, `domains`, `areas` (the last two comma-separated). `output_format`
+sets the response `Content-Type` and download extension (`.csv`/`.json`/`.yaml`).
 
 ```bash
 curl -H "Authorization: Bearer <YOUR_TOKEN>" \

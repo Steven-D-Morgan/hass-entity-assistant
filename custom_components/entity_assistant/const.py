@@ -21,6 +21,7 @@ ATTR_EXPIRES = "expires"
 ATTR_STALE_ONLY = "stale_only"
 ATTR_STALE_DAYS = "stale_days"
 ATTR_UTF8_BOM = "utf8_bom"
+ATTR_OUTPUT_FORMAT = "output_format"
 ATTR_DRY_RUN = "dry_run"
 ATTR_CONFIRM = "confirm"
 
@@ -43,11 +44,24 @@ EXPORT_TYPES = [
 ]
 DEFAULT_EXPORT_TYPE = EXPORT_TYPE_ENTITIES
 
+OUTPUT_FORMAT_CSV = "csv"
+OUTPUT_FORMAT_JSON = "json"
+OUTPUT_FORMAT_YAML = "yaml"
+OUTPUT_FORMATS = [OUTPUT_FORMAT_CSV, OUTPUT_FORMAT_JSON, OUTPUT_FORMAT_YAML]
+DEFAULT_OUTPUT_FORMAT = OUTPUT_FORMAT_CSV
+
+OUTPUT_FORMAT_CONTENT_TYPES = {
+    OUTPUT_FORMAT_CSV: "text/csv",
+    OUTPUT_FORMAT_JSON: "application/json",
+    OUTPUT_FORMAT_YAML: "application/yaml",
+}
+
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
 EVENT_EXPORT_FAILED = "entity_assistant_export_failed"
 EVENT_ORPHANED_REMOVED = "entity_assistant_orphaned_removed"
 
 DOWNLOAD_URL = "/api/entity_assistant/export.csv"
+DOWNLOAD_FILENAME_BASE = "entity_export"
 DOWNLOAD_FILENAME = "entity_export.csv"
 
 ENTITY_COLUMNS = [

@@ -23,6 +23,10 @@
           "name": "Type d'export",
           "description": "Ce qu'il faut exporter : une ligne par entité, appareil ou zone."
         },
+        "output_format": {
+          "name": "Output format",
+          "description": "File format to write: CSV (default), JSON, or YAML."
+        },
         "include_disabled": {
           "name": "Inclure les désactivés",
           "description": "Inclure les entités et appareils désactivés."
@@ -82,6 +86,10 @@
         "export_type": {
           "name": "Type d'export",
           "description": "Ce qu'il faut exporter : une ligne par entité, appareil ou zone."
+        },
+        "output_format": {
+          "name": "Output format",
+          "description": "File format to write: CSV (default), JSON, or YAML."
         },
         "include_disabled": {
           "name": "Inclure les désactivés",

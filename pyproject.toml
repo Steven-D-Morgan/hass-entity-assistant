@@ -1,6 +1,6 @@
 [project]
 name = "hass-entity-assistant"
-version = "1.8.1"
+version = "1.8.2"
 requires-python = ">=3.13"
 
 [tool.pytest.ini_options]
@@ -60,3 +60,7 @@ module = [
 ]
 ignore_missing_imports = true
 follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true

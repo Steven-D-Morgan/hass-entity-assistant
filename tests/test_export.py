@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import json
 import os
 
 from freezegun import freeze_time
@@ -16,6 +17,7 @@ from homeassistant.util import dt as dt_util
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import voluptuous as vol
+import yaml
 
 from custom_components.entity_assistant.const import (
     AREA_COLUMNS,
@@ -29,9 +31,13 @@ from custom_components.entity_assistant.export import (
     _alias_names,
     _category_pairs,
     _sanitize_csv_value,
+    async_run_export,
     build_export,
     resolve_path,
     rows_to_csv,
+    rows_to_json,
+    rows_to_yaml,
+    serialize_export,
 )
 
 
@@ -443,6 +449,70 @@ def test_rows_to_csv_utf8_bom() -> None:
 def test_rows_to_csv_no_bom_default() -> None:
     output = rows_to_csv(["a"], [{"a": "1"}])
     assert not output.startswith("\ufeff")
+
+
+def test_rows_to_json_roundtrips() -> None:
+    rows = [{"a": "1", "b": "x"}, {"a": "2", "b": "y"}]
+    output = rows_to_json(rows)
+    assert output.endswith("\n")
+    assert json.loads(output) == rows
+
+
+def test_rows_to_json_preserves_column_order() -> None:
+    output = rows_to_json([{"z": "1", "a": "2"}])
+    assert output.index('"z"') < output.index('"a"')
+
+
+def test_rows_to_json_keeps_non_ascii() -> None:
+    output = rows_to_json([{"name": "Wohnzimmer l\u00e4mpchen"}])
+    assert "Wohnzimmer l\u00e4mpchen" in output
+
+
+def test_rows_to_yaml_roundtrips() -> None:
+    rows = [{"a": "1", "b": "x"}]
+    assert yaml.safe_load(rows_to_yaml(rows)) == rows
+
+
+def test_serialize_export_dispatch() -> None:
+    columns = ["a"]
+    rows = [{"a": "1"}]
+    assert serialize_export(columns, rows, "csv").splitlines()[0] == "a"
+    assert json.loads(serialize_export(columns, rows, "json")) == rows
+    assert yaml.safe_load(serialize_export(columns, rows, "yaml")) == rows
+
+
+def test_serialize_export_unknown_format_falls_back_to_csv() -> None:
+    output = serialize_export(["a"], [{"a": "1"}], "bogus")
+    assert output.splitlines()[0] == "a"
+
+
+def test_serialize_export_json_yaml_skip_formula_sanitization() -> None:
+    rows = [{"a": "=SUM(A1)"}]
+    assert json.loads(serialize_export(["a"], rows, "json")) == rows
+    assert yaml.safe_load(serialize_export(["a"], rows, "yaml")) == rows
+
+
+async def test_async_run_export_writes_json(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    path, count = await async_run_export(
+        hass, ExportOptions(output_format="json"), "export.json", "test"
+    )
+    with open(path, encoding="utf-8") as file:
+        data = json.load(file)
+    assert isinstance(data, list)
+    assert len(data) == count
+    assert all("entity_id" in row for row in data)
+
+
+async def test_async_run_export_writes_yaml(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    path, count = await async_run_export(
+        hass, ExportOptions(output_format="yaml"), "export.yaml", "test"
+    )
+    with open(path, encoding="utf-8") as file:
+        data = yaml.safe_load(file)
+    assert isinstance(data, list)
+    assert len(data) == count
 
 
 def test_alias_names_sorts_and_joins() -> None:

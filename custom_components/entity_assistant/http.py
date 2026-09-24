@@ -10,12 +10,15 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     DEFAULT_EXPORT_TYPE,
+    DEFAULT_OUTPUT_FORMAT,
     DEFAULT_STALE_DAYS,
-    DOWNLOAD_FILENAME,
+    DOWNLOAD_FILENAME_BASE,
     DOWNLOAD_URL,
     EXPORT_TYPES,
+    OUTPUT_FORMAT_CONTENT_TYPES,
+    OUTPUT_FORMATS,
 )
-from .export import ExportOptions, build_export, fire_export_failed, rows_to_csv
+from .export import ExportOptions, build_export, fire_export_failed, serialize_export
 
 
 def _as_bool(value: str | None, default: bool) -> bool:
@@ -43,6 +46,9 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
     export_type = query.get("export_type", DEFAULT_EXPORT_TYPE)
     if export_type not in EXPORT_TYPES:
         export_type = DEFAULT_EXPORT_TYPE
+    output_format = query.get("output_format", DEFAULT_OUTPUT_FORMAT)
+    if output_format not in OUTPUT_FORMATS:
+        output_format = DEFAULT_OUTPUT_FORMAT
     return ExportOptions(
         export_type=export_type,
         include_disabled=_as_bool(query.get("include_disabled"), True),
@@ -53,6 +59,7 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
         stale_only=_as_bool(query.get("stale_only"), False),
         stale_days=_as_int(query.get("stale_days"), DEFAULT_STALE_DAYS),
         utf8_bom=_as_bool(query.get("utf8_bom"), False),
+        output_format=output_format,
     )
 
 
@@ -68,7 +75,7 @@ class EntityExportView(HomeAssistantView):
         options = options_from_query(request.query)
         try:
             columns, rows = build_export(self.hass, options)
-            csv_text = rows_to_csv(columns, rows, utf8_bom=options.utf8_bom)
+            body = serialize_export(columns, rows, options.output_format, utf8_bom=options.utf8_bom)
         except Exception as err:
             fire_export_failed(self.hass, options, "http", "", err)
             return web.Response(
@@ -77,12 +84,14 @@ class EntityExportView(HomeAssistantView):
                 headers={"Cache-Control": "no-store"},
             )
 
+        content_type = OUTPUT_FORMAT_CONTENT_TYPES[options.output_format]
+        download_name = f"{DOWNLOAD_FILENAME_BASE}.{options.output_format}"
         return web.Response(
-            body=csv_text.encode("utf-8"),
-            content_type="text/csv",
+            body=body.encode("utf-8"),
+            content_type=content_type,
             charset="utf-8",
             headers={
-                "Content-Disposition": f'attachment; filename="{DOWNLOAD_FILENAME}"',
+                "Content-Disposition": f'attachment; filename="{download_name}"',
                 "Cache-Control": "no-store",
             },
         )

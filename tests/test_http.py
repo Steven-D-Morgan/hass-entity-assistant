@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from homeassistant.core import HomeAssistant
 
 from custom_components.entity_assistant.const import (
@@ -22,6 +24,7 @@ def test_options_from_query_defaults() -> None:
     assert options.stale_only is False
     assert options.stale_days == DEFAULT_STALE_DAYS
     assert options.utf8_bom is False
+    assert options.output_format == "csv"
 
 
 def test_options_from_query_all_params() -> None:
@@ -35,6 +38,7 @@ def test_options_from_query_all_params() -> None:
         "stale_only": "true",
         "stale_days": "14",
         "utf8_bom": "true",
+        "output_format": "json",
     }
     options = options_from_query(query)
     assert options.export_type == "devices"
@@ -46,11 +50,17 @@ def test_options_from_query_all_params() -> None:
     assert options.stale_only is True
     assert options.stale_days == 14
     assert options.utf8_bom is True
+    assert options.output_format == "json"
 
 
 def test_options_from_query_invalid_export_type_falls_back() -> None:
     options = options_from_query({"export_type": "bogus"})
     assert options.export_type == DEFAULT_EXPORT_TYPE
+
+
+def test_options_from_query_invalid_output_format_falls_back() -> None:
+    options = options_from_query({"output_format": "bogus"})
+    assert options.output_format == "csv"
 
 
 def test_options_from_query_bool_variations() -> None:
@@ -123,3 +133,27 @@ async def test_download_export_type_query(
     assert resp.status == 200
     body = await resp.text()
     assert body.splitlines()[0].startswith("device_id")
+
+
+async def test_download_json_format(
+    hass: HomeAssistant, setup_integration, hass_client
+) -> None:
+    client = await hass_client()
+    resp = await client.get(f"{DOWNLOAD_URL}?output_format=json")
+    assert resp.status == 200
+    assert resp.content_type == "application/json"
+    disposition = resp.headers.get("Content-Disposition", "")
+    assert ".json" in disposition
+    data = json.loads(await resp.text())
+    assert isinstance(data, list)
+
+
+async def test_download_yaml_format(
+    hass: HomeAssistant, setup_integration, hass_client
+) -> None:
+    client = await hass_client()
+    resp = await client.get(f"{DOWNLOAD_URL}?output_format=yaml")
+    assert resp.status == 200
+    assert resp.content_type == "application/yaml"
+    disposition = resp.headers.get("Content-Disposition", "")
+    assert ".yaml" in disposition

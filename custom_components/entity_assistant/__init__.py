@@ -32,16 +32,19 @@ from .const import (
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
     ATTR_ONLY_ENABLED,
+    ATTR_OUTPUT_FORMAT,
     ATTR_STALE_DAYS,
     ATTR_STALE_ONLY,
     ATTR_UTF8_BOM,
     DEFAULT_EXPIRES,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
+    DEFAULT_OUTPUT_FORMAT,
     DEFAULT_STALE_DAYS,
     DOMAIN,
     DOWNLOAD_URL,
     EXPORT_TYPES,
+    OUTPUT_FORMATS,
     PLATFORMS,
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
@@ -80,6 +83,7 @@ _OPTION_FIELDS = {
     vol.Optional(ATTR_STALE_ONLY, default=False): cv.boolean,
     vol.Optional(ATTR_STALE_DAYS, default=DEFAULT_STALE_DAYS): cv.positive_int,
     vol.Optional(ATTR_UTF8_BOM, default=False): cv.boolean,
+    vol.Optional(ATTR_OUTPUT_FORMAT, default=DEFAULT_OUTPUT_FORMAT): vol.In(OUTPUT_FORMATS),
 }
 
 EXPORT_CSV_SCHEMA = vol.Schema(
@@ -104,6 +108,7 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
         stale_only=call.data[ATTR_STALE_ONLY],
         stale_days=call.data[ATTR_STALE_DAYS],
         utf8_bom=call.data[ATTR_UTF8_BOM],
+        output_format=call.data[ATTR_OUTPUT_FORMAT],
     )
 
 
@@ -116,6 +121,7 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
         "stale_only": str(options.stale_only).lower(),
         "stale_days": str(options.stale_days),
         "utf8_bom": str(options.utf8_bom).lower(),
+        "output_format": options.output_format,
     }
     if options.domains:
         query["domains"] = ",".join(sorted(options.domains))

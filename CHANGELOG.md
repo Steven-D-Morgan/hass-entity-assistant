@@ -3,6 +3,35 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.8.2 — 2026-09-24
+
+More of the **round-trip-ready export** milestone (1.8): structured output
+formats beside CSV. Additive and backward compatible — `csv` stays the default,
+so every existing service call, signed URL, and HTTP request is unchanged.
+
+- **New `output_format` option** — `csv` (default), `json`, or `yaml` — on the
+  `export_csv` and `get_download_url` services and the HTTP endpoint. JSON and
+  YAML emit a list of one object per row, preserving column order — the lossless
+  shape a future `import_changes` will read back. (NDJSON from the roadmap was
+  intentionally dropped.)
+  - `json` uses the stdlib; `yaml` uses PyYAML, which ships in Home Assistant
+    core — still no third-party requirement in the manifest.
+  - The CSV-only formula-injection guard and the Excel UTF-8 BOM are **not**
+    applied to JSON/YAML, so their values are verbatim. `utf8_bom` is now
+    documented as CSV-only.
+- **HTTP endpoint** sets the response `Content-Type`
+  (`text/csv` / `application/json` / `application/yaml`) and the download
+  filename extension (`.csv` / `.json` / `.yaml`) from `output_format`.
+- **Internals:** `write_csv` was generalized to `serialize_export` (format
+  dispatch) + `write_export` (plain text write); `rows_to_csv` is unchanged and
+  `rows_to_json` / `rows_to_yaml` were added.
+- **Tests:** serializer round-trips (JSON/YAML), format dispatch, the
+  no-formula-sanitization guarantee for JSON/YAML, end-to-end `.json`/`.yaml`
+  file writes, and HTTP `Content-Type`/extension per format.
+- **i18n:** the new `output_format` field is added to `strings.json` and all 13
+  locale files (English text in the 12 non-English files until backfilled), so
+  the locale-parity CI check stays green.
+
 ## 1.8.1 — 2026-09-24
 
 More of the **round-trip-ready export** milestone (1.8): two new export types

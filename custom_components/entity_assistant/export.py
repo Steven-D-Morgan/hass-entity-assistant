@@ -6,6 +6,7 @@ from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
 import io
+import json
 import logging
 import os
 
@@ -19,10 +20,12 @@ from homeassistant.helpers import (
 )
 from homeassistant.util import dt as dt_util
 import voluptuous as vol
+import yaml
 
 from .const import (
     COLUMNS_BY_TYPE,
     DEFAULT_EXPORT_TYPE,
+    DEFAULT_OUTPUT_FORMAT,
     DEFAULT_STALE_DAYS,
     EVENT_EXPORT_COMPLETED,
     EVENT_EXPORT_FAILED,
@@ -31,6 +34,8 @@ from .const import (
     EXPORT_TYPE_DEVICES,
     EXPORT_TYPE_FLOORS,
     EXPORT_TYPE_LABELS,
+    OUTPUT_FORMAT_JSON,
+    OUTPUT_FORMAT_YAML,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -56,6 +61,7 @@ class ExportOptions:
     stale_only: bool = False
     stale_days: int = DEFAULT_STALE_DAYS
     utf8_bom: bool = False
+    output_format: str = DEFAULT_OUTPUT_FORMAT
 
     @property
     def want_disabled(self) -> bool:
@@ -464,12 +470,34 @@ def rows_to_csv(columns: list[str], rows: list[dict[str, str]], utf8_bom: bool =
     return buffer.getvalue()
 
 
-def write_csv(
-    path: str, columns: list[str], rows: list[dict[str, str]], utf8_bom: bool = False
-) -> None:
+def rows_to_json(rows: list[dict[str, str]]) -> str:
+    return json.dumps(rows, indent=2, ensure_ascii=False) + "\n"
+
+
+def rows_to_yaml(rows: list[dict[str, str]]) -> str:
+    dumped: str = yaml.safe_dump(
+        list(rows), default_flow_style=False, allow_unicode=True, sort_keys=False
+    )
+    return dumped
+
+
+def serialize_export(
+    columns: list[str],
+    rows: list[dict[str, str]],
+    output_format: str,
+    utf8_bom: bool = False,
+) -> str:
+    if output_format == OUTPUT_FORMAT_JSON:
+        return rows_to_json(rows)
+    if output_format == OUTPUT_FORMAT_YAML:
+        return rows_to_yaml(rows)
+    return rows_to_csv(columns, rows, utf8_bom=utf8_bom)
+
+
+def write_export(path: str, content: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as file:
-        file.write(rows_to_csv(columns, rows, utf8_bom=utf8_bom))
+        file.write(content)
 
 
 @callback
@@ -510,7 +538,8 @@ async def async_run_export(
     try:
         path = resolve_path(hass, filename)
         columns, rows = build_export(hass, options)
-        await hass.async_add_executor_job(write_csv, path, columns, rows, options.utf8_bom)
+        content = serialize_export(columns, rows, options.output_format, options.utf8_bom)
+        await hass.async_add_executor_job(write_export, path, content)
     except Exception as err:
         fire_export_failed(hass, options, triggered_by, path, err)
         raise

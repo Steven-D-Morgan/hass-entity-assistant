@@ -23,6 +23,10 @@
           "name": "Typ eksportu",
           "description": "Co eksportować: jeden wiersz na encję, urządzenie lub obszar."
         },
+        "output_format": {
+          "name": "Output format",
+          "description": "File format to write: CSV (default), JSON, or YAML."
+        },
         "include_disabled": {
           "name": "Uwzględnij wyłączone",
           "description": "Uwzględnij wyłączone encje i urządzenia."
@@ -82,6 +86,10 @@
         "export_type": {
           "name": "Typ eksportu",
           "description": "Co eksportować: jeden wiersz na encję, urządzenie lub obszar."
+        },
+        "output_format": {
+          "name": "Output format",
+          "description": "File format to write: CSV (default), JSON, or YAML."
         },
         "include_disabled": {
           "name": "Uwzględnij wyłączone",

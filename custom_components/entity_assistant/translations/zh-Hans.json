@@ -23,6 +23,10 @@
           "name": "导出类型",
           "description": "要导出的内容：每个实体、设备或区域一行。"
         },
+        "output_format": {
+          "name": "Output format",
+          "description": "File format to write: CSV (default), JSON, or YAML."
+        },
         "include_disabled": {
           "name": "包含已禁用",
           "description": "包含已禁用的实体和设备。"
@@ -82,6 +86,10 @@
         "export_type": {
           "name": "导出类型",
           "description": "要导出的内容：每个实体、设备或区域一行。"
+        },
+        "output_format": {
+          "name": "Output format",
+          "description": "File format to write: CSV (default), JSON, or YAML."
         },
         "include_disabled": {
           "name": "包含已禁用",
