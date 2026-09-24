@@ -228,6 +228,27 @@ async def test_build_entity_rows_writable_fields(hass: HomeAssistant) -> None:
     assert row["categories"] == "cleaning:cat_weekly"
 
 
+async def test_build_entity_rows_sort_by_name_asc(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    _, rows = build_export(hass, ExportOptions(sort_by="name"))
+    names = [r["name"] for r in rows]
+    assert names == sorted(names)
+
+
+async def test_build_entity_rows_sort_by_name_desc(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    _, rows = build_export(hass, ExportOptions(sort_by="name", sort_dir="desc"))
+    names = [r["name"] for r in rows]
+    assert names == sorted(names, reverse=True)
+
+
+async def test_build_entity_rows_sort_unknown_column_ignored(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    _, default_rows = build_export(hass, ExportOptions())
+    _, rows = build_export(hass, ExportOptions(sort_by="nonexistent_column"))
+    assert [r["entity_id"] for r in rows] == [r["entity_id"] for r in default_rows]
+
+
 async def test_build_entity_rows_stale_only(hass: HomeAssistant) -> None:
     _seed_basic(hass)
     _, rows = build_export(hass, ExportOptions(stale_only=True))

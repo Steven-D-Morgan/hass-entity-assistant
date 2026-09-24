@@ -27,6 +27,14 @@
           "name": "Output format",
           "description": "File format to write: CSV (default), JSON, or YAML."
         },
+        "sort_by": {
+          "name": "Sort by",
+          "description": "Column name to sort rows by (unknown columns are ignored; values sort as text)."
+        },
+        "sort_dir": {
+          "name": "Sort direction",
+          "description": "Sort ascending or descending. Only applies when sort_by is set."
+        },
         "include_disabled": {
           "name": "Include disabled",
           "description": "Include disabled entities and devices."
@@ -90,6 +98,14 @@
         "output_format": {
           "name": "Output format",
           "description": "File format to write: CSV (default), JSON, or YAML."
+        },
+        "sort_by": {
+          "name": "Sort by",
+          "description": "Column name to sort rows by (unknown columns are ignored; values sort as text)."
+        },
+        "sort_dir": {
+          "name": "Sort direction",
+          "description": "Sort ascending or descending. Only applies when sort_by is set."
         },
         "include_disabled": {
           "name": "Include disabled",

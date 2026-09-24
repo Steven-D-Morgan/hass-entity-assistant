@@ -11,12 +11,14 @@ from homeassistant.core import HomeAssistant
 from .const import (
     DEFAULT_EXPORT_TYPE,
     DEFAULT_OUTPUT_FORMAT,
+    DEFAULT_SORT_DIR,
     DEFAULT_STALE_DAYS,
     DOWNLOAD_FILENAME_BASE,
     DOWNLOAD_URL,
     EXPORT_TYPES,
     OUTPUT_FORMAT_CONTENT_TYPES,
     OUTPUT_FORMATS,
+    SORT_DIRS,
 )
 from .export import ExportOptions, build_export, fire_export_failed, serialize_export
 
@@ -49,6 +51,9 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
     output_format = query.get("output_format", DEFAULT_OUTPUT_FORMAT)
     if output_format not in OUTPUT_FORMATS:
         output_format = DEFAULT_OUTPUT_FORMAT
+    sort_dir = query.get("sort_dir", DEFAULT_SORT_DIR)
+    if sort_dir not in SORT_DIRS:
+        sort_dir = DEFAULT_SORT_DIR
     return ExportOptions(
         export_type=export_type,
         include_disabled=_as_bool(query.get("include_disabled"), True),
@@ -60,6 +65,8 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
         stale_days=_as_int(query.get("stale_days"), DEFAULT_STALE_DAYS),
         utf8_bom=_as_bool(query.get("utf8_bom"), False),
         output_format=output_format,
+        sort_by=query.get("sort_by") or None,
+        sort_dir=sort_dir,
     )
 
 

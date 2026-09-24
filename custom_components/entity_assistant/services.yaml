@@ -107,6 +107,25 @@ export_csv:
             - csv
             - json
             - yaml
+    sort_by:
+      name: Sort by
+      description: >-
+        Column name to sort rows by (e.g. name, area_name, last_changed_days).
+        Unknown columns are ignored. Values sort as text.
+      required: false
+      example: area_name
+      selector:
+        text:
+    sort_dir:
+      name: Sort direction
+      description: Sort ascending or descending. Only applies when sort_by is set.
+      required: false
+      default: asc
+      selector:
+        select:
+          options:
+            - asc
+            - desc
 
 get_download_url:
   name: Get download URL
@@ -214,6 +233,25 @@ get_download_url:
             - csv
             - json
             - yaml
+    sort_by:
+      name: Sort by
+      description: >-
+        Column name to sort rows by (e.g. name, area_name, last_changed_days).
+        Unknown columns are ignored. Values sort as text.
+      required: false
+      example: area_name
+      selector:
+        text:
+    sort_dir:
+      name: Sort direction
+      description: Sort ascending or descending. Only applies when sort_by is set.
+      required: false
+      default: asc
+      selector:
+        select:
+          options:
+            - asc
+            - desc
 
 remove_orphaned:
   name: Remove orphaned entries

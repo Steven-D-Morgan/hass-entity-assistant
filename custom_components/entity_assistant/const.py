@@ -22,6 +22,8 @@ ATTR_STALE_ONLY = "stale_only"
 ATTR_STALE_DAYS = "stale_days"
 ATTR_UTF8_BOM = "utf8_bom"
 ATTR_OUTPUT_FORMAT = "output_format"
+ATTR_SORT_BY = "sort_by"
+ATTR_SORT_DIR = "sort_dir"
 ATTR_DRY_RUN = "dry_run"
 ATTR_CONFIRM = "confirm"
 
@@ -55,6 +57,11 @@ OUTPUT_FORMAT_CONTENT_TYPES = {
     OUTPUT_FORMAT_JSON: "application/json",
     OUTPUT_FORMAT_YAML: "application/yaml",
 }
+
+SORT_DIR_ASC = "asc"
+SORT_DIR_DESC = "desc"
+SORT_DIRS = [SORT_DIR_ASC, SORT_DIR_DESC]
+DEFAULT_SORT_DIR = SORT_DIR_ASC
 
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
 EVENT_EXPORT_FAILED = "entity_assistant_export_failed"

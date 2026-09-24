@@ -33,6 +33,8 @@ from .const import (
     ATTR_INCLUDE_HIDDEN,
     ATTR_ONLY_ENABLED,
     ATTR_OUTPUT_FORMAT,
+    ATTR_SORT_BY,
+    ATTR_SORT_DIR,
     ATTR_STALE_DAYS,
     ATTR_STALE_ONLY,
     ATTR_UTF8_BOM,
@@ -40,6 +42,7 @@ from .const import (
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
     DEFAULT_OUTPUT_FORMAT,
+    DEFAULT_SORT_DIR,
     DEFAULT_STALE_DAYS,
     DOMAIN,
     DOWNLOAD_URL,
@@ -49,6 +52,7 @@ from .const import (
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
     SERVICE_REMOVE_ORPHANED,
+    SORT_DIRS,
 )
 from .export import ExportOptions, async_run_export, remove_orphaned
 from .http import EntityExportView
@@ -84,6 +88,8 @@ _OPTION_FIELDS = {
     vol.Optional(ATTR_STALE_DAYS, default=DEFAULT_STALE_DAYS): cv.positive_int,
     vol.Optional(ATTR_UTF8_BOM, default=False): cv.boolean,
     vol.Optional(ATTR_OUTPUT_FORMAT, default=DEFAULT_OUTPUT_FORMAT): vol.In(OUTPUT_FORMATS),
+    vol.Optional(ATTR_SORT_BY): cv.string,
+    vol.Optional(ATTR_SORT_DIR, default=DEFAULT_SORT_DIR): vol.In(SORT_DIRS),
 }
 
 EXPORT_CSV_SCHEMA = vol.Schema(
@@ -109,6 +115,8 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
         stale_days=call.data[ATTR_STALE_DAYS],
         utf8_bom=call.data[ATTR_UTF8_BOM],
         output_format=call.data[ATTR_OUTPUT_FORMAT],
+        sort_by=call.data.get(ATTR_SORT_BY),
+        sort_dir=call.data[ATTR_SORT_DIR],
     )
 
 
@@ -122,7 +130,10 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
         "stale_days": str(options.stale_days),
         "utf8_bom": str(options.utf8_bom).lower(),
         "output_format": options.output_format,
+        "sort_dir": options.sort_dir,
     }
+    if options.sort_by:
+        query["sort_by"] = options.sort_by
     if options.domains:
         query["domains"] = ",".join(sorted(options.domains))
     if options.areas:

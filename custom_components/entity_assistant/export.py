@@ -26,6 +26,7 @@ from .const import (
     COLUMNS_BY_TYPE,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_OUTPUT_FORMAT,
+    DEFAULT_SORT_DIR,
     DEFAULT_STALE_DAYS,
     EVENT_EXPORT_COMPLETED,
     EVENT_EXPORT_FAILED,
@@ -36,6 +37,7 @@ from .const import (
     EXPORT_TYPE_LABELS,
     OUTPUT_FORMAT_JSON,
     OUTPUT_FORMAT_YAML,
+    SORT_DIR_DESC,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,6 +64,8 @@ class ExportOptions:
     stale_days: int = DEFAULT_STALE_DAYS
     utf8_bom: bool = False
     output_format: str = DEFAULT_OUTPUT_FORMAT
+    sort_by: str | None = None
+    sort_dir: str = DEFAULT_SORT_DIR
 
     @property
     def want_disabled(self) -> bool:
@@ -457,7 +461,11 @@ def build_export(
     else:
         rows = _build_entity_rows(hass, options)
     rows = [{key: str(value) for key, value in row.items()} for row in rows]
-    return COLUMNS_BY_TYPE[options.export_type], rows
+    columns = COLUMNS_BY_TYPE[options.export_type]
+    sort_by = options.sort_by
+    if sort_by is not None and sort_by in columns:
+        rows.sort(key=lambda row: row[sort_by], reverse=options.sort_dir == SORT_DIR_DESC)
+    return columns, rows
 
 
 def rows_to_csv(columns: list[str], rows: list[dict[str, str]], utf8_bom: bool = False) -> str:

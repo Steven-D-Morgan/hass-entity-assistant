@@ -178,6 +178,8 @@ All fields are optional:
 | `filename` | `entity_export.csv` | Output path, relative to the config directory. Subfolders are created automatically. Must stay inside the config directory. Give it a `.json`/`.yaml` extension to match `output_format`. |
 | `export_type` | `entities` | `entities`, `devices`, `areas`, `floors`, or `labels` |
 | `output_format` | `csv` | Serialization format: `csv`, `json`, or `yaml`. JSON and YAML are lossless structured formats; CSV is best for spreadsheets |
+| `sort_by` | — | Column name to sort rows by (e.g. `name`, `area_name`). Unknown columns are ignored; values sort as text |
+| `sort_dir` | `asc` | `asc` or `desc`; only applies when `sort_by` is set |
 | `include_disabled` | `true` | Include disabled entities/devices |
 | `include_hidden` | `true` | Include hidden entities |
 | `only_enabled` | `false` | Shortcut to exclude everything disabled/hidden |
@@ -238,9 +240,10 @@ This endpoint is **authenticated**, so either use a signed URL from
 `get_download_url`, or pass a
 [long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
 It accepts the same options as query flags: `export_type`, `output_format`,
-`include_disabled`, `include_hidden`, `only_enabled`, `stale_only`, `stale_days`,
-`utf8_bom`, `domains`, `areas` (the last two comma-separated). `output_format`
-sets the response `Content-Type` and download extension (`.csv`/`.json`/`.yaml`).
+`sort_by`, `sort_dir`, `include_disabled`, `include_hidden`, `only_enabled`,
+`stale_only`, `stale_days`, `utf8_bom`, `domains`, `areas` (the last two
+comma-separated). `output_format` sets the response `Content-Type` and download
+extension (`.csv`/`.json`/`.yaml`).
 
 ```bash
 curl -H "Authorization: Bearer <YOUR_TOKEN>" \

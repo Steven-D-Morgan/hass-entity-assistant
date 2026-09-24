@@ -25,6 +25,8 @@ def test_options_from_query_defaults() -> None:
     assert options.stale_days == DEFAULT_STALE_DAYS
     assert options.utf8_bom is False
     assert options.output_format == "csv"
+    assert options.sort_by is None
+    assert options.sort_dir == "asc"
 
 
 def test_options_from_query_all_params() -> None:
@@ -39,6 +41,8 @@ def test_options_from_query_all_params() -> None:
         "stale_days": "14",
         "utf8_bom": "true",
         "output_format": "json",
+        "sort_by": "name",
+        "sort_dir": "desc",
     }
     options = options_from_query(query)
     assert options.export_type == "devices"
@@ -51,6 +55,8 @@ def test_options_from_query_all_params() -> None:
     assert options.stale_days == 14
     assert options.utf8_bom is True
     assert options.output_format == "json"
+    assert options.sort_by == "name"
+    assert options.sort_dir == "desc"
 
 
 def test_options_from_query_invalid_export_type_falls_back() -> None:
@@ -61,6 +67,11 @@ def test_options_from_query_invalid_export_type_falls_back() -> None:
 def test_options_from_query_invalid_output_format_falls_back() -> None:
     options = options_from_query({"output_format": "bogus"})
     assert options.output_format == "csv"
+
+
+def test_options_from_query_invalid_sort_dir_falls_back() -> None:
+    options = options_from_query({"sort_dir": "bogus"})
+    assert options.sort_dir == "asc"
 
 
 def test_options_from_query_bool_variations() -> None:
