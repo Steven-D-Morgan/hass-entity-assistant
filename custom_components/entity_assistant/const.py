@@ -69,6 +69,9 @@ SORT_DIR_DESC = "desc"
 SORT_DIRS = [SORT_DIR_ASC, SORT_DIR_DESC]
 DEFAULT_SORT_DIR = SORT_DIR_ASC
 
+ATTR_ONBOARDED = "onboarded"
+ONBOARDING_NOTIFICATION_ID = f"{DOMAIN}_onboarding"
+
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
 EVENT_EXPORT_FAILED = "entity_assistant_export_failed"
 EVENT_ORPHANED_REMOVED = "entity_assistant_orphaned_removed"

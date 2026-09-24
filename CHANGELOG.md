@@ -50,6 +50,10 @@ call, signed URL, and HTTP request is unchanged.
   BOM), stored on the config entry. The button reads them at press time, so
   changes apply with no reload. Defaults are unchanged for anyone who doesn't
   configure it.
+- **Onboarding & migration groundwork:** a one-time notification after first
+  setup points to the button, services, and Configure; and an
+  `async_migrate_entry` stub plus a compat policy are in place so the config
+  entry / options can evolve safely later. Neither changes existing behavior.
 - **Internals:** `write_csv` was generalized to `serialize_export` (format
   dispatch) + `write_export` (plain text write); `rows_to_csv` is unchanged and
   `rows_to_json` / `rows_to_yaml` were added. Every row value is now normalized

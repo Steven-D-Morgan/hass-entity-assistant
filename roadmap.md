@@ -44,23 +44,23 @@ Standing rules for every write: `dry_run: true` by default, explicit non-default
 
 Tests, CI, and safety-gating on the one shipped mutation. Delivered in 1.7.0 (2026-09-09) and hardened in 1.7.1 (2026-09-13). See [CHANGELOG.md](CHANGELOG.md).
 
-## 1.8 — Round-trip-ready export — 🚧 in progress
+## 1.8 — Round-trip-ready export — ✅ shipped
 
-Everything import will need, shipped as additive export improvements — plus the configuration UX that stores defaults. This milestone *defines the import contract*. First slice (stable keys & writable-column completeness) shipped in 1.8.0.
+Everything import will need, shipped as additive export improvements — plus the configuration UX that stores defaults. This milestone *defines the import contract*. Shipped across 1.8.0 (stable keys), 1.8.1 (floors/labels), and 1.8.2 (everything else). The only carve-out is `group_by`, deferred from the sorting row pending a design pass on its flat-export semantics.
 
 | Capability | What it adds | Effort | Risk |
 | --- | --- | --- | --- |
 | Stable keys & writable-column completeness — ✅ 1.8.0 | Add `registry_id` (the stable ULID) to entity rows and export the writable-but-missing fields: entity `icon`, `aliases`, `categories`; area `icon`. Multi-value columns stay `", "`-joined in CSV with the comma-in-name limitation documented; JSON is the lossless round-trip format. | S | low |
 | `floors` and `labels` export types — ✅ 1.8.1 | Complete registry coverage: floors (name, level, icon, aliases, area count) and labels (name, color, icon, description, usage counts). Both become importable later. | S | low |
 | Structured output formats (JSON, YAML) — ✅ 1.8.2 | `output_format` option beside `csv`, dispatched through services, signed URL, and HTTP view (`Content-Type` + extension). `json` is stdlib; PyYAML ships in core — no manifest requirement. NDJSON was dropped as unneeded. | S | low |
-| Sorting & grouping controls | `sort_by` / `sort_dir` / optional `group_by` (area / domain / floor) applied before serialization with a stable sort; guarded against unknown columns. | S | low |
-| Inline data return | `return_data: true` so `export_csv` returns `columns` + `rows` in its already-`OPTIONAL` response with no file touched — template sensors and dashboards, direct. Opt-in with a row cap. | S | low |
-| Per-run download filename + `Content-Disposition` | Caller-supplied download filename (e.g. `entities_{date}`), sanitized to a bare basename, extension derived from `output_format`. Dated names stop overwriting each other. | S | low |
-| User-selectable & reorderable column sets | `columns` option (ordered list) + named presets per export type, validated against known columns. Short exports for non-experts; exact shapes for power users. | M | low |
-| Registry-aware service selectors | `areas` → area selector, `domains` → multi-select with custom values. **No Python change**; backward compatible with existing YAML. The cheapest UX win on the board. | S | low |
-| Consolidated options flow | One `OptionsFlow` persisted to `entry.options` — export defaults now, spine/retention/threshold knobs later. Button reads options at press time (today it hardcodes defaults). Do **not** assign `self.config_entry` in the flow (HA ≥2024.11 provides it). | S | low |
-| Config-entry migration stub + compat policy | `async_migrate_entry` stub + versioned options schema before the options flow and stores evolve; feature-detection for version-gated APIs on the min-supported core (2024.11). | S | low |
-| In-product onboarding | Config-flow "getting started" text and/or a one-time notification pointing new users to the button, services, and docs. Cuts "how do I use this" support load. | S | low |
+| Sorting controls — ✅ 1.8.2 | `sort_by` / `sort_dir` applied before serialization with a stable sort; guarded against unknown columns. (`group_by` deferred — its flat-export semantics need a design pass; `domain` has no column to key on.) | S | low |
+| Inline data return — ✅ 1.8.2 | `return_data: true` so `export_csv` returns `columns` + `rows` in its already-`OPTIONAL` response with no file touched — template sensors and dashboards, direct. Opt-in with a row cap. | S | low |
+| Per-run download filename + `Content-Disposition` — ✅ 1.8.2 | Caller-supplied download filename (e.g. `entities_{date}`), sanitized to a bare basename, extension derived from `output_format`. Dated names stop overwriting each other. | S | low |
+| User-selectable & reorderable column sets — ✅ 1.8.2 | `columns` option (ordered list) + named presets per export type, validated against known columns. Short exports for non-experts; exact shapes for power users. | M | low |
+| Registry-aware service selectors — ✅ 1.8.2 | `areas` → area selector, `domains` → multi-select with custom values. **No Python change**; backward compatible with existing YAML. The cheapest UX win on the board. | S | low |
+| Consolidated options flow — ✅ 1.8.2 | One `OptionsFlow` persisted to `entry.options` — export defaults now, spine/retention/threshold knobs later. Button reads options at press time (today it hardcodes defaults). Do **not** assign `self.config_entry` in the flow (HA ≥2024.11 provides it). | S | low |
+| Config-entry migration stub + compat policy — ✅ 1.8.2 | `async_migrate_entry` stub + versioned options schema before the options flow and stores evolve; feature-detection for version-gated APIs on the min-supported core (2024.11). | S | low |
+| In-product onboarding — ✅ 1.8.2 | Config-flow "getting started" text and/or a one-time notification pointing new users to the button, services, and docs. Cuts "how do I use this" support load. | S | low |
 
 ## 1.9 — Safety spine, proven small
 

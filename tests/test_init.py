@@ -1,7 +1,12 @@
 from __future__ import annotations
 
-from homeassistant.core import HomeAssistant
+from unittest.mock import patch
 
+from homeassistant.core import HomeAssistant
+from homeassistant.setup import async_setup_component
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.entity_assistant import async_migrate_entry
 from custom_components.entity_assistant.const import (
     DOMAIN,
     SERVICE_EXPORT_CSV,
@@ -66,6 +71,43 @@ async def test_export_csv_return_data_respects_max_rows(
     )
     assert len(response["rows"]) <= 1
     assert response["truncated"] == (response["row_count"] > 1)
+
+
+async def test_migrate_entry_current_version(hass: HomeAssistant) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, version=1)
+    entry.add_to_hass(hass)
+    assert await async_migrate_entry(hass, entry) is True
+
+
+async def test_migrate_entry_future_version_rejected(hass: HomeAssistant) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, version=2)
+    entry.add_to_hass(hass)
+    assert await async_migrate_entry(hass, entry) is False
+
+
+async def test_onboarding_notifies_on_first_setup(hass: HomeAssistant) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={}, unique_id=DOMAIN)
+    entry.add_to_hass(hass)
+    await async_setup_component(hass, "http", {"http": {}})
+    with patch(
+        "custom_components.entity_assistant.persistent_notification.async_create"
+    ) as mock_notify:
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    mock_notify.assert_called_once()
+    assert entry.data.get("onboarded") is True
+
+
+async def test_onboarding_skipped_when_already_onboarded(hass: HomeAssistant) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={"onboarded": True}, unique_id=DOMAIN)
+    entry.add_to_hass(hass)
+    await async_setup_component(hass, "http", {"http": {}})
+    with patch(
+        "custom_components.entity_assistant.persistent_notification.async_create"
+    ) as mock_notify:
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    mock_notify.assert_not_called()
 
 
 async def test_get_download_url_service_returns_url(hass: HomeAssistant, setup_integration) -> None:

@@ -6,6 +6,7 @@ from datetime import timedelta
 import logging
 from urllib.parse import urlencode
 
+from homeassistant.components import persistent_notification
 from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import (
@@ -34,6 +35,7 @@ from .const import (
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
     ATTR_MAX_ROWS,
+    ATTR_ONBOARDED,
     ATTR_ONLY_ENABLED,
     ATTR_OUTPUT_FORMAT,
     ATTR_PRESET,
@@ -53,6 +55,7 @@ from .const import (
     DOMAIN,
     DOWNLOAD_URL,
     EXPORT_TYPES,
+    ONBOARDING_NOTIFICATION_ID,
     OUTPUT_FORMATS,
     PLATFORMS,
     SERVICE_EXPORT_CSV,
@@ -167,6 +170,33 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
     return query
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    if entry.version > 1:
+        return False
+    return True
+
+
+@callback
+def _async_notify_onboarding(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    if entry.data.get(ATTR_ONBOARDED):
+        return
+    persistent_notification.async_create(
+        hass,
+        (
+            "Entity Assistant is ready.\n\n"
+            "- Press the **Export entity list** button on the Entity Assistant "
+            "device to write a CSV to your config directory.\n"
+            "- Or call the `entity_assistant.export_csv` / `get_download_url` "
+            "services for CSV, JSON, or YAML.\n"
+            "- Use **Configure** on the integration to set the button's defaults.\n\n"
+            "[Documentation](https://github.com/Steven-D-Morgan/hass-entity-assistant)"
+        ),
+        title="Entity Assistant",
+        notification_id=ONBOARDING_NOTIFICATION_ID,
+    )
+    hass.config_entries.async_update_entry(entry, data={**entry.data, ATTR_ONBOARDED: True})
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
@@ -234,6 +264,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[_VIEW_REGISTERED] = True
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    _async_notify_onboarding(hass, entry)
 
     return True
 
