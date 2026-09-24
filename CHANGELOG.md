@@ -5,10 +5,12 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
 ## 1.8.2 — 2026-09-24
 
-More of the **round-trip-ready export** milestone (1.8): structured output
-formats beside CSV, plus sorting controls. Additive and backward compatible —
-`csv` and the existing row order stay the defaults, so every existing service
-call, signed URL, and HTTP request is unchanged.
+The bulk of the **round-trip-ready export** milestone (1.8): structured output
+formats, column selection, sorting, inline data return, per-run download names,
+registry-aware service forms, and a configurable export button. Additive and
+backward compatible — `csv`, the default columns, and the existing row order are
+all unchanged, so every existing service call, signed URL, HTTP request, and
+automation keeps working exactly as before.
 
 - **New `output_format` option** — `csv` (default), `json`, or `yaml` — on the
   `export_csv` and `get_download_url` services and the HTTP endpoint. JSON and
@@ -60,12 +62,15 @@ call, signed URL, and HTTP request is unchanged.
   to a string before serialization, so `StrEnum` registry fields (e.g.
   `hidden_by`, `device_class`) serialize cleanly under YAML too.
 - **Tests:** serializer round-trips (JSON/YAML), format dispatch, the
-  no-formula-sanitization guarantee for JSON/YAML, end-to-end `.json`/`.yaml`
-  file writes, HTTP `Content-Type`/extension per format, and sort
-  ascending/descending plus the unknown-column fallback.
-- **i18n:** the new `output_format`, `sort_by`, and `sort_dir` fields are added
-  to `strings.json` and all 13 locale files (English text in the 12 non-English
-  files until backfilled), so the locale-parity CI check stays green.
+  no-formula-sanitization guarantee, `.json`/`.yaml` file writes, HTTP
+  `Content-Type`/extension per format, sort direction + unknown-column fallback,
+  column selection / presets, the download-name sanitizer (path + injection),
+  inline `return_data`, the options flow, and the migration / onboarding paths.
+- **i18n:** the new service fields (`output_format`, `sort_by`, `sort_dir`,
+  `columns`, `preset`, `return_data`, `max_rows`, `download_filename`) and the
+  options-flow strings are added to `strings.json` and all 13 locale files
+  (English in the 12 non-English files until backfilled), so the locale-parity
+  CI check stays green.
 
 ## 1.8.1 — 2026-09-24
 

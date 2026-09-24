@@ -213,9 +213,11 @@ curl -H "Authorization: Bearer <YOUR_TOKEN>" \
   -o devices.csv
 ```
 
-Query flags mirror the service options exactly: `export_type`,
-`include_disabled`, `include_hidden`, `only_enabled`, `stale_only`,
-`stale_days`, `utf8_bom`, `domains`, `areas` (the last two comma-separated).
+Query flags mirror the service options exactly: `export_type`, `output_format`,
+`sort_by`, `sort_dir`, `columns`, `preset`, `download_filename`,
+`include_disabled`, `include_hidden`, `only_enabled`, `stale_only`, `stale_days`,
+`utf8_bom`, `domains`, `areas` (the multi-value ones comma-separated).
+`output_format` sets the response `Content-Type` and file extension.
 
 ### Email the export after every write
 
@@ -240,6 +242,20 @@ actions:
 `triggered_by` on the event tells you whether the export came from the
 button, a service call, or the HTTP endpoint — useful if you only want to
 attach automated exports and not ad-hoc button presses.
+
+## Configuring the one-click button
+
+### Make the Export entity list button export what you want
+
+The button ships with plain defaults (`entity_export.csv`, all entities, CSV).
+Press **Configure** on the integration (Settings → Devices & Services → Entity
+Assistant) to change what it writes — export type, filename, output format, the
+include/only-enabled flags, stale filtering, and the UTF-8 BOM. The button reads
+these at press time, so a change takes effect on the very next press with no
+reload. (The **Export orphaned entities** button always exports the stale set.)
+
+This is the no-YAML path: set it once in the UI, then the dashboard button or a
+`button.press` automation writes exactly the file you configured.
 
 ## Cleaning up orphans
 

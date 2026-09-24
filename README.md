@@ -80,8 +80,8 @@ assigned to — `0` across all three means the label is unused).
 
 > **Multi-value columns** (`labels`, `aliases`, `categories`) are joined with
 > `", "` in CSV. A label or alias that itself contains a comma is therefore
-> ambiguous to split back apart — a known CSV limitation that a future
-> structured output format (JSON) will round-trip losslessly.
+> ambiguous to split back apart — a CSV limitation; the `json`/`yaml`
+> `output_format`s round-trip these losslessly.
 
 Floors and labels have no `stale` flag — filter on `area_count` (or the label
 usage counts) being `0` to find unused ones.
@@ -130,160 +130,57 @@ Go to **Settings → Devices & Services → Add Integration**, search for
 configuration — this just registers the export service and shows the card in
 your integrations list.)
 
-## Usage
+## Using it
 
-### Export
+Four ways to export, all sharing the [options](#options) below:
 
-Four ways to export, all sharing the same options:
+- **Export entity list** button — one click. Press **Configure** on the
+  integration to set its defaults (export type, filename, output format, the
+  filters, UTF-8 BOM); they apply on the next press, no reload.
+- **`export_csv`** service — for automations and scripts. Writes a file and
+  returns `{path, row_count}`, or set `return_data: true` to get
+  `{columns, rows, row_count, truncated}` back with no file written.
+- **`get_download_url`** service — returns a signed, time-limited URL for a
+  no-auth dashboard or browser download. Adds `expires` and `download_filename`.
+  Response only.
+- **HTTP endpoint** at `/api/entity_assistant/export.csv` — authenticated
+  (signed URL, or a [long-lived token](https://www.home-assistant.io/docs/authentication/#your-account-profile)).
+  Every option below works as a query flag (multi-value ones comma-separated).
 
-1. **Button entity** — the quickest.
-2. **Service** (`export_csv`) — for automations/scripts and custom filenames.
-3. **Signed URL** (`get_download_url`) — a click-to-download link for dashboards.
-4. **HTTP endpoint** — direct download for scripts, the HA app, or `curl`.
+**Registry cleanup:** the **Export orphaned entities** button writes only the
+stale rows to `entity_export_stale.csv`, and the admin-only **`remove_orphaned`**
+service previews by default (`dry_run: true`) or deletes orphaned
+entities/devices and empty areas with `confirm: true` (returns counts + ID
+lists). Removals aren't undoable — back up first.
 
-### Registry cleanup
+> **Worked examples** — filtered exports, JSON/YAML, column presets, sorting,
+> dashboard download links, inline template-sensor data, and orphan cleanup —
+> are in **[COOKBOOK.md](COOKBOOK.md)**.
 
-An additional button and a service for removing orphaned registry entries:
+### Options
 
-1. **Export orphaned entities** button — writes only stale rows to `entity_export_stale.csv`.
-2. **Service** (`remove_orphaned`) — deletes orphaned entries, callable from
-   Developer Tools or automations/scripts (no button, to prevent accidental use).
-
-### Buttons
-
-Adding the integration creates an **Entity Assistant** device with two buttons:
-
-- **Export entity list** — writes `entity_export.csv` to your config directory.
-- **Export orphaned entities** — writes only stale rows (orphaned, unavailable,
-  restored, not changed) to `entity_export_stale.csv`.
-
-**Configure the Export entity list button:** press **Configure** on the
-integration (Settings → Devices & Services → Entity Assistant) to set the
-defaults it uses — export type, filename, output format, the include/only-enabled
-flags, stale filtering, and the UTF-8 BOM. Changes take effect on the next press,
-no reload needed. (The orphaned button always exports stale entries.)
-
-### Service: `export_csv`
-
-Call `entity_assistant.export_csv` from **Developer Tools → Actions** (or from
-an automation/script).
-
-```yaml
-action: entity_assistant.export_csv
-data:
-  filename: entity_export.csv
-  export_type: entities
-  only_enabled: true
-  domains: [light, switch]
-```
-
-All fields are optional:
+All optional. Shared by `export_csv`, `get_download_url`, and the HTTP endpoint
+unless a row says otherwise.
 
 | Field | Default | Description |
 | --- | --- | --- |
-| `filename` | `entity_export.csv` | Output path, relative to the config directory. Subfolders are created automatically. Must stay inside the config directory. Give it a `.json`/`.yaml` extension to match `output_format`. |
 | `export_type` | `entities` | `entities`, `devices`, `areas`, `floors`, or `labels` |
-| `output_format` | `csv` | Serialization format: `csv`, `json`, or `yaml`. JSON and YAML are lossless structured formats; CSV is best for spreadsheets |
-| `sort_by` | — | Column name to sort rows by (e.g. `name`, `area_name`). Unknown columns are ignored; values sort as text |
-| `sort_dir` | `asc` | `asc` or `desc`; only applies when `sort_by` is set |
-| `columns` | — | Ordered list of columns to output; others are dropped and unknown names are ignored. Overrides `preset` |
-| `preset` | — | Named column set: `minimal` (all types), `identity` (entities), `stale` (entities/devices) |
+| `output_format` | `csv` | `csv`, `json`, or `yaml`; JSON/YAML are lossless (values verbatim, no BOM/formula guard) and set the download `Content-Type`/extension |
+| `columns` | — | Ordered subset of columns; unknown names dropped, full set used if none valid. Overrides `preset` |
+| `preset` | — | Named set: `minimal` (all types), `identity` (entities), `stale` (entities/devices) |
+| `sort_by` / `sort_dir` | — / `asc` | Sort by any column, `asc`/`desc` (stable, sorts as text) |
 | `include_disabled` | `true` | Include disabled entities/devices |
 | `include_hidden` | `true` | Include hidden entities |
-| `only_enabled` | `false` | Shortcut to exclude everything disabled/hidden |
-| `domains` | — | Only these entity domains (entities export type) |
+| `only_enabled` | `false` | Exclude everything disabled/hidden |
+| `domains` | — | Only these entity domains (entities type) |
 | `areas` | — | Only these areas (by area id or name) |
-| `stale_only` | `false` | Only export rows flagged stale (see [Finding stale entities/devices](#finding-stale-entitiesdevices)) |
-| `stale_days` | `30` | Threshold for the `not_changed_<N>d` stale reason |
-| `utf8_bom` | `false` | Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly (CSV only) |
-| `return_data` | `false` | Return the data directly in the service response instead of writing a file (`export_csv` only) |
-| `max_rows` | `1000` | Row cap for `return_data` (`export_csv` only) |
-
-The file is written inside your config directory. The service returns
-`{path, row_count}`.
-
-**Inline data return:** set `return_data: true` on `export_csv` to get the data
-straight back in the service response — `{columns, rows, row_count, truncated}` —
-without touching the filesystem. Handy for template sensors or dashboards.
-`rows` is capped at `max_rows` (default 1000) and `truncated` is `true` when more
-rows were available; `output_format` is ignored (rows come back as structured
-data).
-
-**Choosing columns:** by default every column for the export type is included.
-Pass `columns` for an exact, reordered subset (great for a short sheet or a
-specific import shape), or `preset` for a named set — `minimal` (all types),
-`identity` (entities), or `stale` (entities/devices). `columns` wins over
-`preset`, unknown column names are dropped, and if nothing valid is left the full
-set is used. `sort_by` can still reference a column you didn't output.
-
-**Output formats:** `csv` (default) is one header row plus one row per object,
-with formula-injection guarding and the optional Excel BOM. `json` and `yaml`
-emit a list of objects (one per row) preserving the column order — the lossless
-shape a future import will read back. The CSV-only formula guard and BOM don't
-apply to JSON/YAML, so their values are verbatim.
-
-### Service: `get_download_url`
-
-Returns a **signed, time-limited URL** that downloads the export without an auth
-header — ideal for a dashboard link. Accepts the same options (including
-`output_format`) plus `expires` (seconds, default 300) and `download_filename`.
-Response only; writes no file.
-
-`download_filename` sets the name the browser saves the file as (via
-`Content-Disposition`). It's sanitized to a bare basename and its extension is
-set from `output_format`, so a dated name like `entities_2026-09-24` downloads as
-`entities_2026-09-24.csv` — handy for names that don't overwrite each other.
-
-```yaml
-action: entity_assistant.get_download_url
-data:
-  export_type: devices
-  expires: 600
-  download_filename: entities_2026-09-24
-response_variable: dl
-# dl.url -> https://<your-ha>/api/entity_assistant/export.csv?...&authSig=...
-```
-
-### Service: `remove_orphaned`
-
-Removes orphaned entities (config entry removed), orphaned devices (all config
-entries removed), and empty areas (no devices or entities) from the registries.
-Area emptiness is recalculated after entity/device removal, so cascading cleanup
-works in a single call.
-
-```yaml
-action: entity_assistant.remove_orphaned
-```
-
-No parameters. Returns `{entities_removed, devices_removed, areas_removed,
-entity_ids, device_ids, area_ids}`.
-
-### HTTP download endpoint
-
-The integration also serves the export directly at:
-
-```
-/api/entity_assistant/export.csv
-```
-
-This endpoint is **authenticated**, so either use a signed URL from
-`get_download_url`, or pass a
-[long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
-It accepts the same options as query flags: `export_type`, `output_format`,
-`sort_by`, `sort_dir`, `download_filename`, `include_disabled`, `include_hidden`,
-`only_enabled`, `stale_only`, `stale_days`, `utf8_bom`, `domains`, `areas` (the
-last two comma-separated). `output_format` sets the response `Content-Type` and
-download extension (`.csv`/`.json`/`.yaml`); `download_filename` sets the saved
-name.
-
-```bash
-curl -H "Authorization: Bearer <YOUR_TOKEN>" \
-  "http://homeassistant.local:8123/api/entity_assistant/export.csv?export_type=devices" \
-  -o devices.csv
-```
-
-A plain browser link to this path returns 401 — use `get_download_url` for
-browser downloads.
+| `stale_only` | `false` | Only rows flagged stale (see [above](#finding-stale-entitiesdevices)) |
+| `stale_days` | `30` | Threshold for the `not_changed_<N>d` reason |
+| `utf8_bom` | `false` | UTF-8 BOM so Excel on Windows renders non-ASCII (CSV only) |
+| `filename` | `entity_export.csv` | **`export_csv` only** — output path in the config dir; subfolders auto-created; keep inside the config dir |
+| `return_data` / `max_rows` | `false` / `1000` | **`export_csv` only** — return rows inline instead of writing a file, capped at `max_rows` |
+| `expires` | `300` | **`get_download_url` only** — signed-URL lifetime (seconds) |
+| `download_filename` | — | **`get_download_url` / HTTP** — browser save name; sanitized to a basename, extension from `output_format` |
 
 ## Automations
 
@@ -324,6 +221,6 @@ Per-version release notes live in [CHANGELOG.md](CHANGELOG.md).
 
 ## Roadmap
 
-See [roadmap.md](roadmap.md) for recommended future capabilities — where this
+See [ROADMAP.md](ROADMAP.md) for recommended future capabilities — where this
 integration could grow from a read-only exporter into a genuine registry
 assistant. It's a recommendation, not a commitment.
