@@ -41,6 +41,11 @@ from custom_components.entity_assistant.export import (
 )
 
 
+def _read_text(path: str) -> str:
+    with open(path, encoding="utf-8") as file:
+        return file.read()
+
+
 def _seed_basic(hass: HomeAssistant) -> dict:
     floor_reg = fr.async_get(hass)
     area_reg = ar.async_get(hass)
@@ -497,8 +502,8 @@ async def test_async_run_export_writes_json(hass: HomeAssistant) -> None:
     path, count = await async_run_export(
         hass, ExportOptions(output_format="json"), "export.json", "test"
     )
-    with open(path, encoding="utf-8") as file:
-        data = json.load(file)
+    content = await hass.async_add_executor_job(_read_text, path)
+    data = json.loads(content)
     assert isinstance(data, list)
     assert len(data) == count
     assert all("entity_id" in row for row in data)
@@ -509,8 +514,8 @@ async def test_async_run_export_writes_yaml(hass: HomeAssistant) -> None:
     path, count = await async_run_export(
         hass, ExportOptions(output_format="yaml"), "export.yaml", "test"
     )
-    with open(path, encoding="utf-8") as file:
-        data = yaml.safe_load(file)
+    content = await hass.async_add_executor_job(_read_text, path)
+    data = yaml.safe_load(content)
     assert isinstance(data, list)
     assert len(data) == count
 

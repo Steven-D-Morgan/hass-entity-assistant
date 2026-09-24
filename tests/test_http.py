@@ -135,9 +135,7 @@ async def test_download_export_type_query(
     assert body.splitlines()[0].startswith("device_id")
 
 
-async def test_download_json_format(
-    hass: HomeAssistant, setup_integration, hass_client
-) -> None:
+async def test_download_json_format(hass: HomeAssistant, setup_integration, hass_client) -> None:
     client = await hass_client()
     resp = await client.get(f"{DOWNLOAD_URL}?output_format=json")
     assert resp.status == 200
@@ -148,9 +146,7 @@ async def test_download_json_format(
     assert isinstance(data, list)
 
 
-async def test_download_yaml_format(
-    hass: HomeAssistant, setup_integration, hass_client
-) -> None:
+async def test_download_yaml_format(hass: HomeAssistant, setup_integration, hass_client) -> None:
     client = await hass_client()
     resp = await client.get(f"{DOWNLOAD_URL}?output_format=yaml")
     assert resp.status == 200
