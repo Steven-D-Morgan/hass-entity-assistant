@@ -456,6 +456,7 @@ def build_export(
         rows = _build_label_rows(hass, options)
     else:
         rows = _build_entity_rows(hass, options)
+    rows = [{key: str(value) for key, value in row.items()} for row in rows]
     return COLUMNS_BY_TYPE[options.export_type], rows
 
 
