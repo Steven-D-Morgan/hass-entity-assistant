@@ -17,7 +17,8 @@ orphaned entities, orphaned devices, and empty areas.
 
 ## What it exports
 
-Choose an `export_type`: **entities** (default), **devices**, or **areas**.
+Choose an `export_type`: **entities** (default), **devices**, **areas**,
+**floors**, or **labels**.
 
 ### Entities (one row per entity)
 
@@ -66,10 +67,24 @@ Choose an `export_type`: **entities** (default), **devices**, or **areas**.
 `area_id`, `name`, `icon`, `floor_id`, `floor`, `labels`, `aliases`,
 `device_count`, `entity_count`, `picture`, `stale`, `stale_reason`.
 
+### Floors (one row per floor)
+
+`floor_id`, `name`, `level`, `icon`, `aliases`, `area_count` (number of areas
+assigned to the floor).
+
+### Labels (one row per label)
+
+`label_id`, `name`, `color`, `icon`, `description`, `entity_count`,
+`device_count`, `area_count` (how many entities, devices, and areas the label is
+assigned to — `0` across all three means the label is unused).
+
 > **Multi-value columns** (`labels`, `aliases`, `categories`) are joined with
 > `", "` in CSV. A label or alias that itself contains a comma is therefore
 > ambiguous to split back apart — a known CSV limitation that a future
 > structured output format (JSON) will round-trip losslessly.
+
+Floors and labels have no `stale` flag — filter on `area_count` (or the label
+usage counts) being `0` to find unused ones.
 
 ### Finding stale entities/devices
 

@@ -32,7 +32,15 @@ DEFAULT_STALE_DAYS = 30
 EXPORT_TYPE_ENTITIES = "entities"
 EXPORT_TYPE_DEVICES = "devices"
 EXPORT_TYPE_AREAS = "areas"
-EXPORT_TYPES = [EXPORT_TYPE_ENTITIES, EXPORT_TYPE_DEVICES, EXPORT_TYPE_AREAS]
+EXPORT_TYPE_FLOORS = "floors"
+EXPORT_TYPE_LABELS = "labels"
+EXPORT_TYPES = [
+    EXPORT_TYPE_ENTITIES,
+    EXPORT_TYPE_DEVICES,
+    EXPORT_TYPE_AREAS,
+    EXPORT_TYPE_FLOORS,
+    EXPORT_TYPE_LABELS,
+]
 DEFAULT_EXPORT_TYPE = EXPORT_TYPE_ENTITIES
 
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
@@ -111,8 +119,30 @@ AREA_COLUMNS = [
     "stale_reason",
 ]
 
+FLOOR_COLUMNS = [
+    "floor_id",
+    "name",
+    "level",
+    "icon",
+    "aliases",
+    "area_count",
+]
+
+LABEL_COLUMNS = [
+    "label_id",
+    "name",
+    "color",
+    "icon",
+    "description",
+    "entity_count",
+    "device_count",
+    "area_count",
+]
+
 COLUMNS_BY_TYPE = {
     EXPORT_TYPE_ENTITIES: ENTITY_COLUMNS,
     EXPORT_TYPE_DEVICES: DEVICE_COLUMNS,
     EXPORT_TYPE_AREAS: AREA_COLUMNS,
+    EXPORT_TYPE_FLOORS: FLOOR_COLUMNS,
+    EXPORT_TYPE_LABELS: LABEL_COLUMNS,
 }

@@ -80,3 +80,31 @@
 # name: test_entity_csv_header_snapshot
   'entity_id,registry_id,name,original_name,icon,platform,config_entry,device_id,device_name,device_manufacturer,device_model,area_id,area_name,floor,labels,aliases,categories,entity_category,device_class,unit_of_measurement,state,available,last_changed,last_changed_days,stale,stale_reason,enabled,disabled_by,hidden_by,unique_id'
 # ---
+# name: test_floor_columns_list_snapshot
+  list([
+    'floor_id',
+    'name',
+    'level',
+    'icon',
+    'aliases',
+    'area_count',
+  ])
+# ---
+# name: test_floor_csv_header_snapshot
+  'floor_id,name,level,icon,aliases,area_count'
+# ---
+# name: test_label_columns_list_snapshot
+  list([
+    'label_id',
+    'name',
+    'color',
+    'icon',
+    'description',
+    'entity_count',
+    'device_count',
+    'area_count',
+  ])
+# ---
+# name: test_label_csv_header_snapshot
+  'label_id,name,color,icon,description,entity_count,device_count,area_count'
+# ---

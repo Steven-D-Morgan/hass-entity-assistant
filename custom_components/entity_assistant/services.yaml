@@ -16,7 +16,8 @@ export_csv:
         text:
     export_type:
       name: Export type
-      description: What to export — one row per entity, device, or area.
+      description: >-
+        What to export — one row per entity, device, area, floor, or label.
       required: false
       default: entities
       selector:
@@ -25,6 +26,8 @@ export_csv:
             - entities
             - devices
             - areas
+            - floors
+            - labels
     include_disabled:
       name: Include disabled
       description: Include disabled entities/devices.
@@ -111,7 +114,8 @@ get_download_url:
           mode: box
     export_type:
       name: Export type
-      description: What to export — one row per entity, device, or area.
+      description: >-
+        What to export — one row per entity, device, area, floor, or label.
       required: false
       default: entities
       selector:
@@ -120,6 +124,8 @@ get_download_url:
             - entities
             - devices
             - areas
+            - floors
+            - labels
     include_disabled:
       name: Include disabled
       description: Include disabled entities/devices.

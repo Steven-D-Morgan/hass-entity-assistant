@@ -3,6 +3,28 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.8.1 — 2026-09-24
+
+More of the **round-trip-ready export** milestone (1.8): two new export types
+that complete registry coverage. Additive only.
+
+- **New `floors` export type** — one row per floor: `floor_id`, `name`,
+  `level`, `icon`, `aliases`, `area_count` (number of areas on the floor).
+- **New `labels` export type** — one row per label: `label_id`, `name`,
+  `color`, `icon`, `description`, and `entity_count` / `device_count` /
+  `area_count` usage tallies (all three `0` means the label is unused).
+- Both types are offered by the `export_type` selector on the `export_csv` and
+  `get_download_url` services and accepted by the HTTP endpoint — they flow
+  through the shared `EXPORT_TYPES` list, so every trigger path picks them up.
+  Floors and labels carry no `stale` flag; filter on a `0` count to find
+  unused ones.
+- **Tests:** build coverage for both types (fields and counts) and CSV
+  column-contract snapshots for their headers/columns.
+- **i18n:** the English `export_type` service description now lists floor and
+  label; the 12 non-English service descriptions still read "entity, device,
+  or area" until backfilled (the translated dropdown shows the raw option
+  values in every locale, so both types are already selectable everywhere).
+
 ## 1.8.0 — 2026-09-24
 
 The first slice of the **round-trip-ready export** milestone (1.8): stable

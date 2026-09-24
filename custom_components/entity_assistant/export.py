@@ -29,6 +29,8 @@ from .const import (
     EVENT_ORPHANED_REMOVED,
     EXPORT_TYPE_AREAS,
     EXPORT_TYPE_DEVICES,
+    EXPORT_TYPE_FLOORS,
+    EXPORT_TYPE_LABELS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -367,6 +369,74 @@ def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[s
 
 
 @callback
+def _build_floor_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
+    area_reg = ar.async_get(hass)
+    floor_reg = fr.async_get(hass)
+
+    area_counts: dict[str, int] = {}
+    for area in area_reg.areas.values():
+        if area.floor_id:
+            area_counts[area.floor_id] = area_counts.get(area.floor_id, 0) + 1
+
+    rows: list[dict[str, str]] = []
+
+    for floor in sorted(floor_reg.floors.values(), key=lambda f: f.name):
+        rows.append(
+            {
+                "floor_id": floor.floor_id,
+                "name": floor.name,
+                "level": str(floor.level) if floor.level is not None else "",
+                "icon": floor.icon or "",
+                "aliases": _alias_names(floor.aliases),
+                "area_count": str(area_counts.get(floor.floor_id, 0)),
+            }
+        )
+
+    return rows
+
+
+@callback
+def _build_label_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
+    ent_reg = er.async_get(hass)
+    dev_reg = dr.async_get(hass)
+    area_reg = ar.async_get(hass)
+    label_reg = lr.async_get(hass)
+
+    entity_usage: dict[str, int] = {}
+    for entity in ent_reg.entities.values():
+        for label_id in entity.labels:
+            entity_usage[label_id] = entity_usage.get(label_id, 0) + 1
+
+    device_usage: dict[str, int] = {}
+    for device in dev_reg.devices.values():
+        for label_id in device.labels:
+            device_usage[label_id] = device_usage.get(label_id, 0) + 1
+
+    area_usage: dict[str, int] = {}
+    for area in area_reg.areas.values():
+        for label_id in area.labels:
+            area_usage[label_id] = area_usage.get(label_id, 0) + 1
+
+    rows: list[dict[str, str]] = []
+
+    for label in sorted(label_reg.labels.values(), key=lambda lbl: lbl.name):
+        rows.append(
+            {
+                "label_id": label.label_id,
+                "name": label.name,
+                "color": label.color or "",
+                "icon": label.icon or "",
+                "description": label.description or "",
+                "entity_count": str(entity_usage.get(label.label_id, 0)),
+                "device_count": str(device_usage.get(label.label_id, 0)),
+                "area_count": str(area_usage.get(label.label_id, 0)),
+            }
+        )
+
+    return rows
+
+
+@callback
 def build_export(
     hass: HomeAssistant, options: ExportOptions
 ) -> tuple[list[str], list[dict[str, str]]]:
@@ -374,6 +444,10 @@ def build_export(
         rows = _build_device_rows(hass, options)
     elif options.export_type == EXPORT_TYPE_AREAS:
         rows = _build_area_rows(hass, options)
+    elif options.export_type == EXPORT_TYPE_FLOORS:
+        rows = _build_floor_rows(hass, options)
+    elif options.export_type == EXPORT_TYPE_LABELS:
+        rows = _build_label_rows(hass, options)
     else:
         rows = _build_entity_rows(hass, options)
     return COLUMNS_BY_TYPE[options.export_type], rows

@@ -17,7 +17,13 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import voluptuous as vol
 
-from custom_components.entity_assistant.const import AREA_COLUMNS, DEVICE_COLUMNS, ENTITY_COLUMNS
+from custom_components.entity_assistant.const import (
+    AREA_COLUMNS,
+    DEVICE_COLUMNS,
+    ENTITY_COLUMNS,
+    FLOOR_COLUMNS,
+    LABEL_COLUMNS,
+)
 from custom_components.entity_assistant.export import (
     ExportOptions,
     _alias_names,
@@ -343,6 +349,63 @@ async def test_build_area_rows_icon(hass: HomeAssistant) -> None:
     _, rows = build_export(hass, ExportOptions(export_type="areas"))
     row = next(r for r in rows if r["area_id"] == refs["kitchen"].id)
     assert row["icon"] == "mdi:silverware-fork-knife"
+
+
+async def test_build_floor_rows_default(hass: HomeAssistant) -> None:
+    refs = _seed_basic(hass)
+    columns, rows = build_export(hass, ExportOptions(export_type="floors"))
+    assert columns == FLOOR_COLUMNS
+    row = next(r for r in rows if r["floor_id"] == refs["floor"].floor_id)
+    assert row["name"] == "Ground Floor"
+    assert row["area_count"] == "1"
+
+
+async def test_build_floor_rows_fields(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    floor = fr.async_get(hass).async_create(
+        "Upstairs", aliases={"Top"}, icon="mdi:home-floor-2", level=2
+    )
+    _, rows = build_export(hass, ExportOptions(export_type="floors"))
+    row = next(r for r in rows if r["floor_id"] == floor.floor_id)
+    assert row["level"] == "2"
+    assert row["icon"] == "mdi:home-floor-2"
+    assert row["aliases"] == "Top"
+    assert row["area_count"] == "0"
+
+
+async def test_build_label_rows_default(hass: HomeAssistant) -> None:
+    refs = _seed_basic(hass)
+    columns, rows = build_export(hass, ExportOptions(export_type="labels"))
+    assert columns == LABEL_COLUMNS
+    row = next(r for r in rows if r["label_id"] == refs["label"].label_id)
+    assert row["name"] == "Critical"
+    assert row["entity_count"] == "0"
+    assert row["device_count"] == "0"
+    assert row["area_count"] == "0"
+
+
+async def test_build_label_rows_usage_counts(hass: HomeAssistant) -> None:
+    refs = _seed_basic(hass)
+    label_id = refs["label"].label_id
+    er.async_get(hass).async_update_entity(refs["light"].entity_id, labels={label_id})
+    dr.async_get(hass).async_update_device(refs["device_a"].id, labels={label_id})
+    _, rows = build_export(hass, ExportOptions(export_type="labels"))
+    row = next(r for r in rows if r["label_id"] == label_id)
+    assert row["entity_count"] == "1"
+    assert row["device_count"] == "1"
+    assert row["area_count"] == "0"
+
+
+async def test_build_label_rows_fields(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    label = lr.async_get(hass).async_create(
+        "Zone A", color="red", icon="mdi:tag", description="Test zone"
+    )
+    _, rows = build_export(hass, ExportOptions(export_type="labels"))
+    row = next(r for r in rows if r["label_id"] == label.label_id)
+    assert row["color"] == "red"
+    assert row["icon"] == "mdi:tag"
+    assert row["description"] == "Test zone"
 
 
 def test_resolve_path_inside_config(hass: HomeAssistant) -> None:

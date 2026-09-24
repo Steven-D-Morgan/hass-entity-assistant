@@ -21,7 +21,7 @@
         },
         "export_type": {
           "name": "Export type",
-          "description": "What to export: one row per entity, device, or area."
+          "description": "What to export: one row per entity, device, area, floor, or label."
         },
         "include_disabled": {
           "name": "Include disabled",
@@ -81,7 +81,7 @@
         },
         "export_type": {
           "name": "Export type",
-          "description": "What to export: one row per entity, device, or area."
+          "description": "What to export: one row per entity, device, area, floor, or label."
         },
         "include_disabled": {
           "name": "Include disabled",

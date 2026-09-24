@@ -18,7 +18,7 @@ Everything the assistant needs is a supported public API. The user-editable surf
 | Floor | `name`, `level`, `icon`, `aliases` (full CRUD) | `fr.*` |
 | Label | `name`, `color`, `icon`, `description` (full CRUD) | `lr.*` |
 
-Two identity facts make spreadsheet round-trips robust: every entity registry entry carries a stable ULID (`RegistryEntry.id`) that survives `entity_id` renames, and device/area/floor/label ids are already stable. Exports must carry these keys — the entity `registry_id` and the writable-but-missing entity/area fields shipped in 1.8.0 (see the 1.8 table); `floors`/`labels` export types are still to come.
+Two identity facts make spreadsheet round-trips robust: every entity registry entry carries a stable ULID (`RegistryEntry.id`) that survives `entity_id` renames, and device/area/floor/label ids are already stable. Exports must carry these keys — the entity `registry_id` and the writable-but-missing entity/area fields shipped in 1.8.0, and the `floors`/`labels` export types in 1.8.1 (see the 1.8 table).
 
 The hard limits every item below respects:
 
@@ -51,7 +51,7 @@ Everything import will need, shipped as additive export improvements — plus th
 | Capability | What it adds | Effort | Risk |
 | --- | --- | --- | --- |
 | Stable keys & writable-column completeness — ✅ 1.8.0 | Add `registry_id` (the stable ULID) to entity rows and export the writable-but-missing fields: entity `icon`, `aliases`, `categories`; area `icon`. Multi-value columns stay `", "`-joined in CSV with the comma-in-name limitation documented; JSON is the lossless round-trip format. | S | low |
-| `floors` and `labels` export types | Complete registry coverage: floors (name, level, icon, aliases, area count) and labels (name, color, icon, description, usage counts). Both become importable later. | S | low |
+| `floors` and `labels` export types — ✅ 1.8.1 | Complete registry coverage: floors (name, level, icon, aliases, area count) and labels (name, color, icon, description, usage counts). Both become importable later. | S | low |
 | Structured output formats (JSON, NDJSON, YAML) | `output_format` option beside `csv`, dispatched through services, signed URL, and HTTP view (`Content-Type` + extension). `json` is stdlib; PyYAML ships in core — no manifest requirement. | S | low |
 | Sorting & grouping controls | `sort_by` / `sort_dir` / optional `group_by` (area / domain / floor) applied before serialization with a stable sort; guarded against unknown columns. | S | low |
 | Inline data return | `return_data: true` so `export_csv` returns `columns` + `rows` in its already-`OPTIONAL` response with no file touched — template sensors and dashboards, direct. Opt-in with a row cap. | S | low |
