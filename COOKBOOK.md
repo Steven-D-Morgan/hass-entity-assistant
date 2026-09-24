@@ -4,9 +4,9 @@ Task-driven recipes for Entity Assistant. Each one is a real problem, the exact
 service call or automation that solves it, and what you get back. For the full
 option reference, see [README.md](README.md); for version history, see
 [CHANGELOG.md](CHANGELOG.md); for where the integration is going, see
-[roadmap.md](roadmap.md).
+[ROADMAP.md](ROADMAP.md).
 
-Every recipe uses only what ships today (1.7.x). Forward-looking recipes —
+Every recipe uses only what ships today (1.8.x). Forward-looking recipes —
 bulk edits, imports, `entity_id` renames — will land here as those features do.
 
 ## Slicing your export
@@ -80,6 +80,95 @@ data:
 LibreOffice, Numbers, Google Sheets, and every text-processing tool are fine
 without it — flip this on only when Excel is your destination.
 
+### A short sheet with just the columns you want
+
+Every export includes all columns by default. Pass `columns` for an exact,
+reordered subset — unknown names are dropped, and the full set is used if none
+are valid.
+
+```yaml
+action: entity_assistant.export_csv
+data:
+  filename: entities_short.csv
+  columns: [entity_id, name, area_name, state]
+```
+
+Or skip the list and use a named `preset`: `minimal` (all types), `identity`
+(entities), or `stale` (entities/devices).
+
+```yaml
+action: entity_assistant.export_csv
+data:
+  filename: entities_minimal.csv
+  preset: minimal
+```
+
+`columns` wins over `preset`, and `sort_by` can still reference a column you
+didn't output.
+
+### Sort the export
+
+Sort rows by any column, ascending or descending (stable, sorts as text).
+
+```yaml
+action: entity_assistant.export_csv
+data:
+  filename: by_area.csv
+  sort_by: area_name
+  sort_dir: asc
+```
+
+### List every floor, or find unused labels
+
+`export_type` also covers `floors` and `labels`. Labels carry usage counts, so
+a spreadsheet filter on all-zero counts finds labels nothing uses.
+
+```yaml
+action: entity_assistant.export_csv
+data:
+  filename: labels.csv
+  export_type: labels
+```
+
+Each label row has `entity_count`, `device_count`, and `area_count` — `0` across
+all three means it's safe to delete.
+
+## Structured output (JSON & YAML)
+
+### Export as JSON or YAML instead of CSV
+
+`output_format` gives you a lossless list of objects (one per row, column order
+preserved) — ideal for tooling or a future re-import.
+
+```yaml
+action: entity_assistant.export_csv
+data:
+  filename: entities.json
+  output_format: json
+```
+
+Give the filename a matching extension (`.json` / `.yaml`). Unlike CSV, JSON and
+YAML values are verbatim — no formula-injection prefix, no BOM.
+
+### Feed a template sensor without touching disk
+
+`return_data: true` returns the rows in the service response instead of writing
+a file — no filesystem round-trip.
+
+```yaml
+action: entity_assistant.export_csv
+data:
+  return_data: true
+  export_type: entities
+  stale_only: true
+  columns: [entity_id, stale_reason]
+response_variable: stale
+```
+
+`stale.rows` is a list of objects, `stale.row_count` the total, and
+`stale.truncated` is `true` when there were more than `max_rows` (default 1000).
+`output_format` is ignored on this path — you always get structured data.
+
 ## Getting the file out of Home Assistant
 
 ### A one-click download link on a dashboard
@@ -98,6 +187,19 @@ response_variable: dl
 `dl.url` is a `https://<your-ha>/api/entity_assistant/export.csv?...&authSig=…`
 URL valid for the number of seconds you pass (default 120). Use it as the
 `link` of a button card, or open it directly in a script.
+
+Add `download_filename` to control the saved name (via `Content-Disposition`) —
+it's sanitized to a bare basename and gets its extension from `output_format`, so
+dated names don't overwrite each other:
+
+```yaml
+action: entity_assistant.get_download_url
+data:
+  output_format: json
+  download_filename: "entities_{{ now().strftime('%Y-%m-%d') }}"
+response_variable: dl
+# downloads as entities_2026-09-24.json
+```
 
 ### Pull today's export from a shell script
 
