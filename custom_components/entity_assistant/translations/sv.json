@@ -10,6 +10,25 @@
       "single_instance_allowed": "Entity Assistant är redan konfigurerad. Endast en enda instans behövs."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Export defaults",
+        "description": "Defaults used by the Export entity list button.",
+        "data": {
+          "export_type": "Export type",
+          "filename": "Filename",
+          "output_format": "Output format",
+          "include_disabled": "Include disabled",
+          "include_hidden": "Include hidden",
+          "only_enabled": "Only enabled",
+          "stale_only": "Stale only",
+          "stale_days": "Stale after (days)",
+          "utf8_bom": "UTF-8 BOM"
+        }
+      }
+    }
+  },
   "services": {
     "export_csv": {
       "name": "Exportera till CSV",

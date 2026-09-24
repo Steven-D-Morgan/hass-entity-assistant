@@ -44,6 +44,12 @@ call, signed URL, and HTTP request is unchanged.
   picker and `domains` a multi-select with common domains plus custom values,
   instead of hand-typed YAML lists. No behavior or API change — the same
   options still work from YAML, automations, and query strings.
+- **Options flow for the export button** — press **Configure** on the
+  integration to set the **Export entity list** button's defaults (export type,
+  filename, output format, include/only-enabled flags, stale filtering, UTF-8
+  BOM), stored on the config entry. The button reads them at press time, so
+  changes apply with no reload. Defaults are unchanged for anyone who doesn't
+  configure it.
 - **Internals:** `write_csv` was generalized to `serialize_export` (format
   dispatch) + `write_export` (plain text write); `rows_to_csv` is unchanged and
   `rows_to_json` / `rows_to_yaml` were added. Every row value is now normalized

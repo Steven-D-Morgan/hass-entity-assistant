@@ -157,6 +157,12 @@ Adding the integration creates an **Entity Assistant** device with two buttons:
 - **Export orphaned entities** — writes only stale rows (orphaned, unavailable,
   restored, not changed) to `entity_export_stale.csv`.
 
+**Configure the Export entity list button:** press **Configure** on the
+integration (Settings → Devices & Services → Entity Assistant) to set the
+defaults it uses — export type, filename, output format, the include/only-enabled
+flags, stale filtering, and the UTF-8 BOM. Changes take effect on the next press,
+no reload needed. (The orphaned button always exports stale entries.)
+
 ### Service: `export_csv`
 
 Call `entity_assistant.export_csv` from **Developer Tools → Actions** (or from

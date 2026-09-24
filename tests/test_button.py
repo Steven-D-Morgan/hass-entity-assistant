@@ -23,6 +23,29 @@ async def test_export_button_press_invokes_run_export(
     assert options.stale_only is False
 
 
+async def test_export_button_uses_configured_options(
+    hass: HomeAssistant, setup_integration
+) -> None:
+    hass.config_entries.async_update_entry(
+        setup_integration,
+        options={"export_type": "devices", "filename": "custom.csv", "output_format": "json"},
+    )
+    entity_id = "button.entity_assistant_export_entity_list"
+
+    with patch(
+        "custom_components.entity_assistant.button.async_run_export",
+        AsyncMock(return_value=("/config/custom.csv", 3)),
+    ) as mock:
+        await hass.services.async_call("button", "press", {"entity_id": entity_id}, blocking=True)
+        await hass.async_block_till_done()
+    mock.assert_awaited_once()
+    options = mock.await_args.args[1]
+    filename = mock.await_args.args[2]
+    assert options.export_type == "devices"
+    assert options.output_format == "json"
+    assert filename == "custom.csv"
+
+
 async def test_orphaned_button_press_uses_stale_only(
     hass: HomeAssistant, setup_integration
 ) -> None:
