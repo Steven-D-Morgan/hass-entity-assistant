@@ -15,6 +15,14 @@
       "name": "Eksportuj do CSV",
       "description": "Eksportuj encje, urządzenia lub obszary z rejestru do pliku CSV w katalogu konfiguracyjnym.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Nazwa pliku",
           "description": "Plik do zapisania, względem katalogu konfiguracyjnego. Musi pozostać wewnątrz katalogu konfiguracyjnego."
@@ -87,6 +95,10 @@
       "name": "Pobierz adres URL do pobrania",
       "description": "Zwraca podpisany, ograniczony czasowo adres URL umożliwiający pobranie eksportu bezpośrednio z przeglądarki. Tylko odpowiedź; nie zapisuje pliku.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Wygasa (sekundy)",
           "description": "Jak długo podpisany adres URL pozostaje ważny."

@@ -18,12 +18,15 @@ ATTR_EXPORT_TYPE = "export_type"
 ATTR_DOMAINS = "domains"
 ATTR_AREAS = "areas"
 ATTR_EXPIRES = "expires"
+ATTR_DOWNLOAD_FILENAME = "download_filename"
 ATTR_STALE_ONLY = "stale_only"
 ATTR_STALE_DAYS = "stale_days"
 ATTR_UTF8_BOM = "utf8_bom"
 ATTR_OUTPUT_FORMAT = "output_format"
 ATTR_SORT_BY = "sort_by"
 ATTR_SORT_DIR = "sort_dir"
+ATTR_RETURN_DATA = "return_data"
+ATTR_MAX_ROWS = "max_rows"
 ATTR_DRY_RUN = "dry_run"
 ATTR_CONFIRM = "confirm"
 
@@ -31,6 +34,7 @@ DEFAULT_FILENAME = "entity_export.csv"
 DEFAULT_STALE_FILENAME = "entity_export_stale.csv"
 DEFAULT_EXPIRES = 120
 DEFAULT_STALE_DAYS = 30
+DEFAULT_MAX_ROWS = 1000
 
 EXPORT_TYPE_ENTITIES = "entities"
 EXPORT_TYPE_DEVICES = "devices"

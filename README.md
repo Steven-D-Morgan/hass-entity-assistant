@@ -188,9 +188,18 @@ All fields are optional:
 | `stale_only` | `false` | Only export rows flagged stale (see [Finding stale entities/devices](#finding-stale-entitiesdevices)) |
 | `stale_days` | `30` | Threshold for the `not_changed_<N>d` stale reason |
 | `utf8_bom` | `false` | Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly (CSV only) |
+| `return_data` | `false` | Return the data directly in the service response instead of writing a file (`export_csv` only) |
+| `max_rows` | `1000` | Row cap for `return_data` (`export_csv` only) |
 
 The file is written inside your config directory. The service returns
 `{path, row_count}`.
+
+**Inline data return:** set `return_data: true` on `export_csv` to get the data
+straight back in the service response — `{columns, rows, row_count, truncated}` —
+without touching the filesystem. Handy for template sensors or dashboards.
+`rows` is capped at `max_rows` (default 1000) and `truncated` is `true` when more
+rows were available; `output_format` is ignored (rows come back as structured
+data).
 
 **Output formats:** `csv` (default) is one header row plus one row per object,
 with formula-injection guarding and the optional Excel BOM. `json` and `yaml`
@@ -202,14 +211,20 @@ apply to JSON/YAML, so their values are verbatim.
 
 Returns a **signed, time-limited URL** that downloads the export without an auth
 header — ideal for a dashboard link. Accepts the same options (including
-`output_format`) plus `expires` (seconds, default 300). Response only; writes no
-file.
+`output_format`) plus `expires` (seconds, default 300) and `download_filename`.
+Response only; writes no file.
+
+`download_filename` sets the name the browser saves the file as (via
+`Content-Disposition`). It's sanitized to a bare basename and its extension is
+set from `output_format`, so a dated name like `entities_2026-09-24` downloads as
+`entities_2026-09-24.csv` — handy for names that don't overwrite each other.
 
 ```yaml
 action: entity_assistant.get_download_url
 data:
   export_type: devices
   expires: 600
+  download_filename: entities_2026-09-24
 response_variable: dl
 # dl.url -> https://<your-ha>/api/entity_assistant/export.csv?...&authSig=...
 ```
@@ -240,10 +255,11 @@ This endpoint is **authenticated**, so either use a signed URL from
 `get_download_url`, or pass a
 [long-lived access token](https://www.home-assistant.io/docs/authentication/#your-account-profile).
 It accepts the same options as query flags: `export_type`, `output_format`,
-`sort_by`, `sort_dir`, `include_disabled`, `include_hidden`, `only_enabled`,
-`stale_only`, `stale_days`, `utf8_bom`, `domains`, `areas` (the last two
-comma-separated). `output_format` sets the response `Content-Type` and download
-extension (`.csv`/`.json`/`.yaml`).
+`sort_by`, `sort_dir`, `download_filename`, `include_disabled`, `include_hidden`,
+`only_enabled`, `stale_only`, `stale_days`, `utf8_bom`, `domains`, `areas` (the
+last two comma-separated). `output_format` sets the response `Content-Type` and
+download extension (`.csv`/`.json`/`.yaml`); `download_filename` sets the saved
+name.
 
 ```bash
 curl -H "Authorization: Bearer <YOUR_TOKEN>" \

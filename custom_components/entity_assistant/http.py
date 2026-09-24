@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import re
 
 from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
@@ -44,6 +45,26 @@ def _as_int(value: str | None, default: int) -> int:
     return parsed if parsed >= 0 else default
 
 
+_SAFE_NAME = re.compile(r"[^A-Za-z0-9._ -]+")
+_KNOWN_EXTS = (".csv", ".json", ".yaml")
+_MAX_NAME_LEN = 100
+
+
+def _download_name(raw: str | None, output_format: str) -> str:
+    base = DOWNLOAD_FILENAME_BASE
+    if raw:
+        candidate = re.split(r"[\\/]", raw)[-1]
+        candidate = _SAFE_NAME.sub("_", candidate).strip("._ ")
+        for ext in _KNOWN_EXTS:
+            if candidate.lower().endswith(ext):
+                candidate = candidate[: -len(ext)].strip("._ ")
+                break
+        candidate = candidate[:_MAX_NAME_LEN].strip("._ ")
+        if candidate:
+            base = candidate
+    return f"{base}.{output_format}"
+
+
 def options_from_query(query: Mapping[str, str]) -> ExportOptions:
     export_type = query.get("export_type", DEFAULT_EXPORT_TYPE)
     if export_type not in EXPORT_TYPES:
@@ -67,6 +88,7 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
         output_format=output_format,
         sort_by=query.get("sort_by") or None,
         sort_dir=sort_dir,
+        download_filename=query.get("download_filename") or None,
     )
 
 
@@ -92,7 +114,7 @@ class EntityExportView(HomeAssistantView):
             )
 
         content_type = OUTPUT_FORMAT_CONTENT_TYPES[options.output_format]
-        download_name = f"{DOWNLOAD_FILENAME_BASE}.{options.output_format}"
+        download_name = _download_name(options.download_filename, options.output_format)
         return web.Response(
             body=body.encode("utf-8"),
             content_type=content_type,

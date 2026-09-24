@@ -15,6 +15,14 @@
       "name": "Экспорт в CSV",
       "description": "Экспорт объектов, устройств или помещений из реестра в файл CSV в каталоге конфигурации.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Имя файла",
           "description": "Файл для записи относительно каталога конфигурации. Должен оставаться внутри каталога конфигурации."
@@ -87,6 +95,10 @@
       "name": "Получить URL для скачивания",
       "description": "Возвращает подписанный URL с ограниченным сроком действия для загрузки экспорта прямо из браузера. Только ответ; файл не записывается.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Истекает (секунды)",
           "description": "Как долго остаётся действительным подписанный URL."

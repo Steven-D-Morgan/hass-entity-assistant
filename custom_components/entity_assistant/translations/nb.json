@@ -15,6 +15,14 @@
       "name": "Eksporter til CSV",
       "description": "Eksporter entiteter, enheter eller områder fra registeret til en CSV-fil i konfigurasjonskatalogen.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Filnavn",
           "description": "Fil som skal skrives, relativt til konfigurasjonskatalogen. Må holde seg innenfor konfigurasjonskatalogen."
@@ -87,6 +95,10 @@
       "name": "Hent nedlastings-URL",
       "description": "Returnerer en signert URL med tidsbegrensning for å laste ned eksporten direkte fra en nettleser. Kun svar; skriver ingen fil.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Utløper (sekunder)",
           "description": "Hvor lenge den signerte URL-en forblir gyldig."

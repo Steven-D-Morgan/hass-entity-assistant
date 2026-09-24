@@ -15,6 +15,14 @@
       "name": "Exportera till CSV",
       "description": "Exportera entiteter, enheter eller områden från registret till en CSV-fil i konfigurationskatalogen.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Filnamn",
           "description": "Fil att skriva, relativt konfigurationskatalogen. Måste ligga kvar inom konfigurationskatalogen."
@@ -87,6 +95,10 @@
       "name": "Hämta nedladdnings-URL",
       "description": "Returnerar en signerad, tidsbegränsad URL för att ladda ner exporten direkt från en webbläsare. Endast svar; skriver ingen fil.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Upphör (sekunder)",
           "description": "Hur länge den signerade URL:en förblir giltig."

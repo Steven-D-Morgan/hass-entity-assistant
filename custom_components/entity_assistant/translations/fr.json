@@ -15,6 +15,14 @@
       "name": "Exporter en CSV",
       "description": "Exporter les entités, appareils ou zones du registre vers un fichier CSV dans le répertoire de configuration.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Nom du fichier",
           "description": "Fichier à écrire, relatif au répertoire de configuration. Doit rester à l'intérieur du répertoire de configuration."
@@ -87,6 +95,10 @@
       "name": "Obtenir l'URL de téléchargement",
       "description": "Renvoie une URL signée à durée limitée pour télécharger l'export directement depuis un navigateur. Réponse uniquement ; n'écrit aucun fichier.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Expire (secondes)",
           "description": "Durée de validité de l'URL signée."

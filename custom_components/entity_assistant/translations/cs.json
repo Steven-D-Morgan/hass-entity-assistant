@@ -15,6 +15,14 @@
       "name": "Exportovat do CSV",
       "description": "Exportovat entity, zařízení nebo oblasti z registru do souboru CSV v konfiguračním adresáři.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Název souboru",
           "description": "Soubor k zápisu, relativní ke konfiguračnímu adresáři. Musí zůstat uvnitř konfiguračního adresáře."
@@ -87,6 +95,10 @@
       "name": "Získat URL ke stažení",
       "description": "Vrátí podepsanou, časově omezenou URL pro stažení exportu přímo z prohlížeče. Pouze odpověď; nezapisuje žádný soubor.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Vyprší (sekundy)",
           "description": "Jak dlouho zůstává podepsaná URL platná."

@@ -66,6 +66,7 @@ class ExportOptions:
     output_format: str = DEFAULT_OUTPUT_FORMAT
     sort_by: str | None = None
     sort_dir: str = DEFAULT_SORT_DIR
+    download_filename: str | None = None
 
     @property
     def want_disabled(self) -> bool:

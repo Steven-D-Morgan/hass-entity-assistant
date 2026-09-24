@@ -14,6 +14,26 @@ export_csv:
       example: exports/entities.csv
       selector:
         text:
+    return_data:
+      name: Return data
+      description: >-
+        Return columns and rows directly in the service response instead of
+        writing a file. Ignores output_format (rows are structured data).
+      required: false
+      default: false
+      selector:
+        boolean:
+    max_rows:
+      name: Max rows
+      description: >-
+        Cap the number of rows returned when return_data is on. The response
+        sets truncated: true when more rows were available.
+      required: false
+      default: 1000
+      selector:
+        number:
+          min: 1
+          mode: box
     export_type:
       name: Export type
       description: >-
@@ -144,6 +164,16 @@ get_download_url:
           max: 86400
           unit_of_measurement: seconds
           mode: box
+    download_filename:
+      name: Download filename
+      description: >-
+        Name for the downloaded file (Content-Disposition). Sanitized to a bare
+        basename; the extension is set from output_format. Handy for dated names
+        that don't overwrite each other.
+      required: false
+      example: entities_2026-09-24
+      selector:
+        text:
     export_type:
       name: Export type
       description: >-

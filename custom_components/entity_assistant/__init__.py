@@ -25,14 +25,17 @@ from .const import (
     ATTR_AREAS,
     ATTR_CONFIRM,
     ATTR_DOMAINS,
+    ATTR_DOWNLOAD_FILENAME,
     ATTR_DRY_RUN,
     ATTR_EXPIRES,
     ATTR_EXPORT_TYPE,
     ATTR_FILENAME,
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
+    ATTR_MAX_ROWS,
     ATTR_ONLY_ENABLED,
     ATTR_OUTPUT_FORMAT,
+    ATTR_RETURN_DATA,
     ATTR_SORT_BY,
     ATTR_SORT_DIR,
     ATTR_STALE_DAYS,
@@ -41,6 +44,7 @@ from .const import (
     DEFAULT_EXPIRES,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
+    DEFAULT_MAX_ROWS,
     DEFAULT_OUTPUT_FORMAT,
     DEFAULT_SORT_DIR,
     DEFAULT_STALE_DAYS,
@@ -54,7 +58,7 @@ from .const import (
     SERVICE_REMOVE_ORPHANED,
     SORT_DIRS,
 )
-from .export import ExportOptions, async_run_export, remove_orphaned
+from .export import ExportOptions, async_run_export, build_export, remove_orphaned
 from .http import EntityExportView
 
 _LOGGER = logging.getLogger(__name__)
@@ -93,11 +97,20 @@ _OPTION_FIELDS = {
 }
 
 EXPORT_CSV_SCHEMA = vol.Schema(
-    {vol.Optional(ATTR_FILENAME, default=DEFAULT_FILENAME): cv.string, **_OPTION_FIELDS}
+    {
+        vol.Optional(ATTR_FILENAME, default=DEFAULT_FILENAME): cv.string,
+        vol.Optional(ATTR_RETURN_DATA, default=False): cv.boolean,
+        vol.Optional(ATTR_MAX_ROWS, default=DEFAULT_MAX_ROWS): cv.positive_int,
+        **_OPTION_FIELDS,
+    }
 )
 
 GET_DOWNLOAD_URL_SCHEMA = vol.Schema(
-    {vol.Optional(ATTR_EXPIRES, default=DEFAULT_EXPIRES): cv.positive_int, **_OPTION_FIELDS}
+    {
+        vol.Optional(ATTR_EXPIRES, default=DEFAULT_EXPIRES): cv.positive_int,
+        vol.Optional(ATTR_DOWNLOAD_FILENAME): cv.string,
+        **_OPTION_FIELDS,
+    }
 )
 
 
@@ -117,6 +130,7 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
         output_format=call.data[ATTR_OUTPUT_FORMAT],
         sort_by=call.data.get(ATTR_SORT_BY),
         sort_dir=call.data[ATTR_SORT_DIR],
+        download_filename=call.data.get(ATTR_DOWNLOAD_FILENAME),
     )
 
 
@@ -134,6 +148,8 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
     }
     if options.sort_by:
         query["sort_by"] = options.sort_by
+    if options.download_filename:
+        query["download_filename"] = options.download_filename
     if options.domains:
         query["domains"] = ",".join(sorted(options.domains))
     if options.areas:
@@ -145,6 +161,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
         options = _options_from_call(call)
+        if call.data[ATTR_RETURN_DATA]:
+            columns, rows = build_export(hass, options)
+            max_rows = call.data[ATTR_MAX_ROWS]
+            return {
+                "columns": columns,
+                "rows": rows[:max_rows],
+                "row_count": len(rows),
+                "truncated": len(rows) > max_rows,
+            }
         path, count = await async_run_export(
             hass, options, call.data[ATTR_FILENAME], triggered_by="service"
         )

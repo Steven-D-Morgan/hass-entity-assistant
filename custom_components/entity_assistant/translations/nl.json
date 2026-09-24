@@ -15,6 +15,14 @@
       "name": "Exporteren naar CSV",
       "description": "Exporteer entiteiten, apparaten of gebieden uit het register naar een CSV-bestand in de configuratiemap.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Bestandsnaam",
           "description": "Weg te schrijven bestand, relatief ten opzichte van de configuratiemap. Moet binnen de configuratiemap blijven."
@@ -87,6 +95,10 @@
       "name": "Download-URL ophalen",
       "description": "Geeft een ondertekende, in tijd beperkte URL terug om de export rechtstreeks vanuit een browser te downloaden. Alleen antwoord; schrijft geen bestand.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Verloopt (seconden)",
           "description": "Hoe lang de ondertekende URL geldig blijft."

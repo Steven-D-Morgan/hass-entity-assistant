@@ -15,6 +15,14 @@
       "name": "Als CSV exportieren",
       "description": "Entitäten, Geräte oder Bereiche aus der Registrierung in eine CSV-Datei im Konfigurationsverzeichnis exportieren.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Dateiname",
           "description": "Zu schreibende Datei, relativ zum Konfigurationsverzeichnis. Muss innerhalb des Konfigurationsverzeichnisses bleiben."
@@ -87,6 +95,10 @@
       "name": "Download-URL abrufen",
       "description": "Gibt eine signierte, zeitlich begrenzte URL zurück, um den Export direkt aus einem Browser herunterzuladen. Nur Antwort; schreibt keine Datei.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Läuft ab (Sekunden)",
           "description": "Wie lange die signierte URL gültig bleibt."

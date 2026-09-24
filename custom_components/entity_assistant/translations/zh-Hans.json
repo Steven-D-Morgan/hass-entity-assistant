@@ -15,6 +15,14 @@
       "name": "导出为 CSV",
       "description": "将注册表中的实体、设备或区域导出到配置目录中的 CSV 文件。",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "文件名",
           "description": "要写入的文件，相对于配置目录。必须位于配置目录内。"
@@ -87,6 +95,10 @@
       "name": "获取下载 URL",
       "description": "返回一个带签名的、有时间限制的 URL，可直接从浏览器下载导出内容。仅响应；不写入文件。",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "过期时间（秒）",
           "description": "签名 URL 保持有效的时长。"

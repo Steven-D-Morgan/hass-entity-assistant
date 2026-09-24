@@ -10,7 +10,7 @@ from custom_components.entity_assistant.const import (
     DEFAULT_STALE_DAYS,
     DOWNLOAD_URL,
 )
-from custom_components.entity_assistant.http import options_from_query
+from custom_components.entity_assistant.http import _download_name, options_from_query
 
 
 def test_options_from_query_defaults() -> None:
@@ -27,6 +27,7 @@ def test_options_from_query_defaults() -> None:
     assert options.output_format == "csv"
     assert options.sort_by is None
     assert options.sort_dir == "asc"
+    assert options.download_filename is None
 
 
 def test_options_from_query_all_params() -> None:
@@ -43,6 +44,7 @@ def test_options_from_query_all_params() -> None:
         "output_format": "json",
         "sort_by": "name",
         "sort_dir": "desc",
+        "download_filename": "my_entities",
     }
     options = options_from_query(query)
     assert options.export_type == "devices"
@@ -57,6 +59,7 @@ def test_options_from_query_all_params() -> None:
     assert options.output_format == "json"
     assert options.sort_by == "name"
     assert options.sort_dir == "desc"
+    assert options.download_filename == "my_entities"
 
 
 def test_options_from_query_invalid_export_type_falls_back() -> None:
@@ -72,6 +75,38 @@ def test_options_from_query_invalid_output_format_falls_back() -> None:
 def test_options_from_query_invalid_sort_dir_falls_back() -> None:
     options = options_from_query({"sort_dir": "bogus"})
     assert options.sort_dir == "asc"
+
+
+def test_download_name_default() -> None:
+    assert _download_name(None, "csv") == "entity_export.csv"
+    assert _download_name("", "json") == "entity_export.json"
+
+
+def test_download_name_uses_caller_name_and_format_extension() -> None:
+    assert _download_name("entities_2026-09-24", "csv") == "entities_2026-09-24.csv"
+    assert _download_name("entities_2026-09-24", "json") == "entities_2026-09-24.json"
+
+
+def test_download_name_swaps_known_extension() -> None:
+    assert _download_name("report.csv", "json") == "report.json"
+    assert _download_name("report.yaml", "yaml") == "report.yaml"
+
+
+def test_download_name_strips_path_to_basename() -> None:
+    assert _download_name("../../etc/passwd", "csv") == "passwd.csv"
+    assert _download_name("sub\\dir\\name", "csv") == "name.csv"
+
+
+def test_download_name_strips_header_injection_chars() -> None:
+    name = _download_name('a"b;\r\nc', "csv")
+    for bad in ('"', ";", "\r", "\n"):
+        assert bad not in name
+    assert name.endswith(".csv")
+
+
+def test_download_name_empty_after_sanitize_falls_back() -> None:
+    assert _download_name("///", "csv") == "entity_export.csv"
+    assert _download_name("...", "csv") == "entity_export.csv"
 
 
 def test_options_from_query_bool_variations() -> None:
@@ -164,3 +199,13 @@ async def test_download_yaml_format(hass: HomeAssistant, setup_integration, hass
     assert resp.content_type == "application/yaml"
     disposition = resp.headers.get("Content-Disposition", "")
     assert ".yaml" in disposition
+
+
+async def test_download_custom_filename(
+    hass: HomeAssistant, setup_integration, hass_client
+) -> None:
+    client = await hass_client()
+    resp = await client.get(f"{DOWNLOAD_URL}?download_filename=my_entities&output_format=json")
+    assert resp.status == 200
+    disposition = resp.headers.get("Content-Disposition", "")
+    assert 'filename="my_entities.json"' in disposition

@@ -6,8 +6,9 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 ## 1.8.2 — 2026-09-24
 
 More of the **round-trip-ready export** milestone (1.8): structured output
-formats beside CSV. Additive and backward compatible — `csv` stays the default,
-so every existing service call, signed URL, and HTTP request is unchanged.
+formats beside CSV, plus sorting controls. Additive and backward compatible —
+`csv` and the existing row order stay the defaults, so every existing service
+call, signed URL, and HTTP request is unchanged.
 
 - **New `output_format` option** — `csv` (default), `json`, or `yaml` — on the
   `export_csv` and `get_download_url` services and the HTTP endpoint. JSON and
@@ -22,15 +23,30 @@ so every existing service call, signed URL, and HTTP request is unchanged.
 - **HTTP endpoint** sets the response `Content-Type`
   (`text/csv` / `application/json` / `application/yaml`) and the download
   filename extension (`.csv` / `.json` / `.yaml`) from `output_format`.
+- **New `sort_by` / `sort_dir` options** — sort rows by any column,
+  `asc` (default) or `desc`, with a stable sort. Unknown columns are ignored
+  (default order preserved); values sort as text. Available on both services and
+  the HTTP endpoint.
+- **New `return_data` option on `export_csv`** — returns
+  `{columns, rows, row_count, truncated}` directly in the service response with
+  no file written, for template sensors and dashboards. `rows` is capped by
+  `max_rows` (default 1000); `truncated` flags when more were available.
+- **New `download_filename` option on `get_download_url`** (and the HTTP
+  endpoint) — sets the browser's saved filename via `Content-Disposition`,
+  sanitized to a bare basename with the extension taken from `output_format`.
+  Dated names like `entities_2026-09-24` stop overwriting each other.
 - **Internals:** `write_csv` was generalized to `serialize_export` (format
   dispatch) + `write_export` (plain text write); `rows_to_csv` is unchanged and
-  `rows_to_json` / `rows_to_yaml` were added.
+  `rows_to_json` / `rows_to_yaml` were added. Every row value is now normalized
+  to a string before serialization, so `StrEnum` registry fields (e.g.
+  `hidden_by`, `device_class`) serialize cleanly under YAML too.
 - **Tests:** serializer round-trips (JSON/YAML), format dispatch, the
   no-formula-sanitization guarantee for JSON/YAML, end-to-end `.json`/`.yaml`
-  file writes, and HTTP `Content-Type`/extension per format.
-- **i18n:** the new `output_format` field is added to `strings.json` and all 13
-  locale files (English text in the 12 non-English files until backfilled), so
-  the locale-parity CI check stays green.
+  file writes, HTTP `Content-Type`/extension per format, and sort
+  ascending/descending plus the unknown-column fallback.
+- **i18n:** the new `output_format`, `sort_by`, and `sort_dir` fields are added
+  to `strings.json` and all 13 locale files (English text in the 12 non-English
+  files until backfilled), so the locale-parity CI check stays green.
 
 ## 1.8.1 — 2026-09-24
 

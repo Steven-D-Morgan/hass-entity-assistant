@@ -15,6 +15,14 @@
       "name": "Exportar a CSV",
       "description": "Exportar entidades, dispositivos o áreas del registro a un archivo CSV dentro del directorio de configuración.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Nombre de archivo",
           "description": "Archivo a escribir, relativo al directorio de configuración. Debe permanecer dentro del directorio de configuración."
@@ -87,6 +95,10 @@
       "name": "Obtener URL de descarga",
       "description": "Devuelve una URL firmada y de tiempo limitado para descargar la exportación directamente desde un navegador. Solo respuesta; no escribe ningún archivo.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Caduca (segundos)",
           "description": "Cuánto tiempo permanece válida la URL firmada."

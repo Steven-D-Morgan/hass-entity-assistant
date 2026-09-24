@@ -15,6 +15,14 @@
       "name": "Export to CSV",
       "description": "Export entities, devices, or areas from the registry to a CSV file inside the configuration directory.",
       "fields": {
+        "return_data": {
+          "name": "Return data",
+          "description": "Return columns and rows in the service response instead of writing a file."
+        },
+        "max_rows": {
+          "name": "Max rows",
+          "description": "Cap the number of rows returned when return_data is on (default 1000)."
+        },
         "filename": {
           "name": "Filename",
           "description": "File to write, relative to the config directory. Must stay inside the config directory."
@@ -87,6 +95,10 @@
       "name": "Get download URL",
       "description": "Return a signed, time-limited URL to download the export directly from a browser. Response only; writes no file.",
       "fields": {
+        "download_filename": {
+          "name": "Download filename",
+          "description": "Name for the downloaded file (sanitized to a basename; extension set from output_format)."
+        },
         "expires": {
           "name": "Expires (seconds)",
           "description": "How long the signed URL stays valid."
