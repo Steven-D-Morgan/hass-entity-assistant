@@ -18,7 +18,7 @@ Everything the assistant needs is a supported public API. The user-editable surf
 | Floor | `name`, `level`, `icon`, `aliases` (full CRUD) | `fr.*` |
 | Label | `name`, `color`, `icon`, `description` (full CRUD) | `lr.*` |
 
-Two identity facts make spreadsheet round-trips robust: every entity registry entry carries a stable ULID (`RegistryEntry.id`) that survives `entity_id` renames, and device/area/floor/label ids are already stable. Exports must carry these keys (today they don't — see 1.8).
+Two identity facts make spreadsheet round-trips robust: every entity registry entry carries a stable ULID (`RegistryEntry.id`) that survives `entity_id` renames, and device/area/floor/label ids are already stable. Exports must carry these keys — the entity `registry_id` and the writable-but-missing entity/area fields shipped in 1.8.0 (see the 1.8 table); `floors`/`labels` export types are still to come.
 
 The hard limits every item below respects:
 
@@ -44,13 +44,13 @@ Standing rules for every write: `dry_run: true` by default, explicit non-default
 
 Tests, CI, and safety-gating on the one shipped mutation. Delivered in 1.7.0 (2026-09-09) and hardened in 1.7.1 (2026-09-13). See [CHANGELOG.md](CHANGELOG.md).
 
-## 1.8 — Round-trip-ready export
+## 1.8 — Round-trip-ready export — 🚧 in progress
 
-Everything import will need, shipped as additive export improvements — plus the configuration UX that stores defaults. This milestone *defines the import contract*.
+Everything import will need, shipped as additive export improvements — plus the configuration UX that stores defaults. This milestone *defines the import contract*. First slice (stable keys & writable-column completeness) shipped in 1.8.0.
 
 | Capability | What it adds | Effort | Risk |
 | --- | --- | --- | --- |
-| Stable keys & writable-column completeness | Add `registry_id` (the stable ULID) to entity rows and export the writable-but-missing fields: entity `icon`, `aliases`, `categories`; area `icon`. Multi-value columns stay `", "`-joined in CSV with the comma-in-name limitation documented; JSON is the lossless round-trip format. | S | low |
+| Stable keys & writable-column completeness — ✅ 1.8.0 | Add `registry_id` (the stable ULID) to entity rows and export the writable-but-missing fields: entity `icon`, `aliases`, `categories`; area `icon`. Multi-value columns stay `", "`-joined in CSV with the comma-in-name limitation documented; JSON is the lossless round-trip format. | S | low |
 | `floors` and `labels` export types | Complete registry coverage: floors (name, level, icon, aliases, area count) and labels (name, color, icon, description, usage counts). Both become importable later. | S | low |
 | Structured output formats (JSON, NDJSON, YAML) | `output_format` option beside `csv`, dispatched through services, signed URL, and HTTP view (`Content-Type` + extension). `json` is stdlib; PyYAML ships in core — no manifest requirement. | S | low |
 | Sorting & grouping controls | `sort_by` / `sort_dir` / optional `group_by` (area / domain / floor) applied before serialization with a stable sort; guarded against unknown columns. | S | low |

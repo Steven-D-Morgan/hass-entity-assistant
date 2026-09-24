@@ -24,8 +24,10 @@ Choose an `export_type`: **entities** (default), **devices**, or **areas**.
 | Column | Description |
 | --- | --- |
 | `entity_id` | The entity ID (e.g. `light.kitchen`) |
+| `registry_id` | Stable registry ULID — survives an `entity_id` rename; the round-trip key |
 | `name` | Friendly name (user override, falling back to the original) |
 | `original_name` | Name assigned by the integration |
+| `icon` | Icon override (`mdi:…`), blank if none set |
 | `platform` | Integration that created the entity (e.g. `hue`, `mqtt`) |
 | `config_entry` | Title of the config entry it belongs to |
 | `device_id` | Registry ID of the parent device |
@@ -36,6 +38,8 @@ Choose an `export_type`: **entities** (default), **devices**, or **areas**.
 | `area_name` | Effective area name |
 | `floor` | Floor the area belongs to |
 | `labels` | Labels assigned to the entity |
+| `aliases` | Voice/Assist aliases, `", "`-joined |
+| `categories` | Category assignments as `scope:category_id`, `", "`-joined |
 | `entity_category` | `config`, `diagnostic`, or blank |
 | `device_class` | Device class (e.g. `temperature`, `motion`) |
 | `unit_of_measurement` | Unit, if any |
@@ -59,8 +63,13 @@ Choose an `export_type`: **entities** (default), **devices**, or **areas**.
 
 ### Areas (one row per area)
 
-`area_id`, `name`, `floor_id`, `floor`, `labels`, `aliases`, `device_count`,
-`entity_count`, `picture`, `stale`, `stale_reason`.
+`area_id`, `name`, `icon`, `floor_id`, `floor`, `labels`, `aliases`,
+`device_count`, `entity_count`, `picture`, `stale`, `stale_reason`.
+
+> **Multi-value columns** (`labels`, `aliases`, `categories`) are joined with
+> `", "` in CSV. A label or alias that itself contains a comma is therefore
+> ambiguous to split back apart — a known CSV limitation that a future
+> structured output format (JSON) will round-trip losslessly.
 
 ### Finding stale entities/devices
 

@@ -3,6 +3,7 @@
   list([
     'area_id',
     'name',
+    'icon',
     'floor_id',
     'floor',
     'labels',
@@ -15,7 +16,7 @@
   ])
 # ---
 # name: test_area_csv_header_snapshot
-  'area_id,name,floor_id,floor,labels,aliases,device_count,entity_count,picture,stale,stale_reason'
+  'area_id,name,icon,floor_id,floor,labels,aliases,device_count,entity_count,picture,stale,stale_reason'
 # ---
 # name: test_device_columns_list_snapshot
   list([
@@ -45,8 +46,10 @@
 # name: test_entity_columns_list_snapshot
   list([
     'entity_id',
+    'registry_id',
     'name',
     'original_name',
+    'icon',
     'platform',
     'config_entry',
     'device_id',
@@ -57,6 +60,8 @@
     'area_name',
     'floor',
     'labels',
+    'aliases',
+    'categories',
     'entity_category',
     'device_class',
     'unit_of_measurement',
@@ -73,5 +78,5 @@
   ])
 # ---
 # name: test_entity_csv_header_snapshot
-  'entity_id,name,original_name,platform,config_entry,device_id,device_name,device_manufacturer,device_model,area_id,area_name,floor,labels,entity_category,device_class,unit_of_measurement,state,available,last_changed,last_changed_days,stale,stale_reason,enabled,disabled_by,hidden_by,unique_id'
+  'entity_id,registry_id,name,original_name,icon,platform,config_entry,device_id,device_name,device_manufacturer,device_model,area_id,area_name,floor,labels,aliases,categories,entity_category,device_class,unit_of_measurement,state,available,last_changed,last_changed_days,stale,stale_reason,enabled,disabled_by,hidden_by,unique_id'
 # ---

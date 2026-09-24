@@ -3,6 +3,32 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.8.0 — 2026-09-24
+
+The first slice of the **round-trip-ready export** milestone (1.8): stable
+keys and writable-column completeness, so a future `import_changes` can key
+rows unambiguously and round-trip every user-editable field. Additive only —
+no removals, no behavior change to existing columns.
+
+- **Entity export** gains four columns:
+  - `registry_id` — the stable registry ULID (`RegistryEntry.id`). It survives
+    an `entity_id` rename, making it the key the import path will match rows on.
+  - `icon` — the entity's icon override (blank when unset).
+  - `aliases` — voice/Assist aliases, `", "`-joined. Home Assistant 2026.9
+    changed the entity alias model to a list that can carry a non-string
+    "computed name" sentinel; the exporter filters to real string aliases, so
+    it stays correct on both that core and older ones where aliases were a
+    plain `set[str]`.
+  - `categories` — category assignments serialized as `scope:category_id`,
+    `", "`-joined.
+- **Area export** gains an `icon` column (the area's icon override).
+- **Docs:** README documents the new columns and the comma-in-name limitation
+  of the `", "`-joined multi-value columns (`labels`, `aliases`, `categories`),
+  which a later structured (JSON) output format will round-trip losslessly.
+- **Tests:** new coverage for the stable key, the writable fields, area icon,
+  and the alias/category serializers (including sentinel filtering). The CSV
+  column-contract snapshots were regenerated for the added columns.
+
 ## 1.7.1 — 2026-09-13
 
 - **CI:** committed the missing `tests/snapshots/test_snapshots.ambr` file so

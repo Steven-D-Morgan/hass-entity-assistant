@@ -44,8 +44,10 @@ DOWNLOAD_FILENAME = "entity_export.csv"
 
 ENTITY_COLUMNS = [
     "entity_id",
+    "registry_id",
     "name",
     "original_name",
+    "icon",
     "platform",
     "config_entry",
     "device_id",
@@ -56,6 +58,8 @@ ENTITY_COLUMNS = [
     "area_name",
     "floor",
     "labels",
+    "aliases",
+    "categories",
     "entity_category",
     "device_class",
     "unit_of_measurement",
@@ -95,6 +99,7 @@ DEVICE_COLUMNS = [
 AREA_COLUMNS = [
     "area_id",
     "name",
+    "icon",
     "floor_id",
     "floor",
     "labels",

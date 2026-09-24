@@ -20,6 +20,8 @@ import voluptuous as vol
 from custom_components.entity_assistant.const import AREA_COLUMNS, DEVICE_COLUMNS, ENTITY_COLUMNS
 from custom_components.entity_assistant.export import (
     ExportOptions,
+    _alias_names,
+    _category_pairs,
     _sanitize_csv_value,
     build_export,
     resolve_path,
@@ -185,6 +187,30 @@ async def test_build_entity_rows_area_filter_by_id(hass: HomeAssistant) -> None:
     assert refs["light"].entity_id in entity_ids
 
 
+async def test_build_entity_rows_stable_key(hass: HomeAssistant) -> None:
+    refs = _seed_basic(hass)
+    _, rows = build_export(hass, ExportOptions())
+    row = next(r for r in rows if r["entity_id"] == refs["light"].entity_id)
+    assert row["registry_id"] == refs["light"].id
+    assert row["registry_id"]
+
+
+async def test_build_entity_rows_writable_fields(hass: HomeAssistant) -> None:
+    refs = _seed_basic(hass)
+    ent_reg = er.async_get(hass)
+    ent_reg.async_update_entity(
+        refs["light"].entity_id,
+        icon="mdi:lightbulb",
+        aliases=["Main Light", "Lounge Light"],
+        categories={"cleaning": "cat_weekly"},
+    )
+    _, rows = build_export(hass, ExportOptions())
+    row = next(r for r in rows if r["entity_id"] == refs["light"].entity_id)
+    assert row["icon"] == "mdi:lightbulb"
+    assert row["aliases"] == "Lounge Light, Main Light"
+    assert row["categories"] == "cleaning:cat_weekly"
+
+
 async def test_build_entity_rows_stale_only(hass: HomeAssistant) -> None:
     _seed_basic(hass)
     _, rows = build_export(hass, ExportOptions(stale_only=True))
@@ -311,6 +337,14 @@ async def test_build_area_rows_populated_not_stale(hass: HomeAssistant) -> None:
     assert living_row["stale"] == "false"
 
 
+async def test_build_area_rows_icon(hass: HomeAssistant) -> None:
+    refs = _seed_basic(hass)
+    ar.async_get(hass).async_update(refs["kitchen"].id, icon="mdi:silverware-fork-knife")
+    _, rows = build_export(hass, ExportOptions(export_type="areas"))
+    row = next(r for r in rows if r["area_id"] == refs["kitchen"].id)
+    assert row["icon"] == "mdi:silverware-fork-knife"
+
+
 def test_resolve_path_inside_config(hass: HomeAssistant) -> None:
     path = resolve_path(hass, "subdir/file.csv")
     config_dir = os.path.realpath(hass.config.config_dir)
@@ -346,6 +380,28 @@ def test_rows_to_csv_utf8_bom() -> None:
 def test_rows_to_csv_no_bom_default() -> None:
     output = rows_to_csv(["a"], [{"a": "1"}])
     assert not output.startswith("\ufeff")
+
+
+def test_alias_names_sorts_and_joins() -> None:
+    assert _alias_names(["Zebra", "apple"]) == "Zebra, apple"
+    assert _alias_names({"one", "two"}) == "one, two"
+    assert _alias_names(None) == ""
+    assert _alias_names([]) == ""
+
+
+def test_alias_names_filters_non_strings() -> None:
+    class _Sentinel:
+        pass
+
+    # Mirrors HA 2026.9's list[AliasEntry], where a non-str COMPUTED_NAME
+    # sentinel can appear alongside the user-set string aliases.
+    assert _alias_names(["beta", _Sentinel(), "alpha"]) == "alpha, beta"
+
+
+def test_category_pairs_serializes_sorted() -> None:
+    assert _category_pairs({"toys": "cat_1", "cleaning": "cat_2"}) == "cleaning:cat_2, toys:cat_1"
+    assert _category_pairs({}) == ""
+    assert _category_pairs(None) == ""
 
 
 def test_sanitize_csv_value_prefixes_formula_chars() -> None:

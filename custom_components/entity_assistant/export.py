@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
 import io
@@ -86,6 +87,18 @@ def _label_names(label_reg: lr.LabelRegistry, label_ids: set[str] | None) -> str
         label = label_reg.async_get_label(label_id)
         names.append(label.name if label else label_id)
     return ", ".join(sorted(names))
+
+
+def _alias_names(aliases: Iterable[object] | None) -> str:
+    if not aliases:
+        return ""
+    return ", ".join(sorted(alias for alias in aliases if isinstance(alias, str)))
+
+
+def _category_pairs(categories: dict[str, str] | None) -> str:
+    if not categories:
+        return ""
+    return ", ".join(f"{scope}:{cat_id}" for scope, cat_id in sorted(categories.items()))
 
 
 def _entity_staleness(
@@ -179,8 +192,10 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         rows.append(
             {
                 "entity_id": entity.entity_id,
+                "registry_id": entity.id,
                 "name": entity.name or entity.original_name or "",
                 "original_name": entity.original_name or "",
+                "icon": entity.icon or "",
                 "platform": entity.platform or "",
                 "config_entry": config_entry.title if config_entry else "",
                 "device_id": entity.device_id or "",
@@ -191,6 +206,8 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
                 "area_name": area_name or "",
                 "floor": floor.name if floor else "",
                 "labels": _label_names(label_reg, entity.labels),
+                "aliases": _alias_names(entity.aliases),
+                "categories": _category_pairs(entity.categories),
                 "entity_category": entity.entity_category or "",
                 "device_class": device_class,
                 "unit_of_measurement": unit,
@@ -333,10 +350,11 @@ def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[s
             {
                 "area_id": area.id,
                 "name": area.name,
+                "icon": area.icon or "",
                 "floor_id": area.floor_id or "",
                 "floor": floor.name if floor else "",
                 "labels": _label_names(label_reg, area.labels),
-                "aliases": ", ".join(sorted(area.aliases)) if area.aliases else "",
+                "aliases": _alias_names(area.aliases),
                 "device_count": str(devices),
                 "entity_count": str(entities),
                 "picture": area.picture or "",
