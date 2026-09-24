@@ -74,17 +74,50 @@ export_csv:
     domains:
       name: Domains
       description: >-
-        Only include entities in these domains (entities export type only).
+        Only include entities in these domains (entities export type only). Pick
+        from the list or type any other domain.
       required: false
       example: '["light", "switch"]'
       selector:
-        object:
+        select:
+          multiple: true
+          custom_value: true
+          options:
+            - light
+            - switch
+            - sensor
+            - binary_sensor
+            - climate
+            - cover
+            - fan
+            - lock
+            - media_player
+            - camera
+            - vacuum
+            - humidifier
+            - water_heater
+            - alarm_control_panel
+            - number
+            - select
+            - button
+            - scene
+            - script
+            - automation
+            - device_tracker
+            - person
+            - weather
+            - update
+            - remote
+            - siren
     areas:
       name: Areas
-      description: Only include rows in these areas (by area id or name).
+      description: >-
+        Only include rows in these areas. The picker returns area IDs; typed
+        YAML also accepts area names.
       required: false
       selector:
-        object:
+        area:
+          multiple: true
     stale_only:
       name: Stale only
       description: >-
@@ -146,6 +179,28 @@ export_csv:
           options:
             - asc
             - desc
+    columns:
+      name: Columns
+      description: >-
+        Ordered list of column names to output; other columns are dropped and
+        unknown names are ignored. Overrides preset.
+      required: false
+      example: '["entity_id", "name", "area_name"]'
+      selector:
+        object:
+    preset:
+      name: Column preset
+      description: >-
+        Named column set for the chosen export type: minimal (all types),
+        identity (entities), or stale (entities/devices). Ignored when columns
+        is set.
+      required: false
+      selector:
+        select:
+          options:
+            - minimal
+            - identity
+            - stale
 
 get_download_url:
   name: Get download URL
@@ -211,16 +266,50 @@ get_download_url:
         boolean:
     domains:
       name: Domains
-      description: Only include entities in these domains (entities export type only).
+      description: >-
+        Only include entities in these domains (entities export type only). Pick
+        from the list or type any other domain.
       required: false
       selector:
-        object:
+        select:
+          multiple: true
+          custom_value: true
+          options:
+            - light
+            - switch
+            - sensor
+            - binary_sensor
+            - climate
+            - cover
+            - fan
+            - lock
+            - media_player
+            - camera
+            - vacuum
+            - humidifier
+            - water_heater
+            - alarm_control_panel
+            - number
+            - select
+            - button
+            - scene
+            - script
+            - automation
+            - device_tracker
+            - person
+            - weather
+            - update
+            - remote
+            - siren
     areas:
       name: Areas
-      description: Only include rows in these areas (by area id or name).
+      description: >-
+        Only include rows in these areas. The picker returns area IDs; typed
+        YAML also accepts area names.
       required: false
       selector:
-        object:
+        area:
+          multiple: true
     stale_only:
       name: Stale only
       description: >-
@@ -282,6 +371,28 @@ get_download_url:
           options:
             - asc
             - desc
+    columns:
+      name: Columns
+      description: >-
+        Ordered list of column names to output; other columns are dropped and
+        unknown names are ignored. Overrides preset.
+      required: false
+      example: '["entity_id", "name", "area_name"]'
+      selector:
+        object:
+    preset:
+      name: Column preset
+      description: >-
+        Named column set for the chosen export type: minimal (all types),
+        identity (entities), or stale (entities/devices). Ignored when columns
+        is set.
+      required: false
+      selector:
+        select:
+          options:
+            - minimal
+            - identity
+            - stale
 
 remove_orphaned:
   name: Remove orphaned entries

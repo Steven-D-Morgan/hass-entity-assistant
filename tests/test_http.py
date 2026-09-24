@@ -28,6 +28,8 @@ def test_options_from_query_defaults() -> None:
     assert options.sort_by is None
     assert options.sort_dir == "asc"
     assert options.download_filename is None
+    assert options.columns is None
+    assert options.preset is None
 
 
 def test_options_from_query_all_params() -> None:
@@ -45,6 +47,8 @@ def test_options_from_query_all_params() -> None:
         "sort_by": "name",
         "sort_dir": "desc",
         "download_filename": "my_entities",
+        "columns": "entity_id, name, area_name",
+        "preset": "minimal",
     }
     options = options_from_query(query)
     assert options.export_type == "devices"
@@ -60,6 +64,8 @@ def test_options_from_query_all_params() -> None:
     assert options.sort_by == "name"
     assert options.sort_dir == "desc"
     assert options.download_filename == "my_entities"
+    assert options.columns == ["entity_id", "name", "area_name"]
+    assert options.preset == "minimal"
 
 
 def test_options_from_query_invalid_export_type_falls_back() -> None:

@@ -180,6 +180,8 @@ All fields are optional:
 | `output_format` | `csv` | Serialization format: `csv`, `json`, or `yaml`. JSON and YAML are lossless structured formats; CSV is best for spreadsheets |
 | `sort_by` | — | Column name to sort rows by (e.g. `name`, `area_name`). Unknown columns are ignored; values sort as text |
 | `sort_dir` | `asc` | `asc` or `desc`; only applies when `sort_by` is set |
+| `columns` | — | Ordered list of columns to output; others are dropped and unknown names are ignored. Overrides `preset` |
+| `preset` | — | Named column set: `minimal` (all types), `identity` (entities), `stale` (entities/devices) |
 | `include_disabled` | `true` | Include disabled entities/devices |
 | `include_hidden` | `true` | Include hidden entities |
 | `only_enabled` | `false` | Shortcut to exclude everything disabled/hidden |
@@ -200,6 +202,13 @@ without touching the filesystem. Handy for template sensors or dashboards.
 `rows` is capped at `max_rows` (default 1000) and `truncated` is `true` when more
 rows were available; `output_format` is ignored (rows come back as structured
 data).
+
+**Choosing columns:** by default every column for the export type is included.
+Pass `columns` for an exact, reordered subset (great for a short sheet or a
+specific import shape), or `preset` for a named set — `minimal` (all types),
+`identity` (entities), or `stale` (entities/devices). `columns` wins over
+`preset`, unknown column names are dropped, and if nothing valid is left the full
+set is used. `sort_by` can still reference a column you didn't output.
 
 **Output formats:** `csv` (default) is one header row plus one row per object,
 with formula-injection guarding and the optional Excel BOM. `json` and `yaml`

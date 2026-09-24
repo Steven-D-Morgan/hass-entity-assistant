@@ -249,6 +249,49 @@ async def test_build_entity_rows_sort_unknown_column_ignored(hass: HomeAssistant
     assert [r["entity_id"] for r in rows] == [r["entity_id"] for r in default_rows]
 
 
+async def test_build_entity_rows_columns_subset_and_order(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, rows = build_export(hass, ExportOptions(columns=["name", "entity_id"]))
+    assert cols == ["name", "entity_id"]
+    assert all(set(r.keys()) == {"name", "entity_id"} for r in rows)
+
+
+async def test_build_entity_rows_columns_drop_unknown(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, _ = build_export(hass, ExportOptions(columns=["entity_id", "bogus", "name"]))
+    assert cols == ["entity_id", "name"]
+
+
+async def test_build_entity_rows_columns_all_unknown_falls_back(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, _ = build_export(hass, ExportOptions(columns=["bogus", "nope"]))
+    assert cols == ENTITY_COLUMNS
+
+
+async def test_build_entity_rows_columns_dedup(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, _ = build_export(hass, ExportOptions(columns=["name", "name", "entity_id"]))
+    assert cols == ["name", "entity_id"]
+
+
+async def test_build_entity_rows_preset_minimal(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, _ = build_export(hass, ExportOptions(preset="minimal"))
+    assert cols == ["entity_id", "name", "area_name", "state"]
+
+
+async def test_build_entity_rows_columns_overrides_preset(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, _ = build_export(hass, ExportOptions(columns=["entity_id"], preset="minimal"))
+    assert cols == ["entity_id"]
+
+
+async def test_build_area_rows_preset_invalid_for_type_falls_back(hass: HomeAssistant) -> None:
+    _seed_basic(hass)
+    cols, _ = build_export(hass, ExportOptions(export_type="areas", preset="identity"))
+    assert cols == AREA_COLUMNS
+
+
 async def test_build_entity_rows_stale_only(hass: HomeAssistant) -> None:
     _seed_basic(hass)
     _, rows = build_export(hass, ExportOptions(stale_only=True))

@@ -35,6 +35,15 @@ call, signed URL, and HTTP request is unchanged.
   endpoint) — sets the browser's saved filename via `Content-Disposition`,
   sanitized to a bare basename with the extension taken from `output_format`.
   Dated names like `entities_2026-09-24` stop overwriting each other.
+- **New `columns` / `preset` options** — `columns` outputs an exact, reordered
+  subset (unknown names dropped, full set used if none are valid); `preset`
+  picks a named set per export type (`minimal`, `identity`, `stale`). `columns`
+  overrides `preset`, and `sort_by` may still reference a column you didn't
+  output. Available on both services and the HTTP endpoint.
+- **Nicer service form (UI only):** `areas` now uses the Home Assistant area
+  picker and `domains` a multi-select with common domains plus custom values,
+  instead of hand-typed YAML lists. No behavior or API change — the same
+  options still work from YAML, automations, and query strings.
 - **Internals:** `write_csv` was generalized to `serialize_export` (format
   dispatch) + `write_export` (plain text write); `rows_to_csv` is unchanged and
   `rows_to_json` / `rows_to_yaml` were added. Every row value is now normalized

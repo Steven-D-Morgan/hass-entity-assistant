@@ -25,6 +25,8 @@ ATTR_UTF8_BOM = "utf8_bom"
 ATTR_OUTPUT_FORMAT = "output_format"
 ATTR_SORT_BY = "sort_by"
 ATTR_SORT_DIR = "sort_dir"
+ATTR_COLUMNS = "columns"
+ATTR_PRESET = "preset"
 ATTR_RETURN_DATA = "return_data"
 ATTR_MAX_ROWS = "max_rows"
 ATTR_DRY_RUN = "dry_run"
@@ -171,3 +173,26 @@ COLUMNS_BY_TYPE = {
     EXPORT_TYPE_FLOORS: FLOOR_COLUMNS,
     EXPORT_TYPE_LABELS: LABEL_COLUMNS,
 }
+
+COLUMN_PRESETS = {
+    EXPORT_TYPE_ENTITIES: {
+        "minimal": ["entity_id", "name", "area_name", "state"],
+        "identity": ["entity_id", "registry_id", "unique_id", "platform", "device_id"],
+        "stale": ["entity_id", "name", "stale", "stale_reason"],
+    },
+    EXPORT_TYPE_DEVICES: {
+        "minimal": ["device_id", "name", "area_name", "manufacturer", "model"],
+        "stale": ["device_id", "name", "stale", "stale_reason"],
+    },
+    EXPORT_TYPE_AREAS: {
+        "minimal": ["area_id", "name", "floor", "device_count", "entity_count"],
+    },
+    EXPORT_TYPE_FLOORS: {
+        "minimal": ["floor_id", "name", "level", "area_count"],
+    },
+    EXPORT_TYPE_LABELS: {
+        "minimal": ["label_id", "name", "color", "entity_count", "device_count", "area_count"],
+    },
+}
+
+PRESET_NAMES = sorted({name for presets in COLUMN_PRESETS.values() for name in presets})

@@ -23,6 +23,7 @@ import voluptuous as vol
 
 from .const import (
     ATTR_AREAS,
+    ATTR_COLUMNS,
     ATTR_CONFIRM,
     ATTR_DOMAINS,
     ATTR_DOWNLOAD_FILENAME,
@@ -35,6 +36,7 @@ from .const import (
     ATTR_MAX_ROWS,
     ATTR_ONLY_ENABLED,
     ATTR_OUTPUT_FORMAT,
+    ATTR_PRESET,
     ATTR_RETURN_DATA,
     ATTR_SORT_BY,
     ATTR_SORT_DIR,
@@ -94,6 +96,8 @@ _OPTION_FIELDS = {
     vol.Optional(ATTR_OUTPUT_FORMAT, default=DEFAULT_OUTPUT_FORMAT): vol.In(OUTPUT_FORMATS),
     vol.Optional(ATTR_SORT_BY): cv.string,
     vol.Optional(ATTR_SORT_DIR, default=DEFAULT_SORT_DIR): vol.In(SORT_DIRS),
+    vol.Optional(ATTR_COLUMNS): vol.All(cv.ensure_list, [cv.string]),
+    vol.Optional(ATTR_PRESET): cv.string,
 }
 
 EXPORT_CSV_SCHEMA = vol.Schema(
@@ -131,6 +135,8 @@ def _options_from_call(call: ServiceCall) -> ExportOptions:
         sort_by=call.data.get(ATTR_SORT_BY),
         sort_dir=call.data[ATTR_SORT_DIR],
         download_filename=call.data.get(ATTR_DOWNLOAD_FILENAME),
+        columns=call.data.get(ATTR_COLUMNS),
+        preset=call.data.get(ATTR_PRESET),
     )
 
 
@@ -150,6 +156,10 @@ def _options_to_query(options: ExportOptions) -> dict[str, str]:
         query["sort_by"] = options.sort_by
     if options.download_filename:
         query["download_filename"] = options.download_filename
+    if options.columns:
+        query["columns"] = ",".join(options.columns)
+    if options.preset:
+        query["preset"] = options.preset
     if options.domains:
         query["domains"] = ",".join(sorted(options.domains))
     if options.areas:

@@ -37,6 +37,13 @@ def _as_set(value: str | None) -> frozenset[str] | None:
     return frozenset(items) if items else None
 
 
+def _as_list(value: str | None) -> list[str] | None:
+    if not value:
+        return None
+    items = [part.strip() for part in value.split(",") if part.strip()]
+    return items or None
+
+
 def _as_int(value: str | None, default: int) -> int:
     try:
         parsed = int(value)  # type: ignore[arg-type]
@@ -89,6 +96,8 @@ def options_from_query(query: Mapping[str, str]) -> ExportOptions:
         sort_by=query.get("sort_by") or None,
         sort_dir=sort_dir,
         download_filename=query.get("download_filename") or None,
+        columns=_as_list(query.get("columns")),
+        preset=query.get("preset") or None,
     )
 
 

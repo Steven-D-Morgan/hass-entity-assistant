@@ -43,6 +43,14 @@
           "name": "Sort direction",
           "description": "Sort ascending or descending. Only applies when sort_by is set."
         },
+        "columns": {
+          "name": "Columns",
+          "description": "Ordered list of column names to output; unknown columns are ignored. Overrides preset."
+        },
+        "preset": {
+          "name": "Column preset",
+          "description": "Named column set for the export type: minimal, identity, or stale. Ignored when columns is set."
+        },
         "include_disabled": {
           "name": "Incluir desativados",
           "description": "Incluir entidades e dispositivos desativados."
@@ -118,6 +126,14 @@
         "sort_dir": {
           "name": "Sort direction",
           "description": "Sort ascending or descending. Only applies when sort_by is set."
+        },
+        "columns": {
+          "name": "Columns",
+          "description": "Ordered list of column names to output; unknown columns are ignored. Overrides preset."
+        },
+        "preset": {
+          "name": "Column preset",
+          "description": "Named column set for the export type: minimal, identity, or stale. Ignored when columns is set."
         },
         "include_disabled": {
           "name": "Incluir desativados",

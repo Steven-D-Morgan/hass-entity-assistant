@@ -23,6 +23,7 @@ import voluptuous as vol
 import yaml
 
 from .const import (
+    COLUMN_PRESETS,
     COLUMNS_BY_TYPE,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_OUTPUT_FORMAT,
@@ -67,6 +68,8 @@ class ExportOptions:
     sort_by: str | None = None
     sort_dir: str = DEFAULT_SORT_DIR
     download_filename: str | None = None
+    columns: list[str] | None = None
+    preset: str | None = None
 
     @property
     def want_disabled(self) -> bool:
@@ -447,6 +450,25 @@ def _build_label_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[
     return rows
 
 
+def _resolve_selected_columns(options: ExportOptions, full_columns: list[str]) -> list[str] | None:
+    requested: list[str] | None = None
+    columns = options.columns
+    preset = options.preset
+    if columns:
+        requested = columns
+    elif preset:
+        requested = COLUMN_PRESETS.get(options.export_type, {}).get(preset)
+    if requested is None:
+        return None
+    seen: set[str] = set()
+    selected: list[str] = []
+    for col in requested:
+        if col in full_columns and col not in seen:
+            seen.add(col)
+            selected.append(col)
+    return selected or None
+
+
 @callback
 def build_export(
     hass: HomeAssistant, options: ExportOptions
@@ -466,6 +488,10 @@ def build_export(
     sort_by = options.sort_by
     if sort_by is not None and sort_by in columns:
         rows.sort(key=lambda row: row[sort_by], reverse=options.sort_dir == SORT_DIR_DESC)
+    selected = _resolve_selected_columns(options, columns)
+    if selected is not None:
+        columns = selected
+        rows = [{col: row[col] for col in selected} for row in rows]
     return columns, rows
 
 
