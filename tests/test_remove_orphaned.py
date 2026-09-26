@@ -10,6 +10,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.entity_assistant.const import (
     DOMAIN,
+    EVENT_CHANGES_APPLIED,
     EVENT_ORPHANED_REMOVED,
     SERVICE_REMOVE_ORPHANED,
 )
@@ -246,3 +247,24 @@ async def test_cascading_area_cleanup(hass: HomeAssistant, setup_integration) ->
     )
     assert orphan_only_area.id in response["area_ids"]
     assert area_reg.async_get_area(orphan_only_area.id) is None
+
+
+async def test_confirm_fires_both_events(hass: HomeAssistant, setup_integration) -> None:
+    _seed_orphans(hass)
+    orphaned_events = []
+    applied_events = []
+    hass.bus.async_listen(EVENT_ORPHANED_REMOVED, orphaned_events.append)
+    hass.bus.async_listen(EVENT_CHANGES_APPLIED, applied_events.append)
+
+    await hass.services.async_call(
+        DOMAIN,
+        SERVICE_REMOVE_ORPHANED,
+        {"confirm": True},
+        blocking=True,
+        return_response=True,
+    )
+    await hass.async_block_till_done()
+
+    assert len(orphaned_events) == 1
+    assert len(applied_events) == 1
+    assert applied_events[0].data["producer"] == "remove_orphaned"

@@ -3,6 +3,49 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.9.0rc1 — 2026-09-25
+
+Release candidate for the **safety spine** milestone (1.9). Foundational and
+backward compatible: the one shipped mutation (`remove_orphaned`) keeps its exact
+service contract, and no export, service field, or translation changed. Tagged as
+a pre-release pending field validation before a final 1.9.0.
+
+- **Change-plan spine (internal foundation).** Every registry mutation now
+  compiles to one shared model — a list of `{object_type, key, field, from, to}`
+  updates plus explicit creates/removes — and flows through a single
+  `dry_run` → preview → `confirm` → commit pipeline with per-row error handling,
+  loop-yielding in chunks (so a large commit doesn't starve the event loop), and
+  a captured before-value journal. This is the actuator that bulk edits, import
+  (2.0), and lint fixes (2.1+) will all ride. It adds **no** new user-facing
+  mutating service yet.
+- **Admin enforcement is now shared.** The admin check (resolve the calling
+  user, require admin, raise `Unauthorized`; automation/system calls with no
+  user are still allowed) moved from an inline guard into the spine and applies
+  to every mutating path.
+- **`remove_orphaned` rides the spine.** Its scan became a read-only
+  `scan_orphaned`, and its apply now goes through the shared commit path — gaining
+  the chunked/journaled/snapshot-ready commit for free. **Its behavior is
+  unchanged**: same `dry_run`/`confirm` one-knob, same 8-key response, same
+  `entity_assistant_orphaned_removed` event on apply (and silent on dry-run).
+- **New `entity_assistant_changes_applied` event** — fired after any committed
+  change plan (currently a confirmed `remove_orphaned`) with `producer`,
+  `triggered_by`, `counts`, `object_types`, affected id lists, and `journal_id`.
+  A documented, stable contract for reacting to bulk edits. `remove_orphaned`
+  now fires **both** this and its legacy event on apply.
+- **Registry APIs verified** against Home Assistant core 2026.9.3 for all five
+  object types (entity/device/area/floor/label create, update, and remove),
+  including the entity `aliases` list, `labels` set, and `categories` dict shapes.
+- **Internals:** new `change_plan.py` (pure, JSON-serializable model with
+  capping and an `inverted()` for the coming undo) and `spine.py` (guard,
+  `MUTATION_FIELDS`, commit engine + dispatch, generic service wrapper, and no-op
+  snapshot/journal hook seams). No new runtime dependency.
+- **Tests:** `test_change_plan.py` (pure model — serialization, capping,
+  inversion, validation guards) and `test_spine.py` (commit across all five
+  object types, entity-ULID resolution, `NewRef` auto-create, removes, chunking,
+  best-effort partial failure, the applied event, admin gating, and the
+  preview/confirm wrapper), plus a dual-event test on `remove_orphaned`. The
+  existing `remove_orphaned` suite is unchanged and passes as the migration proof.
+
 ## 1.8.2 — 2026-09-24
 
 The bulk of the **round-trip-ready export** milestone (1.8): structured output

@@ -10,14 +10,12 @@ from homeassistant.components import persistent_notification
 from homeassistant.components.http.auth import async_sign_path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import (
-    Context,
     HomeAssistant,
     ServiceCall,
     ServiceResponse,
     SupportsResponse,
     callback,
 )
-from homeassistant.exceptions import Unauthorized
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 import voluptuous as vol
@@ -25,10 +23,8 @@ import voluptuous as vol
 from .const import (
     ATTR_AREAS,
     ATTR_COLUMNS,
-    ATTR_CONFIRM,
     ATTR_DOMAINS,
     ATTR_DOWNLOAD_FILENAME,
-    ATTR_DRY_RUN,
     ATTR_EXPIRES,
     ATTR_EXPORT_TYPE,
     ATTR_FILENAME,
@@ -63,27 +59,15 @@ from .const import (
     SERVICE_REMOVE_ORPHANED,
     SORT_DIRS,
 )
-from .export import ExportOptions, async_run_export, build_export, remove_orphaned
+from .export import ExportOptions, async_run_export, build_export
 from .http import EntityExportView
+from .spine import MUTATION_FIELDS, async_handle_remove_orphaned
 
 _LOGGER = logging.getLogger(__name__)
 
 _VIEW_REGISTERED = f"{DOMAIN}_view_registered"
 
-REMOVE_ORPHANED_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_DRY_RUN, default=True): cv.boolean,
-        vol.Optional(ATTR_CONFIRM, default=False): cv.boolean,
-    }
-)
-
-
-async def _async_require_admin(hass: HomeAssistant, context: Context) -> None:
-    if context.user_id is None:
-        return
-    user = await hass.auth.async_get_user(context.user_id)
-    if user is None or not user.is_admin:
-        raise Unauthorized(context=context)
+REMOVE_ORPHANED_SCHEMA = vol.Schema({**MUTATION_FIELDS})
 
 
 _OPTION_FIELDS = {
@@ -247,9 +231,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     async def handle_remove_orphaned(call: ServiceCall) -> ServiceResponse:
-        await _async_require_admin(hass, call.context)
-        should_apply = call.data[ATTR_CONFIRM]
-        return remove_orphaned(hass, triggered_by="service", dry_run=not should_apply)
+        return await async_handle_remove_orphaned(hass, call)
 
     hass.services.async_register(
         DOMAIN,

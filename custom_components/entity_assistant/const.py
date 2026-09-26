@@ -75,6 +75,18 @@ ONBOARDING_NOTIFICATION_ID = f"{DOMAIN}_onboarding"
 EVENT_EXPORT_COMPLETED = "entity_assistant_export_completed"
 EVENT_EXPORT_FAILED = "entity_assistant_export_failed"
 EVENT_ORPHANED_REMOVED = "entity_assistant_orphaned_removed"
+EVENT_CHANGES_APPLIED = "entity_assistant_changes_applied"
+
+OBJECT_ENTITY = "entity"
+OBJECT_DEVICE = "device"
+OBJECT_AREA = "area"
+OBJECT_FLOOR = "floor"
+OBJECT_LABEL = "label"
+OBJECT_TYPES = [OBJECT_ENTITY, OBJECT_DEVICE, OBJECT_AREA, OBJECT_FLOOR, OBJECT_LABEL]
+CREATABLE_TYPES = frozenset({OBJECT_AREA, OBJECT_FLOOR, OBJECT_LABEL})
+REMOVABLE_TYPES = frozenset({OBJECT_ENTITY, OBJECT_DEVICE, OBJECT_AREA})
+
+DEFAULT_CHUNK_SIZE = 50
 
 DOWNLOAD_URL = "/api/entity_assistant/export.csv"
 DOWNLOAD_FILENAME_BASE = "entity_export"

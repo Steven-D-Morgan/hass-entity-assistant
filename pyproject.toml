@@ -1,6 +1,6 @@
 [project]
 name = "hass-entity-assistant"
-version = "1.8.2"
+version = "1.9.0rc1"
 requires-python = ">=3.13"
 
 [tool.pytest.ini_options]

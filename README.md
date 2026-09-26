@@ -199,6 +199,11 @@ unless a row says otherwise.
 - **`entity_assistant_orphaned_removed` event** — fired after each removal with
   `entities_removed`, `devices_removed`, `areas_removed`, and the corresponding
   ID lists.
+- **`entity_assistant_changes_applied` event** — fired after any registry change
+  plan is committed (currently a confirmed `remove_orphaned`; more mutating
+  services to come) with `producer`, `triggered_by`, `counts`
+  (`created`/`updated`/`removed`/`failed`), `object_types`, the affected id
+  lists, and `journal_id`. A stable contract for reacting to bulk edits.
 
 ## Notes
 

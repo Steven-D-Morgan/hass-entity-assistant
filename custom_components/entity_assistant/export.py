@@ -31,7 +31,6 @@ from .const import (
     DEFAULT_STALE_DAYS,
     EVENT_EXPORT_COMPLETED,
     EVENT_EXPORT_FAILED,
-    EVENT_ORPHANED_REMOVED,
     EXPORT_TYPE_AREAS,
     EXPORT_TYPE_DEVICES,
     EXPORT_TYPE_FLOORS,
@@ -593,12 +592,7 @@ async def async_run_export(
 
 
 @callback
-def remove_orphaned(
-    hass: HomeAssistant,
-    triggered_by: str,
-    *,
-    dry_run: bool = True,
-) -> dict[str, int | list[str] | bool | str]:
+def scan_orphaned(hass: HomeAssistant) -> tuple[list[str], list[str], list[str]]:
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)
     area_reg = ar.async_get(hass)
@@ -646,26 +640,4 @@ def remove_orphaned(
         if device_area_counts.get(area.id, 0) == 0 and entity_area_counts.get(area.id, 0) == 0:
             empty_areas.append(area.id)
 
-    if not dry_run:
-        for entity_id in orphaned_entities:
-            ent_reg.async_remove(entity_id)
-        for device_id in orphaned_devices:
-            dev_reg.async_remove_device(device_id)
-        for area_id in empty_areas:
-            area_reg.async_delete(area_id)
-
-    result: dict[str, int | list[str] | bool | str] = {
-        "dry_run": dry_run,
-        "entities_removed": len(orphaned_entities),
-        "devices_removed": len(orphaned_devices),
-        "areas_removed": len(empty_areas),
-        "entity_ids": orphaned_entities,
-        "device_ids": orphaned_devices,
-        "area_ids": empty_areas,
-        "triggered_by": triggered_by,
-    }
-
-    if not dry_run:
-        hass.bus.async_fire(EVENT_ORPHANED_REMOVED, result)
-
-    return result
+    return orphaned_entities, orphaned_devices, empty_areas
