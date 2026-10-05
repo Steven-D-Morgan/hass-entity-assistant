@@ -3,12 +3,46 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
-## 1.9.0rc1 — 2026-09-25
+## 1.9.1 — 2026-10-04
+
+Stale and orphan detection accuracy, from a detailed real-install report
+([#5](https://github.com/Steven-D-Morgan/hass-entity-assistant/issues/5),
+HA 2026.9, ~5,100 entities). Classifier-only refinements — no new service, no
+export-column change, fully backward compatible.
+
+- **`restored` now distinguishes a broken integration from a leftover.** An
+  entity whose owning config entry is present but not loaded (e.g. `setup_retry`
+  while a device is offline and reconnecting) is reported as
+  `restored (entry: setup_retry)` instead of a bare `restored`, so a transiently
+  unavailable integration's entities aren't mistaken for deletable clutter. Bare
+  `restored` is kept when the owning entry is loaded or gone.
+- **Bluetooth scanner devices are no longer flagged `no_entities`.** Devices
+  whose config entries all belong to the `bluetooth` integration (local adapters
+  and remote BLE proxies) legitimately have no entities and are excluded from the
+  `no_entities` device stale reason. Entity-less devices from other integrations
+  are still flagged.
+- **Documented the `not_changed_<N>d` restart limitation.** It is derived from
+  `state.last_changed`, which Home Assistant resets on every restart, so an
+  install that restarts more often than `stale_days` can never trip it. Called
+  out in the README; a recorder-backed age is tracked for a future release.
+- **Unchanged on purpose:** `remove_orphaned` still removes only entries whose
+  config entry is gone. The report's broader clutter (transient iBeacon
+  entities, deleted automations/scripts) is a *destructive* scope expansion that
+  belongs behind the mutation spine as a gated, opt-in producer — planned, not
+  shipped here.
+- **Tests:** entity staleness annotates `restored (entry: …)` for a non-loaded
+  owning entry and stays bare for a loaded one; a `bluetooth`-only entity-less
+  device is not `no_entities` while a non-bluetooth one still is.
+
+## 1.9.0rc1 — 2026-10-03
 
 Release candidate for the **safety spine** milestone (1.9). Foundational and
-backward compatible: the one shipped mutation (`remove_orphaned`) keeps its exact
-service contract, and no export, service field, or translation changed. Tagged as
-a pre-release pending field validation before a final 1.9.0.
+backward compatible: every existing service keeps its exact contract, the one
+shipped mutation (`remove_orphaned`) behaves identically, and no export column or
+existing service field changed. The only additions are internal (the change-plan
+spine, the snapshot/journal store) plus one new, admin-only, read-only service
+(`capture_snapshot`) and its translations. Tagged as a pre-release pending field
+validation before a final 1.9.0.
 
 - **Change-plan spine (internal foundation).** Every registry mutation now
   compiles to one shared model — a list of `{object_type, key, field, from, to}`
@@ -32,19 +66,52 @@ a pre-release pending field validation before a final 1.9.0.
   `triggered_by`, `counts`, `object_types`, affected id lists, and `journal_id`.
   A documented, stable contract for reacting to bulk edits. `remove_orphaned`
   now fires **both** this and its legacy event on apply.
+- **Unified snapshot + journal store (the spine's storage).** The two no-op
+  commit seams now persist to Home Assistant's own `helpers.storage.Store`
+  (`.storage/entity_assistant.snapshots` and `.storage/entity_assistant.journal`,
+  owner-only, atomic writes, no new dependency):
+  - **Pre-commit auto-snapshot.** Before any confirmed commit mutates the
+    registries, a point-in-time baseline of the touched registries is captured
+    (scoped to the plan's object types) by reusing the existing export
+    serializer — so every snapshot is JSON-safe and diff-able by stable id.
+    Previews/dry-runs capture nothing.
+  - **Per-commit journal of before-values.** Each commit records the fields it
+    changed (before → after, sanitized to JSON-safe types) and returns a real
+    `journal_id`, now carried by `entity_assistant_changes_applied`. This is the
+    record the coming `undo` replays. Removals are intentionally **not**
+    journaled (they are not undoable — a backup is the only complete undo).
+  - **New `capture_snapshot` service** — admin-only, response-optional. Saves a
+    manual baseline before a big change, with an optional `label` and an
+    optional `export_types` subset (defaults to all registries). Reads the
+    registries only; it never modifies anything.
+  - **keep-last-N retention** (5 snapshots, 20 journals), enforced on every
+    write and re-applied on load. Hardcoded this round; configurable retention
+    and snapshot-management services are deferred to a later milestone.
+  - **Teardown.** `async_remove_entry` deletes only the integration's own
+    snapshot/journal files on uninstall; unload flushes pending writes. The
+    HTTP view still persists until restart (HA exposes no view-unregister).
 - **Registry APIs verified** against Home Assistant core 2026.9.3 for all five
   object types (entity/device/area/floor/label create, update, and remove),
   including the entity `aliases` list, `labels` set, and `categories` dict shapes.
 - **Internals:** new `change_plan.py` (pure, JSON-serializable model with
-  capping and an `inverted()` for the coming undo) and `spine.py` (guard,
-  `MUTATION_FIELDS`, commit engine + dispatch, generic service wrapper, and no-op
-  snapshot/journal hook seams). No new runtime dependency.
+  capping and an `inverted()` for the coming undo; its `_json_safe` is now the
+  public `json_safe`), `spine.py` (guard, `MUTATION_FIELDS`, commit engine +
+  dispatch, generic service wrapper, and the now-filled snapshot/journal seams),
+  and `store.py` (the two `Store`-backed snapshot + journal managers, the
+  `capture_snapshot` body, retention, and teardown). No new runtime dependency.
+- **i18n:** the new `capture_snapshot` service (name, description, and its
+  `label` / `export_types` fields) is added to `strings.json` and all 13 locale
+  files (English in the 12 non-English files until backfilled), so the
+  locale-parity CI check stays green.
 - **Tests:** `test_change_plan.py` (pure model — serialization, capping,
-  inversion, validation guards) and `test_spine.py` (commit across all five
+  inversion, validation guards), `test_spine.py` (commit across all five
   object types, entity-ULID resolution, `NewRef` auto-create, removes, chunking,
   best-effort partial failure, the applied event, admin gating, and the
-  preview/confirm wrapper), plus a dual-event test on `remove_orphaned`. The
-  existing `remove_orphaned` suite is unchanged and passes as the migration proof.
+  preview/confirm wrapper), and `test_store.py` (auto-snapshot on confirm only,
+  pre-mutation capture, real-`journal_id` recording, set→list sanitization,
+  keep-last-N, reload round-trips, `capture_snapshot` admin gating, and
+  teardown), plus a dual-event test on `remove_orphaned`. The existing
+  `remove_orphaned` suite is unchanged and passes as the migration proof.
 
 ## 1.8.2 — 2026-09-24
 

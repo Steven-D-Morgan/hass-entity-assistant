@@ -5,6 +5,7 @@ import json
 import os
 
 from freezegun import freeze_time
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import (
     area_registry as ar,
@@ -641,3 +642,64 @@ def test_export_options_area_matches() -> None:
 
     no_filter = ExportOptions()
     assert no_filter.area_matches("any", "any")
+
+
+async def test_entity_staleness_restored_annotates_unloaded_entry(hass: HomeAssistant) -> None:
+    integration = MockConfigEntry(domain="retry_test", title="Retry")
+    integration.add_to_hass(hass)
+    integration.mock_state(hass, ConfigEntryState.SETUP_RETRY)
+    ent_reg = er.async_get(hass)
+    entity = ent_reg.async_get_or_create(
+        "sensor",
+        "retry_test",
+        "retry_1",
+        config_entry=integration,
+        original_name="Retry Sensor",
+    )
+
+    _, rows = build_export(hass, ExportOptions())
+    row = next(r for r in rows if r["entity_id"] == entity.entity_id)
+    assert "restored (entry: setup_retry)" in row["stale_reason"]
+
+
+async def test_entity_staleness_restored_bare_when_loaded(hass: HomeAssistant) -> None:
+    integration = MockConfigEntry(domain="loaded_test", title="Loaded")
+    integration.add_to_hass(hass)
+    integration.mock_state(hass, ConfigEntryState.LOADED)
+    ent_reg = er.async_get(hass)
+    entity = ent_reg.async_get_or_create(
+        "sensor",
+        "loaded_test",
+        "loaded_1",
+        config_entry=integration,
+        original_name="Loaded Sensor",
+    )
+
+    _, rows = build_export(hass, ExportOptions())
+    row = next(r for r in rows if r["entity_id"] == entity.entity_id)
+    assert "restored" in row["stale_reason"]
+    assert "(entry:" not in row["stale_reason"]
+
+
+async def test_device_no_entities_excludes_bluetooth(hass: HomeAssistant) -> None:
+    bt = MockConfigEntry(domain="bluetooth", title="Bluetooth")
+    bt.add_to_hass(hass)
+    other = MockConfigEntry(domain="other_test", title="Other")
+    other.add_to_hass(hass)
+    dev_reg = dr.async_get(hass)
+    bt_device = dev_reg.async_get_or_create(
+        config_entry_id=bt.entry_id,
+        identifiers={("bluetooth", "aa:bb:cc")},
+        name="BLE Proxy",
+    )
+    other_device = dev_reg.async_get_or_create(
+        config_entry_id=other.entry_id,
+        identifiers={("other_test", "x")},
+        name="Other Device",
+    )
+
+    _, rows = build_export(hass, ExportOptions(export_type="devices"))
+    bt_row = next(r for r in rows if r["device_id"] == bt_device.id)
+    other_row = next(r for r in rows if r["device_id"] == other_device.id)
+    assert "no_entities" not in bt_row["stale_reason"]
+    assert "no_entities" in other_row["stale_reason"]

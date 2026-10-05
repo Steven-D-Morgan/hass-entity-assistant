@@ -118,6 +118,20 @@
         }
       }
     },
+    "capture_snapshot": {
+      "name": "Capture snapshot",
+      "description": "Save a point-in-time baseline of the registries to the integration's own storage so later changes can be compared against it. Reads only; never modifies. Requires admin.",
+      "fields": {
+        "label": {
+          "name": "Label",
+          "description": "Optional note to tag this baseline, returned in the response and kept with the snapshot."
+        },
+        "export_types": {
+          "name": "Registries",
+          "description": "Which registries to capture. Defaults to all of them when left blank."
+        }
+      }
+    },
     "get_download_url": {
       "name": "Получить URL для скачивания",
       "description": "Возвращает подписанный URL с ограниченным сроком действия для загрузки экспорта прямо из браузера. Только ответ; файл не записывается.",

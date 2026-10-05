@@ -6,19 +6,23 @@ from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.entity_assistant import async_migrate_entry
+from custom_components.entity_assistant import async_migrate_entry, async_remove_entry
 from custom_components.entity_assistant.const import (
+    DATA_STORE,
     DOMAIN,
+    SERVICE_CAPTURE_SNAPSHOT,
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
     SERVICE_REMOVE_ORPHANED,
 )
+from custom_components.entity_assistant.store import EntityAssistantStore
 
 
 async def test_setup_entry_registers_services(hass: HomeAssistant, setup_integration) -> None:
     assert hass.services.has_service(DOMAIN, SERVICE_EXPORT_CSV)
     assert hass.services.has_service(DOMAIN, SERVICE_GET_DOWNLOAD_URL)
     assert hass.services.has_service(DOMAIN, SERVICE_REMOVE_ORPHANED)
+    assert hass.services.has_service(DOMAIN, SERVICE_CAPTURE_SNAPSHOT)
 
 
 async def test_unload_entry_removes_services(hass: HomeAssistant, setup_integration) -> None:
@@ -27,6 +31,21 @@ async def test_unload_entry_removes_services(hass: HomeAssistant, setup_integrat
     assert not hass.services.has_service(DOMAIN, SERVICE_EXPORT_CSV)
     assert not hass.services.has_service(DOMAIN, SERVICE_GET_DOWNLOAD_URL)
     assert not hass.services.has_service(DOMAIN, SERVICE_REMOVE_ORPHANED)
+    assert not hass.services.has_service(DOMAIN, SERVICE_CAPTURE_SNAPSHOT)
+    assert DATA_STORE not in hass.data
+
+
+async def test_remove_entry_deletes_store_files(hass: HomeAssistant, setup_integration) -> None:
+    store = hass.data[DATA_STORE]
+    await store.async_capture_snapshot(label="x", export_types=["labels"], context=None)
+
+    assert await hass.config_entries.async_unload(setup_integration.entry_id)
+    await hass.async_block_till_done()
+    await async_remove_entry(hass, setup_integration)
+
+    reloaded = EntityAssistantStore(hass, setup_integration)
+    await reloaded.async_load()
+    assert reloaded._snapshots == []
 
 
 async def test_export_csv_service_returns_metadata(hass: HomeAssistant, setup_integration) -> None:

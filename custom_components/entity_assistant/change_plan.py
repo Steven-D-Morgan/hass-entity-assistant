@@ -50,16 +50,19 @@ class ObjectRemove:
             raise ValueError(f"object_type {self.object_type!r} is not removable")
 
 
-def _json_safe(value: Any) -> Any:
+def json_safe(value: Any) -> Any:
     if isinstance(value, NewRef):
         return f"new:{value.temp_ref}"
     if isinstance(value, set):
         return sorted(str(item) for item in value)
     if isinstance(value, (list, tuple)):
-        return [_json_safe(item) for item in value]
+        return [json_safe(item) for item in value]
     if isinstance(value, dict):
-        return {str(k): _json_safe(v) for k, v in value.items()}
+        return {str(k): json_safe(v) for k, v in value.items()}
     return value
+
+
+_json_safe = json_safe
 
 
 def _create_to_dict(create: ObjectCreate) -> dict[str, Any]:

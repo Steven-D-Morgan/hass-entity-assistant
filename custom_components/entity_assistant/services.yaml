@@ -421,3 +421,35 @@ remove_orphaned:
       default: false
       selector:
         boolean:
+
+capture_snapshot:
+  name: Capture snapshot
+  description: >-
+    Save a point-in-time baseline of the registries to the integration's own
+    storage, so later changes can be compared against it. Reads the registry
+    only; it never modifies anything. Requires admin. The mutation spine also
+    captures one automatically before every applied change.
+  fields:
+    label:
+      name: Label
+      description: >-
+        Optional note to tag this baseline (e.g. "before relabel"), returned in
+        the response and kept with the snapshot.
+      required: false
+      example: before relabel
+      selector:
+        text:
+    export_types:
+      name: Registries
+      description: >-
+        Which registries to capture. Defaults to all of them when left blank.
+      required: false
+      selector:
+        select:
+          multiple: true
+          options:
+            - entities
+            - devices
+            - areas
+            - floors
+            - labels

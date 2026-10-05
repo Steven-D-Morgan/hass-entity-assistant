@@ -66,17 +66,19 @@ Everything import will need, shipped as additive export improvements — plus th
 
 The mutation framework, its storage, and the lowest-risk bulk edits to prove it in the field before import rides it.
 
+Landing as `1.9.0rc1` (pre-release, held for field validation before a final 1.9.0): the change-plan spine, shared admin enforcement, the retrofitted `remove_orphaned`, and now the unified snapshot + journal store with its teardown. Still ahead: `undo`, the first real bulk producers, and the executor-offload budget. **1.9.1** then shipped stale/orphan detection-accuracy fixes from issue #5 (entry-state-aware `restored`, Bluetooth-scanner `no_entities` exclusion, documented `not_changed` restart limit); broader orphan removal remains gated behind the spine.
+
 | Capability | What it adds | Effort | Risk |
 | --- | --- | --- | --- |
-| Change-plan model + preview/commit | The shared compile → preview → confirm pipeline: `dry_run: true` returns the structured plan via `SupportsResponse`; `confirm: true` applies; `entity_assistant_changes_applied` event. Large plans capped inline with optional write-to-file. Foundational; mutates nothing itself. | L | medium |
-| Unified snapshot + journal store | `Store`-backed: pre-commit auto-snapshot + per-commit journal of before-values; `capture_snapshot` service for manual baselines before big changes; keep-last-N. One store powers undo now and diff in 2.0. | M | low |
+| Change-plan model + preview/commit — ✅ 1.9.0rc1 | The shared compile → preview → confirm pipeline: `dry_run: true` returns the structured plan via `SupportsResponse`; `confirm: true` applies; `entity_assistant_changes_applied` event. Large plans capped inline with optional write-to-file. Foundational; mutates nothing itself. | L | medium |
+| Unified snapshot + journal store — ✅ 1.9.0rc1 | `Store`-backed: pre-commit auto-snapshot (scoped to the committed plan's object types) + per-commit journal of before-values returning a real `journal_id`; `capture_snapshot` service (admin-only) for manual baselines before big changes; keep-last-N, hardcoded this round (configurable retention is 2.1+). Snapshots reuse the export serializer, so one store powers undo now and diff in 2.0. | M | low |
 | `undo_last` / `undo` | Replay journal before-values in reverse. Updates only — previews state plainly that removals are not undoable (limit 3 above). | M | medium |
-| Admin enforcement | Shared guard on every mutating service: resolve `call.context.user_id`, require admin, raise `Unauthorized`. Applied to the 1.7-retrofitted `remove_orphaned` too. | S | low |
+| Admin enforcement — ✅ 1.9.0rc1 | Shared guard on every mutating service: resolve `call.context.user_id`, require admin, raise `Unauthorized`. Applied to the 1.7-retrofitted `remove_orphaned` and the new `capture_snapshot`. | S | low |
 | Bulk (re)assign area & floor | Assign/move the filtered set of entities/devices to an area, set an area's floor, optional auto-create. The single most common post-install chore; fully reversible. | M | low |
 | Bulk label curation | Set-union / set-difference / set-replace of labels across entities, devices, and areas, auto-creating missing labels. Lowest-risk mutation; the confidence-builder. | M | low |
-| `remove_orphaned` rides the spine | The retrofitted service gains journal + auto-snapshot + the shared plan format, replacing its bespoke 1.7 gating. | S | low |
+| `remove_orphaned` rides the spine — ✅ 1.9.0rc1 | The retrofitted service gains auto-snapshot + the shared plan format, replacing its bespoke 1.7 gating. (Its removes stay un-journaled — removals are not undoable, limit 3.) | S | low |
 | Executor offload & performance budget | Move build/serialize/parse off the event loop, stream large downloads, set a perf budget — ahead of the event storms bulk commits cause (limit 7). | M | medium |
-| Uninstall & teardown | `async_remove_entry` cleaning integration-authored files, snapshots, and journals; self-pruning stores; document that the HTTP view persists until restart. Lands with the first storage-backed feature, not after. | S | low |
+| Uninstall & teardown — ✅ 1.9.0rc1 | `async_remove_entry` cleaning integration-authored snapshots and journals; self-pruning stores; the HTTP view persists until restart (HA exposes no unregister). Landed with the first storage-backed feature, as planned. | S | low |
 
 ## 2.0 — Import: the assistant milestone
 

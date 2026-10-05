@@ -27,6 +27,7 @@ from .const import (
     ATTR_DOWNLOAD_FILENAME,
     ATTR_EXPIRES,
     ATTR_EXPORT_TYPE,
+    ATTR_EXPORT_TYPES,
     ATTR_FILENAME,
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
@@ -36,11 +37,13 @@ from .const import (
     ATTR_OUTPUT_FORMAT,
     ATTR_PRESET,
     ATTR_RETURN_DATA,
+    ATTR_SNAPSHOT_LABEL,
     ATTR_SORT_BY,
     ATTR_SORT_DIR,
     ATTR_STALE_DAYS,
     ATTR_STALE_ONLY,
     ATTR_UTF8_BOM,
+    DATA_STORE,
     DEFAULT_EXPIRES,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
@@ -54,6 +57,7 @@ from .const import (
     ONBOARDING_NOTIFICATION_ID,
     OUTPUT_FORMATS,
     PLATFORMS,
+    SERVICE_CAPTURE_SNAPSHOT,
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
     SERVICE_REMOVE_ORPHANED,
@@ -61,13 +65,21 @@ from .const import (
 )
 from .export import ExportOptions, async_run_export, build_export
 from .http import EntityExportView
-from .spine import MUTATION_FIELDS, async_handle_remove_orphaned
+from .spine import MUTATION_FIELDS, async_handle_remove_orphaned, async_require_admin
+from .store import EntityAssistantStore, async_get_store, async_remove_storage
 
 _LOGGER = logging.getLogger(__name__)
 
 _VIEW_REGISTERED = f"{DOMAIN}_view_registered"
 
 REMOVE_ORPHANED_SCHEMA = vol.Schema({**MUTATION_FIELDS})
+
+CAPTURE_SNAPSHOT_SCHEMA = vol.Schema(
+    {
+        vol.Optional(ATTR_SNAPSHOT_LABEL, default=""): cv.string,
+        vol.Optional(ATTR_EXPORT_TYPES): vol.All(cv.ensure_list, [vol.In(EXPORT_TYPES)]),
+    }
+)
 
 
 _OPTION_FIELDS = {
@@ -182,6 +194,9 @@ def _async_notify_onboarding(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    store = EntityAssistantStore(hass, entry)
+    await store.async_load()
+    hass.data[DATA_STORE] = store
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
         options = _options_from_call(call)
@@ -241,6 +256,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         supports_response=SupportsResponse.OPTIONAL,
     )
 
+    async def handle_capture_snapshot(call: ServiceCall) -> ServiceResponse:
+        await async_require_admin(hass, call.context)
+        return await async_get_store(hass).async_capture_snapshot(
+            label=call.data[ATTR_SNAPSHOT_LABEL],
+            export_types=call.data.get(ATTR_EXPORT_TYPES),
+            context=call.context,
+        )
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_CAPTURE_SNAPSHOT,
+        handle_capture_snapshot,
+        schema=CAPTURE_SNAPSHOT_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+
     if not hass.data.get(_VIEW_REGISTERED):
         hass.http.register_view(EntityExportView(hass))
         hass.data[_VIEW_REGISTERED] = True
@@ -258,4 +289,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_remove(DOMAIN, SERVICE_EXPORT_CSV)
         hass.services.async_remove(DOMAIN, SERVICE_GET_DOWNLOAD_URL)
         hass.services.async_remove(DOMAIN, SERVICE_REMOVE_ORPHANED)
+        hass.services.async_remove(DOMAIN, SERVICE_CAPTURE_SNAPSHOT)
+        store = hass.data.pop(DATA_STORE, None)
+        if store is not None:
+            await store.async_save_now()
     return unload_ok
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    await async_remove_storage(hass, entry)

@@ -94,12 +94,17 @@ only the offenders with `stale_only: true`.
 
 | Export type | `stale_reason` values |
 | --- | --- |
-| entities | `unavailable` (state is unavailable/unknown), `orphaned` (its config entry/integration is gone), `restored` (in the registry but not provided since the last restart), `not_changed_<N>d` (no state change in `stale_days` days) |
-| devices | `orphaned` (all config entries gone), `no_entities`, `all_unavailable` |
+| entities | `unavailable` (state is unavailable/unknown), `orphaned` (its config entry/integration is gone), `restored` (in the registry but not provided since the last restart; shown as `restored (entry: <state>)` when the owning integration is not loaded, e.g. `setup_retry`), `not_changed_<N>d` (no state change in `stale_days` days) |
+| devices | `orphaned` (all config entries gone), `no_entities` (excludes Bluetooth-only scanner devices), `all_unavailable` |
 | areas | `empty` (no devices or entities) |
 
 `stale_days` (default 30) controls the `not_changed_<N>d` threshold. A row can
 have multiple reasons, comma-separated.
+
+> **Note:** `not_changed_<N>d` is derived from `state.last_changed`, which Home
+> Assistant resets on every restart. If your instance restarts more often than
+> `stale_days` (nightly-update setups often do), this reason will never fire; the
+> other stale reasons are unaffected.
 
 ## Installation
 

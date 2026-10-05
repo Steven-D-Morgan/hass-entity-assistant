@@ -10,6 +10,7 @@ import json
 import logging
 import os
 
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, State, callback
 from homeassistant.helpers import (
     area_registry as ar,
@@ -43,6 +44,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 _DEAD_STATES = ("unavailable", "unknown")
+_SCANNER_ONLY_DOMAINS = frozenset({"bluetooth"})
 _FORMULA_CHARS = frozenset("=+@-\t\r\n")
 
 
@@ -120,6 +122,7 @@ def _entity_staleness(
     entity: er.RegistryEntry,
     state: State | None,
     config_entry_missing: bool,
+    config_entry_state: str | None,
     stale_days: int,
 ) -> tuple[list[str], str, str]:
     reasons: list[str] = []
@@ -129,14 +132,20 @@ def _entity_staleness(
     if config_entry_missing:
         reasons.append("orphaned")
 
+    restored_reason = "restored"
+    if config_entry_state is not None and config_entry_state != ConfigEntryState.LOADED.value:
+        restored_reason = f"restored (entry: {config_entry_state})"
+
     if state is None:
         if not entity.disabled:
-            reasons.append("restored")
+            reasons.append(restored_reason)
     else:
         if state.state in _DEAD_STATES:
             reasons.append("unavailable")
-        if state.attributes.get("restored") and "restored" not in reasons:
-            reasons.append("restored")
+        if state.attributes.get("restored") and not any(
+            reason.startswith("restored") for reason in reasons
+        ):
+            reasons.append(restored_reason)
         if state.last_changed:
             last_changed_iso = state.last_changed.isoformat()
             age_days = max(0, (dt_util.utcnow() - state.last_changed).days)
@@ -182,6 +191,7 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
             else None
         )
         config_entry_missing = bool(entity.config_entry_id) and config_entry is None
+        config_entry_state = config_entry.state.value if config_entry else None
 
         state = hass.states.get(entity.entity_id)
         state_value = state.state if state else ""
@@ -193,7 +203,7 @@ def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
                 device_class = state.attributes.get("device_class", "") or ""
 
         reasons, last_changed_iso, last_changed_days = _entity_staleness(
-            entity, state, config_entry_missing, options.stale_days
+            entity, state, config_entry_missing, config_entry_state, options.stale_days
         )
 
         if options.stale_only and not reasons:
@@ -274,12 +284,14 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         floor = floor_reg.async_get_floor(area.floor_id) if area and area.floor_id else None
 
         entry_titles = []
+        entry_domains: set[str] = set()
         any_entry = False
         for entry_id in device.config_entries:
             entry = hass.config_entries.async_get_entry(entry_id)
             if entry:
                 any_entry = True
                 entry_titles.append(entry.title)
+                entry_domains.add(entry.domain)
 
         total = total_counts.get(device.id, 0)
         available = available_counts.get(device.id, 0)
@@ -288,7 +300,8 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         if device.config_entries and not any_entry:
             reasons.append("orphaned")
         if total == 0:
-            reasons.append("no_entities")
+            if not (entry_domains and entry_domains <= _SCANNER_ONLY_DOMAINS):
+                reasons.append("no_entities")
         elif available == 0:
             reasons.append("all_unavailable")
 

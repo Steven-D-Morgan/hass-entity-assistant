@@ -24,6 +24,7 @@ from .change_plan import ChangePlan, FieldChange, NewRef, ObjectCreate, ObjectRe
 from .const import (
     ATTR_CONFIRM,
     ATTR_DRY_RUN,
+    DATA_STORE,
     DEFAULT_CHUNK_SIZE,
     DEFAULT_MAX_ROWS,
     EVENT_CHANGES_APPLIED,
@@ -191,7 +192,12 @@ async def _maybe_yield(processed: int, chunk_size: int) -> int:
 async def async_run_pre_commit_hooks(
     hass: HomeAssistant, plan: ChangePlan, context: Context | None
 ) -> None:
-    return
+    if plan.is_empty:
+        return
+    store = hass.data.get(DATA_STORE)
+    if store is None:
+        return
+    await store.async_auto_snapshot(plan, context)
 
 
 async def async_record_journal(
@@ -200,7 +206,13 @@ async def async_record_journal(
     journal_batch: list[dict[str, Any]],
     context: Context | None,
 ) -> str | None:
-    return None
+    if not journal_batch:
+        return None
+    store = hass.data.get(DATA_STORE)
+    if store is None:
+        return None
+    journal_id: str | None = await store.async_record_journal(producer, journal_batch, context)
+    return journal_id
 
 
 async def async_commit_plan(
