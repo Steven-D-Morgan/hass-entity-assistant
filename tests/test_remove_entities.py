@@ -109,9 +109,7 @@ async def test_restored_only_filters_live_entities(hass: HomeAssistant, setup_in
 async def test_nothing_selected_removes_nothing(hass: HomeAssistant, setup_integration) -> None:
     entry = _loaded_entry(hass)
     ent_reg = er.async_get(hass)
-    ent_reg.async_get_or_create(
-        "sensor", "demo", "s1", config_entry=entry, original_name="S1"
-    )
+    ent_reg.async_get_or_create("sensor", "demo", "s1", config_entry=entry, original_name="S1")
 
     response = await hass.services.async_call(
         DOMAIN,

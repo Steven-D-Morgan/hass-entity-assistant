@@ -70,9 +70,7 @@ def _rename_label_plan(label_id: str, to: str, *, frm: str = "Cozy") -> ChangePl
     )
 
 
-async def test_store_present_and_empty_after_setup(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_store_present_and_empty_after_setup(hass: HomeAssistant, setup_integration) -> None:
     store = hass.data[DATA_STORE]
     assert isinstance(store, EntityAssistantStore)
     assert store._snapshots == []
@@ -117,9 +115,7 @@ async def test_auto_snapshot_captures_pre_mutation_state(
     assert captured["name"] == "Cozy"
 
 
-async def test_dry_run_preview_creates_no_snapshot(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_dry_run_preview_creates_no_snapshot(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_writable(hass)
     store = hass.data[DATA_STORE]
 
@@ -130,9 +126,7 @@ async def test_dry_run_preview_creates_no_snapshot(
     assert lr.async_get(hass).async_get_label(seed["label_id"]).name == "Cozy"
 
 
-async def test_commit_records_journal_with_real_id(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_commit_records_journal_with_real_id(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_writable(hass)
     store = hass.data[DATA_STORE]
 
@@ -150,9 +144,7 @@ async def test_commit_records_journal_with_real_id(
     assert change["to"] == "Warm"
 
 
-async def test_journal_sanitizes_set_before_values(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_journal_sanitizes_set_before_values(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_writable(hass)
     store = hass.data[DATA_STORE]
 
@@ -259,9 +251,7 @@ async def test_capture_snapshot_service_returns_summary(
     assert response["kept"] == 1
 
 
-async def test_capture_snapshot_subset_of_types(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_capture_snapshot_subset_of_types(hass: HomeAssistant, setup_integration) -> None:
     _seed_writable(hass)
 
     response = await hass.services.async_call(
@@ -275,9 +265,7 @@ async def test_capture_snapshot_subset_of_types(
     assert set(response["counts"]) == {"labels"}
 
 
-async def test_capture_snapshot_non_admin_rejected(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_capture_snapshot_non_admin_rejected(hass: HomeAssistant, setup_integration) -> None:
     mock_user = MagicMock()
     mock_user.is_admin = False
     hass.auth.async_get_user = AsyncMock(return_value=mock_user)
@@ -293,9 +281,7 @@ async def test_capture_snapshot_non_admin_rejected(
         )
 
 
-async def test_capture_snapshot_admin_allowed(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_capture_snapshot_admin_allowed(hass: HomeAssistant, setup_integration) -> None:
     mock_user = MagicMock()
     mock_user.is_admin = True
     hass.auth.async_get_user = AsyncMock(return_value=mock_user)
@@ -311,9 +297,7 @@ async def test_capture_snapshot_admin_allowed(
     assert response is not None
 
 
-async def test_capture_snapshot_system_call_allowed(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_capture_snapshot_system_call_allowed(hass: HomeAssistant, setup_integration) -> None:
     response = await hass.services.async_call(
         DOMAIN,
         SERVICE_CAPTURE_SNAPSHOT,
