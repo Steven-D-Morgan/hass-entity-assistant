@@ -3,6 +3,34 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.9.2 — 2026-10-04
+
+Adds a gated, opt-in way to remove registry clutter that `remove_orphaned` can't
+reach (follow-up to #5). Backward compatible — one new admin-only service, with
+no change to any existing service or export.
+
+- **New `entity_assistant.remove_entities` service.** Removes registry entities
+  matching a filter — by `domains` and/or `restored_only` (entities in the
+  registry but not provided since the last restart, e.g. automations/scripts
+  deleted from YAML, or transient iBeacon trackers). Rides the mutation spine:
+  **dry-run by default**, explicit `confirm: true` to apply, **admin-only**, and
+  a pre-commit snapshot is captured automatically.
+  - **Safety guard:** entities whose owning config entry is present but **not
+    loaded** (e.g. an integration in `setup_retry` while a device is offline) are
+    always skipped, so a temporarily-down integration's entities are never
+    removed. A call with no filter removes nothing.
+  - Removals are not journaled/undoable (same as `remove_orphaned`); the
+    auto-snapshot and a Home Assistant backup are the recovery paths.
+- **Internals:** `compile_remove_entities` on the spine plus the shared
+  `async_handle_mutation` wrapper (no bespoke handler), and a reusable
+  `entity_is_restored` predicate in `export.py`.
+- **i18n:** the new service (name, description, and its `domains`,
+  `restored_only`, `dry_run`, `confirm` fields) added to `strings.json` and all
+  13 locales (English in the 12 non-English files until backfilled).
+- **Tests:** `test_remove_entities.py` — domain filter, `restored_only` filter,
+  the not-loaded-entry guard, dry-run vs confirm, no-filter-removes-nothing, and
+  admin gating.
+
 ## 1.9.1 — 2026-10-04
 
 Stale and orphan detection accuracy, from a detailed real-install report

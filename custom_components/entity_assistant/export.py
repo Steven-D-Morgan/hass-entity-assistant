@@ -157,6 +157,14 @@ def _entity_staleness(
 
 
 @callback
+def entity_is_restored(hass: HomeAssistant, entity: er.RegistryEntry) -> bool:
+    state = hass.states.get(entity.entity_id)
+    if state is None:
+        return not entity.disabled
+    return bool(state.attributes.get("restored"))
+
+
+@callback
 def _build_entity_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[str, str]]:
     ent_reg = er.async_get(hass)
     dev_reg = dr.async_get(hass)

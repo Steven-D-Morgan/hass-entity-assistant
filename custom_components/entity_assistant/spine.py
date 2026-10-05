@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 import logging
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import Context, HomeAssistant, ServiceCall, ServiceResponse
 from homeassistant.exceptions import Unauthorized
 from homeassistant.helpers import (
@@ -23,7 +24,9 @@ import voluptuous as vol
 from .change_plan import ChangePlan, FieldChange, NewRef, ObjectCreate, ObjectRemove
 from .const import (
     ATTR_CONFIRM,
+    ATTR_DOMAINS,
     ATTR_DRY_RUN,
+    ATTR_RESTORED_ONLY,
     DATA_STORE,
     DEFAULT_CHUNK_SIZE,
     DEFAULT_MAX_ROWS,
@@ -35,7 +38,7 @@ from .const import (
     OBJECT_FLOOR,
     OBJECT_LABEL,
 )
-from .export import scan_orphaned
+from .export import entity_is_restored, scan_orphaned
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -377,3 +380,24 @@ async def async_handle_remove_orphaned(hass: HomeAssistant, call: ServiceCall) -
     response = remove_orphaned_response(plan, result, dry_run=False, triggered_by="service")
     hass.bus.async_fire(EVENT_ORPHANED_REMOVED, response)
     return response
+
+
+def compile_remove_entities(hass: HomeAssistant, call: ServiceCall) -> ChangePlan:
+    domains = call.data.get(ATTR_DOMAINS)
+    restored_only = call.data[ATTR_RESTORED_ONLY]
+    if not domains and not restored_only:
+        return ChangePlan(producer="remove_entities")
+    domain_set = set(domains) if domains else None
+    ent_reg = er.async_get(hass)
+    removes: list[ObjectRemove] = []
+    for entity in list(ent_reg.entities.values()):
+        if domain_set is not None and entity.domain not in domain_set:
+            continue
+        if entity.config_entry_id:
+            entry = hass.config_entries.async_get_entry(entity.config_entry_id)
+            if entry is not None and entry.state != ConfigEntryState.LOADED:
+                continue
+        if restored_only and not entity_is_restored(hass, entity):
+            continue
+        removes.append(ObjectRemove(OBJECT_ENTITY, key=entity.entity_id, label=entity.entity_id))
+    return ChangePlan(producer="remove_entities", removes=removes)

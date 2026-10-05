@@ -453,3 +453,62 @@ capture_snapshot:
             - areas
             - floors
             - labels
+
+remove_entities:
+  name: Remove entities
+  description: >-
+    Preview or remove registry entities matching a filter — by domain and/or
+    only those flagged "restored" (in the registry but not provided since the
+    last restart, e.g. automations/scripts deleted from YAML). Defaults to a dry
+    run; pass confirm: true to apply. Requires admin. Entities whose integration
+    is present but not loaded (e.g. retrying while a device is offline) are always
+    skipped, and a call with no filter removes nothing. Removals cannot be fully
+    undone — a Home Assistant backup is the only complete undo.
+  fields:
+    domains:
+      name: Domains
+      description: >-
+        Only remove entities in these domains (e.g. device_tracker, automation,
+        script). Pick from the list or type any other domain. Leave blank to
+        match any domain.
+      required: false
+      example: '["device_tracker"]'
+      selector:
+        select:
+          multiple: true
+          custom_value: true
+          options:
+            - device_tracker
+            - automation
+            - script
+            - sensor
+            - binary_sensor
+            - switch
+            - light
+            - number
+            - button
+    restored_only:
+      name: Restored only
+      description: >-
+        Only remove entities currently flagged "restored" (in the registry but
+        not provided since the last restart).
+      required: false
+      default: false
+      selector:
+        boolean:
+    dry_run:
+      name: Dry run
+      description: Preview what would be removed without making changes.
+      required: false
+      default: true
+      selector:
+        boolean:
+    confirm:
+      name: Confirm
+      description: >-
+        Set to true to actually remove the matching entities. When false
+        (default), the service returns a preview only.
+      required: false
+      default: false
+      selector:
+        boolean:

@@ -66,7 +66,7 @@ Everything import will need, shipped as additive export improvements — plus th
 
 The mutation framework, its storage, and the lowest-risk bulk edits to prove it in the field before import rides it.
 
-Landing as `1.9.0rc1` (pre-release, held for field validation before a final 1.9.0): the change-plan spine, shared admin enforcement, the retrofitted `remove_orphaned`, and now the unified snapshot + journal store with its teardown. Still ahead: `undo`, the first real bulk producers, and the executor-offload budget. **1.9.1** then shipped stale/orphan detection-accuracy fixes from issue #5 (entry-state-aware `restored`, Bluetooth-scanner `no_entities` exclusion, documented `not_changed` restart limit); broader orphan removal remains gated behind the spine.
+Landing as `1.9.0rc1` (pre-release, held for field validation before a final 1.9.0): the change-plan spine, shared admin enforcement, the retrofitted `remove_orphaned`, and now the unified snapshot + journal store with its teardown. Still ahead: `undo`, the first real bulk producers, and the executor-offload budget. **1.9.1** then shipped stale/orphan detection-accuracy fixes from issue #5 (entry-state-aware `restored`, Bluetooth-scanner `no_entities` exclusion, documented `not_changed` restart limit); broader orphan removal then landed in **1.9.2** as the gated `remove_entities` producer (domain / `restored` filters, skips not-loaded entries).
 
 | Capability | What it adds | Effort | Risk |
 | --- | --- | --- | --- |

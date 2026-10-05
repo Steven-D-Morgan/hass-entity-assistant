@@ -132,6 +132,28 @@
         }
       }
     },
+    "remove_entities": {
+      "name": "Remove entities",
+      "description": "Preview or remove registry entities matching a filter (by domain and/or restored). Defaults to a dry run; pass confirm to apply. Requires admin. Entities whose integration is present but not loaded are skipped, and no filter removes nothing.",
+      "fields": {
+        "domains": {
+          "name": "Domains",
+          "description": "Only remove entities in these domains. Leave blank to match any domain."
+        },
+        "restored_only": {
+          "name": "Restored only",
+          "description": "Only remove entities flagged restored (not provided since the last restart)."
+        },
+        "dry_run": {
+          "name": "Dry run",
+          "description": "Preview what would be removed without making changes."
+        },
+        "confirm": {
+          "name": "Confirm",
+          "description": "Set to true to actually remove the matching entities."
+        }
+      }
+    },
     "get_download_url": {
       "name": "Ottieni URL di download",
       "description": "Restituisce un URL firmato e a tempo limitato per scaricare l'esportazione direttamente da un browser. Solo risposta; non scrive alcun file.",

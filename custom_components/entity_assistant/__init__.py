@@ -36,6 +36,7 @@ from .const import (
     ATTR_ONLY_ENABLED,
     ATTR_OUTPUT_FORMAT,
     ATTR_PRESET,
+    ATTR_RESTORED_ONLY,
     ATTR_RETURN_DATA,
     ATTR_SNAPSHOT_LABEL,
     ATTR_SORT_BY,
@@ -60,12 +61,19 @@ from .const import (
     SERVICE_CAPTURE_SNAPSHOT,
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
+    SERVICE_REMOVE_ENTITIES,
     SERVICE_REMOVE_ORPHANED,
     SORT_DIRS,
 )
 from .export import ExportOptions, async_run_export, build_export
 from .http import EntityExportView
-from .spine import MUTATION_FIELDS, async_handle_remove_orphaned, async_require_admin
+from .spine import (
+    MUTATION_FIELDS,
+    async_handle_mutation,
+    async_handle_remove_orphaned,
+    async_require_admin,
+    compile_remove_entities,
+)
 from .store import EntityAssistantStore, async_get_store, async_remove_storage
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,6 +86,14 @@ CAPTURE_SNAPSHOT_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_SNAPSHOT_LABEL, default=""): cv.string,
         vol.Optional(ATTR_EXPORT_TYPES): vol.All(cv.ensure_list, [vol.In(EXPORT_TYPES)]),
+    }
+)
+
+REMOVE_ENTITIES_SCHEMA = vol.Schema(
+    {
+        vol.Optional(ATTR_DOMAINS): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(ATTR_RESTORED_ONLY, default=False): cv.boolean,
+        **MUTATION_FIELDS,
     }
 )
 
@@ -272,6 +288,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         supports_response=SupportsResponse.OPTIONAL,
     )
 
+    async def handle_remove_entities(call: ServiceCall) -> ServiceResponse:
+        return await async_handle_mutation(hass, call, compile_remove_entities)
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_REMOVE_ENTITIES,
+        handle_remove_entities,
+        schema=REMOVE_ENTITIES_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+
     if not hass.data.get(_VIEW_REGISTERED):
         hass.http.register_view(EntityExportView(hass))
         hass.data[_VIEW_REGISTERED] = True
@@ -290,6 +317,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_remove(DOMAIN, SERVICE_GET_DOWNLOAD_URL)
         hass.services.async_remove(DOMAIN, SERVICE_REMOVE_ORPHANED)
         hass.services.async_remove(DOMAIN, SERVICE_CAPTURE_SNAPSHOT)
+        hass.services.async_remove(DOMAIN, SERVICE_REMOVE_ENTITIES)
         store = hass.data.pop(DATA_STORE, None)
         if store is not None:
             await store.async_save_now()
