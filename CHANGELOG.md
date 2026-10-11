@@ -3,6 +3,76 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 2.0.0rc1 — 2026-10-08
+
+Release candidate for the **2.0 "import" milestone** — the release that earns
+the name. Export → edit in any spreadsheet → import back through the full gate.
+Backward compatible: every existing service keeps its exact contract, no export
+column changed, and the only additions are one new admin-only service and its
+translations. Tagged as a pre-release pending field validation before a final
+2.0.0.
+
+- **New `entity_assistant.import_changes` service.** Reads a CSV or JSON file
+  from inside the config directory (the `resolve_path` traversal guard applies)
+  and applies the edits back to the registries. **Patch semantics**: only a
+  whitelisted set of writable columns are applied, only to the rows present in
+  the file, and **nothing is ever removed**. Rides the mutation spine:
+  **dry-run by default**, explicit `confirm: true` to apply, **admin-only**, and
+  a pre-change snapshot is captured automatically.
+  - **Keyed by the stable id column** per type: `registry_id` (entities),
+    `device_id`, `area_id`, `floor_id`, `label_id`. Entities fall back to
+    `entity_id` with a warning when `registry_id` is absent. Rows whose key
+    matches no registry object are reported and skipped.
+  - **Round-trip safe**: re-importing an unedited export produces an empty plan.
+    Each file cell is compared against the current exported value, so only cells
+    you actually changed become writes.
+  - **Writable columns** — entities: `name`, `icon`, area (`area_id` or
+    `area_name`), `labels`, `aliases`; devices: `name_by_user`, area, `labels`;
+    areas: `name`, `icon`, `picture`, floor (`floor_id` or `floor`), `labels`,
+    `aliases`; floors: `name`, `level`, `icon`, `aliases`; labels: `name`,
+    `color`, `icon`, `description`. Read-only columns (state, counts, stale, …)
+    are ignored. An empty cell clears a clearable field.
+  - **Auto-create by name** (`create_missing: true`, off by default): label,
+    area, and floor names that don't resolve to an existing object are created
+    and referenced in the same commit. Off by default, unknown names are
+    reported and skipped.
+  - **Parser hardening for real spreadsheet round-trips**: accepts a UTF-8 BOM
+    (`utf-8-sig`), sniffs `,`/`;`/tab delimiters, strips the export's
+    formula-sanitization tab prefix, accepts JSON as a list of row objects, and
+    returns a **per-row warning report** in the preview instead of failing the
+    whole file.
+  - **Type auto-detection** from the file's id column, overridable with
+    `import_type`; **format auto-detection** from the extension/content,
+    overridable with `format`.
+  - **Known limitation:** multi-value cells (`labels`, `aliases`) are
+    comma-joined, so a label/area/floor *name* that itself contains a comma
+    can't survive an *edited* multi-value cell (it would split into pieces, and
+    with `create_missing` would spawn new labels). An unedited round-trip is
+    unaffected. Avoid commas in names, or adjust those rows with the dedicated
+    services.
+  - Not in this release (deferred within the 2.0 milestone): `entity_id` renames
+    (needs the reference-scan preview), bulk enable/disable/hide via import, and
+    `categories` import.
+- **Internals:** new `importer.py` engine (`read_import_file`, `compile_import`,
+  `async_handle_import`) compiling to the shared change plan. The spine's
+  `NewRef` resolver now recurses into sets/lists/dicts so auto-created labels
+  resolve inside the `labels` set; `json_safe` renders `NewRef`s inside sets.
+  Multi-value writes match the registry's own container type — entity `aliases`
+  is written as a `list` (Home Assistant's `list[AliasEntry]` model), area/floor
+  `aliases` and all `labels` as a `set` — and file cells are normalized the same
+  way as the canonical export they're compared against, so an unedited round-trip
+  stays an empty plan even for values with surrounding whitespace.
+- **i18n:** the new service (name, description, and its `filename`, `format`,
+  `import_type`, `create_missing`, `dry_run`, `confirm` fields) added to
+  `strings.json` and all 13 locales (English in the 12 non-English files until
+  backfilled).
+- **Tests:** `test_import.py` — name/icon updates, dry-run default, the
+  empty-plan round-trip, JSON import, blank-clears-a-field, area assign by id and
+  by name (auto-create), labels by name (auto-create), unknown-key and
+  missing-label warnings, `entity_id` fallback, read-only columns ignored,
+  device/label/floor/area types, explicit type override, file-not-found, and
+  admin gating.
+
 ## 1.9.2 — 2026-10-04
 
 Adds a gated, opt-in way to remove registry clutter that `remove_orphaned` can't

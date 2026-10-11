@@ -23,12 +23,15 @@ import voluptuous as vol
 from .const import (
     ATTR_AREAS,
     ATTR_COLUMNS,
+    ATTR_CREATE_MISSING,
     ATTR_DOMAINS,
     ATTR_DOWNLOAD_FILENAME,
     ATTR_EXPIRES,
     ATTR_EXPORT_TYPE,
     ATTR_EXPORT_TYPES,
     ATTR_FILENAME,
+    ATTR_FORMAT,
+    ATTR_IMPORT_TYPE,
     ATTR_INCLUDE_DISABLED,
     ATTR_INCLUDE_HIDDEN,
     ATTR_MAX_ROWS,
@@ -48,6 +51,8 @@ from .const import (
     DEFAULT_EXPIRES,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_FILENAME,
+    DEFAULT_IMPORT_FORMAT,
+    DEFAULT_IMPORT_TYPE,
     DEFAULT_MAX_ROWS,
     DEFAULT_OUTPUT_FORMAT,
     DEFAULT_SORT_DIR,
@@ -55,18 +60,22 @@ from .const import (
     DOMAIN,
     DOWNLOAD_URL,
     EXPORT_TYPES,
+    IMPORT_FORMATS,
+    IMPORT_TYPES,
     ONBOARDING_NOTIFICATION_ID,
     OUTPUT_FORMATS,
     PLATFORMS,
     SERVICE_CAPTURE_SNAPSHOT,
     SERVICE_EXPORT_CSV,
     SERVICE_GET_DOWNLOAD_URL,
+    SERVICE_IMPORT_CHANGES,
     SERVICE_REMOVE_ENTITIES,
     SERVICE_REMOVE_ORPHANED,
     SORT_DIRS,
 )
 from .export import ExportOptions, async_run_export, build_export
 from .http import EntityExportView
+from .importer import async_handle_import
 from .spine import (
     MUTATION_FIELDS,
     async_handle_mutation,
@@ -93,6 +102,16 @@ REMOVE_ENTITIES_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_DOMAINS): vol.All(cv.ensure_list, [cv.string]),
         vol.Optional(ATTR_RESTORED_ONLY, default=False): cv.boolean,
+        **MUTATION_FIELDS,
+    }
+)
+
+IMPORT_CHANGES_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_FILENAME): cv.string,
+        vol.Optional(ATTR_FORMAT, default=DEFAULT_IMPORT_FORMAT): vol.In(IMPORT_FORMATS),
+        vol.Optional(ATTR_IMPORT_TYPE, default=DEFAULT_IMPORT_TYPE): vol.In(IMPORT_TYPES),
+        vol.Optional(ATTR_CREATE_MISSING, default=False): cv.boolean,
         **MUTATION_FIELDS,
     }
 )
@@ -299,6 +318,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         supports_response=SupportsResponse.OPTIONAL,
     )
 
+    async def handle_import_changes(call: ServiceCall) -> ServiceResponse:
+        return await async_handle_import(hass, call)
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_IMPORT_CHANGES,
+        handle_import_changes,
+        schema=IMPORT_CHANGES_SCHEMA,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+
     if not hass.data.get(_VIEW_REGISTERED):
         hass.http.register_view(EntityExportView(hass))
         hass.data[_VIEW_REGISTERED] = True
@@ -318,6 +348,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.services.async_remove(DOMAIN, SERVICE_REMOVE_ORPHANED)
         hass.services.async_remove(DOMAIN, SERVICE_CAPTURE_SNAPSHOT)
         hass.services.async_remove(DOMAIN, SERVICE_REMOVE_ENTITIES)
+        hass.services.async_remove(DOMAIN, SERVICE_IMPORT_CHANGES)
         store = hass.data.pop(DATA_STORE, None)
         if store is not None:
             await store.async_save_now()

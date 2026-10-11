@@ -257,6 +257,91 @@ reload. (The **Export orphaned entities** button always exports the stale set.)
 This is the no-YAML path: set it once in the UI, then the dashboard button or a
 `button.press` automation writes exactly the file you configured.
 
+## Bulk edits via import
+
+> [!NOTE]
+> The `import_changes` service is **2.0.0-rc1 only** — a pre-release. It is not in
+> the current stable release (1.9.2). The recipes in this section need 2.0.0-rc1
+> installed; every other recipe in this cookbook works on the stable release.
+
+### Rename and relabel in a spreadsheet, then import
+
+Export the entities, open the CSV in a spreadsheet, edit the writable columns
+(`name`, `icon`, `labels`, `aliases`, `area_id`/`area_name`), and save it back
+into `/config`. Then preview the changes:
+
+```yaml
+action: entity_assistant.import_changes
+data:
+  filename: entities.csv
+response_variable: preview
+```
+
+`dry_run` is the default, so this only *previews*. `preview` has `counts`
+(`created`/`updated`), `updates` (each `{object_type, key, field, from, to}`),
+`rows_matched`/`rows_unmatched`, and a `warnings` list (unknown keys, labels it
+couldn't resolve, etc.). When it looks right, apply:
+
+```yaml
+action: entity_assistant.import_changes
+data:
+  filename: entities.csv
+  confirm: true
+```
+
+Only the cells you changed become writes — re-importing an untouched export does
+nothing. Editing a cell to blank clears that field (e.g. an empty `name` removes
+a friendly-name override). Import never deletes a row; use `remove_orphaned` /
+`remove_entities` for that. Admin only.
+
+### Move a batch of entities into a new area
+
+Add an `area_name` column (or edit the existing one) and let import create the
+area for you. Keep only the key column and the column you're changing — patch
+semantics ignore everything else.
+
+```text
+registry_id,area_name
+01J9X...ABC,Workshop
+01J9X...DEF,Workshop
+```
+
+```yaml
+action: entity_assistant.import_changes
+data:
+  filename: move_to_workshop.csv
+  create_missing: true   # create "Workshop" if it doesn't exist yet
+  confirm: true
+```
+
+Without `create_missing: true`, an area/floor/label name that doesn't exist is
+reported in `warnings` and skipped rather than created. The same pattern works
+for an area's `floor` column and for `labels`.
+
+### Tag many entities with a label at once
+
+`labels` is the full desired set per row (comma-separated names). List the
+labels you want on each entity; missing ones are created when `create_missing`
+is on.
+
+```text
+registry_id,labels
+01J9X...ABC,"Critical, Upstairs"
+01J9X...DEF,"Critical"
+```
+
+```yaml
+action: entity_assistant.import_changes
+data:
+  filename: tag.csv
+  create_missing: true
+  confirm: true
+```
+
+JSON works too (`filename: tag.json`) — a list of row objects, same column
+names. The format and the registry type are auto-detected; override with
+`format:` / `import_type:` if needed.
+
 ## Cleaning up orphans
 
 ### Preview first, then remove

@@ -10,8 +10,10 @@
 
 A Home Assistant custom integration that exports your registry — entities,
 devices, or areas — to a CSV file, complete with `entity_id`, area, floor,
-labels, device metadata, current state, and more. Also identifies and removes
-orphaned entities, orphaned devices, and empty areas.
+labels, device metadata, current state, and more. Edit the export in any
+spreadsheet and **import it back** to rename, relabel, and reorganize in bulk
+*(new in the 2.0.0-rc1 pre-release — see [Importing edits back](#importing-edits-back))*.
+Also identifies and removes orphaned entities, orphaned devices, and empty areas.
 
 </div>
 
@@ -158,9 +160,69 @@ service previews by default (`dry_run: true`) or deletes orphaned
 entities/devices and empty areas with `confirm: true` (returns counts + ID
 lists). Removals aren't undoable — back up first.
 
+### Importing edits back
+
+> [!NOTE]
+> **Pre-release feature.** `import_changes` ships in **2.0.0-rc1**, a
+> pre-release. It is **not** in the current stable release (1.9.2) — everything
+> in this section applies only once you've installed 2.0.0-rc1 (in HACS, enable
+> "Show beta versions" and pick the rc). Everything else in this README works on
+> the stable release.
+
+The admin-only **`import_changes`** service reads an edited CSV or JSON file
+from the config directory and applies the changes back to the registries.
+Export a type, edit it in a spreadsheet, drop the file in `/config`, and import
+it:
+
+```yaml
+service: entity_assistant.import_changes
+data:
+  filename: entities.csv
+  # dry_run defaults to true — you get a preview first
+```
+
+Review the preview, then re-run with `confirm: true` to apply. How it behaves:
+
+- **Patch semantics.** Only [writable columns](#import-fields) are applied, only
+  on the rows your file contains. **Nothing is ever removed** — import only
+  updates (and, opt-in, creates). Deletion stays in `remove_orphaned`.
+- **Round-trip safe.** Re-importing an unedited export changes nothing; each
+  cell is compared to its current value, so only the cells you actually edited
+  become writes.
+- **Keyed by stable id** — `registry_id` for entities (the ULID that survives
+  `entity_id` renames), `device_id` / `area_id` / `floor_id` / `label_id` for
+  the rest. Entities fall back to `entity_id` with a warning if `registry_id`
+  is absent. Rows whose key matches nothing are reported and skipped.
+- **Auto-create by name** — with `create_missing: true`, label/area/floor names
+  that don't exist yet are created and assigned in the same commit.
+- **Admin-only, previewed, and snapshotted** — a pre-change snapshot is captured
+  automatically before any `confirm: true` apply.
+- **Comma caveat.** `labels` and `aliases` are comma-joined, so a label/area/floor
+  *name* that itself contains a comma can't survive an *edited* multi-value cell.
+  Avoid commas in those names, or edit such rows with the dedicated services.
+
+Not yet supported (coming in the 2.0 line): `entity_id` renames via import, bulk
+enable/disable/hide, and editing `categories`.
+
+<a id="import-fields"></a>
+**Writable columns** (others, like `state` or counts, are ignored; a blank cell
+clears a clearable field):
+
+| Type | Columns you can edit |
+| --- | --- |
+| entities | `name`, `icon`, `area_id` or `area_name`, `labels`, `aliases` |
+| devices | `name_by_user`, `area_id` or `area_name`, `labels` |
+| areas | `name`, `icon`, `picture`, `floor_id` or `floor`, `labels`, `aliases` |
+| floors | `name`, `level`, `icon`, `aliases` |
+| labels | `name`, `color`, `icon`, `description` |
+
+**`import_changes` fields:** `filename` (required, in the config dir), `format`
+(`auto`/`csv`/`json`), `import_type` (`auto` or a specific type), `create_missing`
+(`false`), `dry_run` (`true`), `confirm` (`false`).
+
 > **Worked examples** — filtered exports, JSON/YAML, column presets, sorting,
-> dashboard download links, inline template-sensor data, and orphan cleanup —
-> are in **[COOKBOOK.md](COOKBOOK.md)**.
+> dashboard download links, inline template-sensor data, bulk edits via import,
+> and orphan cleanup — are in **[COOKBOOK.md](COOKBOOK.md)**.
 
 ### Options
 
@@ -205,8 +267,9 @@ unless a row says otherwise.
   `entities_removed`, `devices_removed`, `areas_removed`, and the corresponding
   ID lists.
 - **`entity_assistant_changes_applied` event** — fired after any registry change
-  plan is committed (currently a confirmed `remove_orphaned`; more mutating
-  services to come) with `producer`, `triggered_by`, `counts`
+  plan is committed (a confirmed `remove_orphaned`, `remove_entities`, or
+  `import_changes` — the last of these is 2.0.0-rc1 only; more mutating services
+  to come) with `producer`, `triggered_by`, `counts`
   (`created`/`updated`/`removed`/`failed`), `object_types`, the affected id
   lists, and `journal_id`. A stable contract for reacting to bulk edits.
 

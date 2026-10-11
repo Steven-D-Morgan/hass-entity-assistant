@@ -512,3 +512,77 @@ remove_entities:
       default: false
       selector:
         boolean:
+
+import_changes:
+  name: Import changes
+  description: >-
+    Apply edits from a CSV or JSON file (e.g. an edited export) back to the
+    registries. Patch semantics: only writable columns are applied, only to
+    rows the file contains, keyed by the stable id column — and nothing is ever
+    removed. Defaults to a dry run; pass confirm: true to apply. Requires admin.
+    A pre-change snapshot is captured automatically.
+  fields:
+    filename:
+      name: Filename
+      description: >-
+        File to read, relative to the config directory. Must stay inside the
+        config directory.
+      required: true
+      example: exports/entities.csv
+      selector:
+        text:
+    format:
+      name: Format
+      description: >-
+        File format: auto-detect from the extension/content (default), or force
+        csv or json.
+      required: false
+      default: auto
+      selector:
+        select:
+          options:
+            - auto
+            - csv
+            - json
+    import_type:
+      name: Import type
+      description: >-
+        Which registry the file targets. Left on auto, it is detected from the
+        file's id column (registry_id/device_id/area_id/floor_id/label_id).
+      required: false
+      default: auto
+      selector:
+        select:
+          options:
+            - auto
+            - entities
+            - devices
+            - areas
+            - floors
+            - labels
+    create_missing:
+      name: Create missing
+      description: >-
+        Auto-create areas, floors, and labels that are referenced by name but
+        do not exist yet. Off by default — unknown names are reported and
+        skipped.
+      required: false
+      default: false
+      selector:
+        boolean:
+    dry_run:
+      name: Dry run
+      description: Preview the changes without applying them. Defaults to true.
+      required: false
+      default: true
+      selector:
+        boolean:
+    confirm:
+      name: Confirm
+      description: >-
+        Set to true to actually apply the changes. When false (default), the
+        service returns a preview with a per-row warning report.
+      required: false
+      default: false
+      selector:
+        boolean:

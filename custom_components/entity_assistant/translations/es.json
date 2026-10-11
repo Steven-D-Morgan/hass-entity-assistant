@@ -223,6 +223,36 @@
           "description": "Prepend a UTF-8 byte order mark so Excel on Windows renders non-ASCII characters correctly."
         }
       }
+    },
+    "import_changes": {
+      "name": "Import changes",
+      "description": "Apply edits from a CSV or JSON file back to the registries. Patch semantics: only writable columns are applied, only to rows the file contains, and nothing is ever removed. Defaults to a dry run; pass confirm to apply. Requires admin.",
+      "fields": {
+        "filename": {
+          "name": "Filename",
+          "description": "File to read, relative to the config directory. Must stay inside the config directory."
+        },
+        "format": {
+          "name": "Format",
+          "description": "File format: auto-detect from the extension (default), csv, or json."
+        },
+        "import_type": {
+          "name": "Import type",
+          "description": "Which registry the file targets. Auto-detects from the file's id column when left on auto."
+        },
+        "create_missing": {
+          "name": "Create missing",
+          "description": "Auto-create areas, floors, and labels that are referenced by name but do not exist yet."
+        },
+        "dry_run": {
+          "name": "Dry run",
+          "description": "Preview the changes without applying them."
+        },
+        "confirm": {
+          "name": "Confirm",
+          "description": "Set to true to actually apply the changes. When false (default), returns a preview only."
+        }
+      }
     }
   }
 }

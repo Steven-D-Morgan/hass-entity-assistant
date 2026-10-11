@@ -92,6 +92,12 @@ class CommitResult:
 def _resolve(value: Any, ref_map: dict[str, str]) -> Any:
     if isinstance(value, NewRef):
         return ref_map[value.temp_ref]
+    if isinstance(value, set):
+        return {_resolve(item, ref_map) for item in value}
+    if isinstance(value, (list, tuple)):
+        return type(value)(_resolve(item, ref_map) for item in value)
+    if isinstance(value, dict):
+        return {key: _resolve(item, ref_map) for key, item in value.items()}
     return value
 
 

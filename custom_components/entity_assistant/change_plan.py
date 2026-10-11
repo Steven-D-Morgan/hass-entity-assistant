@@ -54,7 +54,7 @@ def json_safe(value: Any) -> Any:
     if isinstance(value, NewRef):
         return f"new:{value.temp_ref}"
     if isinstance(value, set):
-        return sorted(str(item) for item in value)
+        return sorted(json_safe(item) for item in value)
     if isinstance(value, (list, tuple)):
         return [json_safe(item) for item in value]
     if isinstance(value, dict):
