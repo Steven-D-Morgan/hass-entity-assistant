@@ -16,11 +16,7 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.entity_assistant.const import DOMAIN, SERVICE_IMPORT_CHANGES
-from custom_components.entity_assistant.export import (
-    ExportOptions,
-    build_export,
-    rows_to_csv,
-)
+from custom_components.entity_assistant.export import ExportOptions, build_export, rows_to_csv
 
 
 def _write(hass: HomeAssistant, name: str, content: str) -> str:
@@ -164,15 +160,15 @@ async def test_labels_missing_without_create_warns(
     assert not er.async_get(hass).async_get(seed["entity_id"]).labels
 
 
-async def test_entity_aliases_written_as_list(hass: HomeAssistant, setup_integration) -> None:
+async def test_entity_aliases_written_as_set(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_entity(hass)
     _write(hass, "import.csv", f'registry_id,aliases\n{seed["registry_id"]},"Reading, Desk"\n')
 
     await _call(hass, {"filename": "import.csv", "confirm": True})
 
     entry = er.async_get(hass).async_get(seed["entity_id"])
-    assert isinstance(entry.aliases, list)
-    assert {str(alias) for alias in entry.aliases} == {"Reading", "Desk"}
+    assert isinstance(entry.aliases, set)
+    assert entry.aliases == {"Reading", "Desk"}
 
 
 async def test_area_aliases_written_as_set(hass: HomeAssistant, setup_integration) -> None:
