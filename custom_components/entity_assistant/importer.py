@@ -263,9 +263,7 @@ class _Resolver:
     def resolve_floor(
         self, name: str, warnings: list[dict[str, Any]], row: int, key: str
     ) -> str | NewRef | None:
-        return self._resolve(
-            "floor", self._floors, OBJECT_FLOOR, name, warnings, row, key, "floor"
-        )
+        return self._resolve("floor", self._floors, OBJECT_FLOOR, name, warnings, row, key, "floor")
 
 
 def _scalar_changes(
@@ -506,9 +504,7 @@ def _row_changes(
     changes += _set_changes(export_type, key, file_row, canon_row, live)
     if export_type == EXPORT_TYPE_FLOORS:
         changes += _level_change(key, file_row, canon_row, warnings, row)
-    changes += _labels_change(
-        export_type, key, file_row, canon_row, live, resolver, warnings, row
-    )
+    changes += _labels_change(export_type, key, file_row, canon_row, live, resolver, warnings, row)
     changes += _area_ref_change(
         export_type, key, file_row, canon_row, hass, resolver, warnings, row
     )
@@ -657,9 +653,7 @@ async def async_handle_import(hass: HomeAssistant, call: ServiceCall) -> Service
     create_missing = call.data[ATTR_CREATE_MISSING]
 
     try:
-        _, parsed = await hass.async_add_executor_job(
-            read_import_file, hass, filename, fmt_opt
-        )
+        _, parsed = await hass.async_add_executor_job(read_import_file, hass, filename, fmt_opt)
     except FileNotFoundError as err:
         raise HomeAssistantError(f"Import file not found: {filename}") from err
     except (OSError, ValueError, vol.Invalid) as err:

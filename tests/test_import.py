@@ -133,7 +133,7 @@ async def test_assign_area_by_name_autocreate(hass: HomeAssistant, setup_integra
 
 async def test_labels_by_name_autocreate(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_entity(hass)
-    _write(hass, "import.csv", f"registry_id,labels\n{seed['registry_id']},\"Cozy, Warm\"\n")
+    _write(hass, "import.csv", f'registry_id,labels\n{seed["registry_id"]},"Cozy, Warm"\n')
 
     response = await _call(
         hass, {"filename": "import.csv", "create_missing": True, "confirm": True}
@@ -146,9 +146,7 @@ async def test_labels_by_name_autocreate(hass: HomeAssistant, setup_integration)
     assert names == ["Cozy", "Warm"]
 
 
-async def test_labels_missing_without_create_warns(
-    hass: HomeAssistant, setup_integration
-) -> None:
+async def test_labels_missing_without_create_warns(hass: HomeAssistant, setup_integration) -> None:
     seed = _seed_entity(hass)
     _write(hass, "import.csv", f"registry_id,labels\n{seed['registry_id']},Nope\n")
 
