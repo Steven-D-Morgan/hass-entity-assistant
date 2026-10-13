@@ -3,6 +3,15 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 2.0.0rc2 — 2026-10-13
+
+Re-cut of 2.0.0rc1 — no functional change. rc1 was tagged on a commit whose
+`ruff format` check was failing in CI; the fix was formatting only (collapsed
+call sites, f-string quote style). rc2 carries the identical feature set with a
+clean lint/format run. Issued as a fresh tag so anyone who installed rc1 gets a
+normal update rather than a deleted tag. See the rc1 notes below for the full
+feature list.
+
 ## 2.0.0rc1 — 2026-10-08
 
 Release candidate for the **2.0 "import" milestone** — the release that earns

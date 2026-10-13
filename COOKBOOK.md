@@ -260,8 +260,8 @@ This is the no-YAML path: set it once in the UI, then the dashboard button or a
 ## Bulk edits via import
 
 > [!NOTE]
-> The `import_changes` service is **2.0.0-rc1 only** — a pre-release. It is not in
-> the current stable release (1.9.2). The recipes in this section need 2.0.0-rc1
+> The `import_changes` service is **2.0.0rc2 only** — a pre-release. It is not in
+> the current stable release (1.9.2). The recipes in this section need 2.0.0rc2
 > installed; every other recipe in this cookbook works on the stable release.
 
 ### Rename and relabel in a spreadsheet, then import

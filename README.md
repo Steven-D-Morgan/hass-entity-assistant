@@ -12,7 +12,7 @@ A Home Assistant custom integration that exports your registry — entities,
 devices, or areas — to a CSV file, complete with `entity_id`, area, floor,
 labels, device metadata, current state, and more. Edit the export in any
 spreadsheet and **import it back** to rename, relabel, and reorganize in bulk
-*(new in the 2.0.0-rc1 pre-release — see [Importing edits back](#importing-edits-back))*.
+*(new in the 2.0.0rc2 pre-release — see [Importing edits back](#importing-edits-back))*.
 Also identifies and removes orphaned entities, orphaned devices, and empty areas.
 
 </div>
@@ -163,9 +163,9 @@ lists). Removals aren't undoable — back up first.
 ### Importing edits back
 
 > [!NOTE]
-> **Pre-release feature.** `import_changes` ships in **2.0.0-rc1**, a
+> **Pre-release feature.** `import_changes` ships in **2.0.0rc2**, a
 > pre-release. It is **not** in the current stable release (1.9.2) — everything
-> in this section applies only once you've installed 2.0.0-rc1 (in HACS, enable
+> in this section applies only once you've installed 2.0.0rc2 (in HACS, enable
 > "Show beta versions" and pick the rc). Everything else in this README works on
 > the stable release.
 
@@ -268,7 +268,7 @@ unless a row says otherwise.
   ID lists.
 - **`entity_assistant_changes_applied` event** — fired after any registry change
   plan is committed (a confirmed `remove_orphaned`, `remove_entities`, or
-  `import_changes` — the last of these is 2.0.0-rc1 only; more mutating services
+  `import_changes` — the last of these is 2.0.0rc2 only; more mutating services
   to come) with `producer`, `triggered_by`, `counts`
   (`created`/`updated`/`removed`/`failed`), `object_types`, the affected id
   lists, and `journal_id`. A stable contract for reacting to bulk edits.
