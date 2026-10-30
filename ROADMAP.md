@@ -26,7 +26,7 @@ The hard limits every item below respects:
 2. **Rename reference-rewriting is frontend-only.** `er.async_update_entity(new_entity_id=…)` exists and changes the id, but nothing server-side rewrites automations, scripts, templates, scenes, or dashboards — the "also rename references" magic is frontend code a backend integration cannot call. Id renames therefore require a per-call opt-in (`allow_entity_id_rename: true`) and a preview that greps `/config` for each old id, so the blast radius is visible before commit (see 2.0). Pattern/regex rewrites — where one bad pattern quietly renames the wrong bank — stay out.
 3. **Removals cannot be undone.** No public API re-creates a registry entry with its old stable id. Journal-based undo covers *updates* only; a HA backup is the only real undo for removals, and every removal preview says so.
 4. **Re-enabling entities reloads config entries.** When `disabled_by` clears, core schedules a reload of the owning config entry (~30 s, `RELOAD_AFTER_UPDATE_DELAY`). A bulk enable spanning 40 integrations is 40 reloads — manageable, but the preview must say how many.
-5. **Services cannot accept file uploads.** Import v1 reads a file the user has placed inside `/config` (the existing `resolve_path` traversal guard applies). Native browser upload (`FileSelector` + the `file_upload` component) exists only in config/options/repairs flows, so a guided upload wizard is a later layer over the same engine.
+5. **Services cannot accept file uploads directly.** Import v1 reads a file the user has placed inside `/config` (the existing `resolve_path` traversal guard applies). Core's `file_upload` component exposes a standalone `/api/file_upload` HTTP endpoint, though — any authenticated client (a bundled frontend card, a `FileSelector` in a config/options/repairs flow, or a script) can POST a file, receive a `file_id`, and hand it to a service that resolves the id with `process_uploaded_file`. The file never lands in `/config`, which also sidesteps the traversal guard. Direct multipart-to-service is the thing still unavailable.
 6. **Services are not admin-gated by default.** HA's own registry websocket commands require admin; any authenticated user can call a custom service. Every mutating service here must resolve `call.context.user_id` and require an admin, raising `Unauthorized` otherwise.
 7. **No transactional/batch registry API.** Every update fires a `*_registry_updated` event and schedules a store save; a 500-row commit is 500 events. Bulk writes chunk and yield to the loop, and the integration's own future listeners (coordinator) debounce.
 
@@ -96,6 +96,19 @@ The **import core landed as `2.0.0rc2`** (pre-release, held for field validation
 | Diff service | `entity_assistant.diff`: snapshot-vs-current using the same comparator import uses for file-vs-current. Categorized deltas (added, removed, renamed, moved, newly-stale, recovered); optional diff file + signed URL. | M | low |
 | Granular change events | After diffs and commits: categorized events (entity added / removed / moved / newly-stale) carrying affected ids. Event names/payloads are a documented public contract. | S | low |
 
+## 2.2 — Native cards (optional UI layer)
+
+A thin frontend bundled with the integration itself: no HACS plugin install, no build toolchain. The integration's `async_setup` serves hand-authored ES-module cards from `custom_components/entity_assistant/frontend/` via `async_register_static_paths`, then auto-registers them as `res_type: "module"` Lovelace resources (storage mode) with cache-busting via the integration version. Users on YAML-mode Lovelace get a log line with the manual resource URL. English-only in v1 — the integration's 13-locale backend strings do not carry over, and translating ~30 card strings is a Later cost worth paying only once the UI stabilizes. Standing rules on frontend-API churn: no private HA components, no Lit/TypeScript dependency, CSS-variable theming only, admin-gating mirrored client-side on every Confirm button (the services already enforce it server-side).
+
+| Capability | What it adds | Effort | Risk |
+| --- | --- | --- | --- |
+| Frontend bundle & resource auto-registration | `custom_components/entity_assistant/frontend/*.js` served statically; one-time Lovelace-resources registration keyed on the base URL, cache-busted by integration version; graceful log-only fallback on YAML-mode. Pure vanilla `HTMLElement` + Shadow DOM. Foundational — no card logic yet. | S | low |
+| Export card | One-click filtered export with a live download link via `get_download_url`, reading its status strip from `sensor.entity_assistant_last_export`. The Options flow still owns persistent defaults; the card edits per-press overrides. | S | low |
+| `import_changes` upload path | Additive `file_id` argument on the service: when present, the uploaded blob is resolved with `homeassistant.components.file_upload.process_uploaded_file` (temp path, auto-cleanup, no `/config` landing, no `resolve_path` surface). The existing `filename` path stays for YAML-authored automations. One parser branch. **Promotes the "guided import upload" item out of Later** (limit 5). | S | low |
+| Import card (upload → preview → confirm) | Browser file picker → POST to `/api/file_upload` → `import_changes` dry-run with the returned `file_id` → inline diff table (per-row checkboxes over the standard change-plan from the 1.9 spine) → one-click Confirm against the same `file_id` within its TTL. On TTL expiry, prompt re-upload. The highest-value card — the service already returns a structured plan that core has nowhere to render. | M | medium |
+| Cleanup card | `remove_orphaned` and `remove_entities` dry-runs rendered as categorized counts + id lists with admin-gated Confirm buttons. Pairs with the stale-sensor dashboard. | M | low |
+| Snapshot & journal card | Lists captured snapshots with labels and ages; shows the last `entity_assistant_changes_applied` event via `connection.subscribeEvents` for live updates; exposes `undo_last` once it lands in 1.9. One-screen baseline-and-rollback surface. | M | low |
+
 ## 2.1+ — Health, lint & the advisor loop
 
 With the actuator built, the advisor: native surfaces that find problems and hand them to import as ready-made fix files.
@@ -117,8 +130,8 @@ With the actuator built, the advisor: native surfaces that find problems and han
 
 ## Later — guided fixes & reach
 
-- **Guided import upload** — `FileSelector` + `file_upload` in an options/repairs flow so users upload from the browser instead of dropping a file into `/config`; the same import engine and gate underneath (limit 5).
 - **Guided fix-flows in Repairs** — `RepairsFlow` wizards layered over the spine for the lint/repairs findings.
+- **Guided import upload via Repairs flow** — a `FileSelector`-driven secondary path to `/api/file_upload` for users who prefer the Repairs/options surface over the 2.2 import card. Shares the `file_id` service branch; the primary upload path ships with 2.2.
 - **Assist / conversation intents** — "how many stale entities do I have", "export my entity list", answered from the shared summarizer.
 - **Change-count analytics sensors** — added/removed/renamed/newly-stale counts from the latest diff, once diffs run on a cadence.
 - **HACS default store + `home-assistant/brands` submission** — external-latency-bound and independent of the milestones; can go whenever bandwidth allows. The brands PR is already outstanding and closes the placeholder-icon gap for pre-2026.3.0 installs.
@@ -126,7 +139,7 @@ With the actuator built, the advisor: native surfaces that find problems and han
 
 ## Dependency summary
 
-Tests (1.7) → spine (1.9) → reversible bulk edits (1.9–2.0) → import (2.0) → guided fix-flows (Later). Export contract (1.8: stable keys, formats, column completeness) → import parser (2.0). Unified store (1.9) → undo (1.9) → diff + change events (2.0) → retention + cadence sensors (2.1+). Summarizer (2.1) → sensors, binary_sensor, diagnostics, lint → fix files → back into import. Options flow (1.8) → stored defaults, thresholds, retention.
+Tests (1.7) → spine (1.9) → reversible bulk edits (1.9–2.0) → import (2.0) → guided fix-flows (Later). Export contract (1.8: stable keys, formats, column completeness) → import parser (2.0) → `file_id` upload branch (2.2) → upload-driven import card (2.2) and, later, the Repairs-flow upload surface. Unified store (1.9) → undo (1.9) → diff + change events (2.0) → retention + cadence sensors (2.1+) → snapshot & journal card (2.2). Summarizer (2.1) → sensors, binary_sensor, diagnostics, lint → fix files → back into import. Options flow (1.8) → stored defaults, thresholds, retention. Change-plan model (1.9) → import diff + cleanup + snapshot cards (2.2).
 
 ## Non-goals
 
@@ -140,6 +153,6 @@ Deliberately out of scope, to protect the maintainer's time and the integration'
 - **Device merging / entity re-parenting.** No supported API (limit 1). At most, surface duplicate hints in the lint report and let the orphan-removal path clean up a dead twin.
 - **A general spreadsheet / BI tool.** No binary XLSX output and the runtime dependency it would require; CSV + JSON/NDJSON/YAML/Markdown/HTML cover machine and human consumers dependency-free, and the UTF-8 BOM serves Excel.
 - **A composite "health score."** Discrete counts, the `PROBLEM` binary_sensor, and the lint report carry the same signal unambiguously.
-- **A custom Lovelace / JS frontend card.** A separate build toolchain, no reuse of the 13-locale strings, constant frontend-API churn — and unnecessary: with round-trip import, *the user's spreadsheet is the bulk-edit UI*.
+- **A standalone HACS-plugin-category Lovelace card.** A separate repo with its own build toolchain, release pipeline, and install step on top of the integration — not worth it. Integration-bundled, no-build vanilla-JS cards served and resource-registered by the integration itself are *in* scope (see 2.2): zero extra install, no toolchain cost, and they close the real UX gap (rendering the structured dry-run plans the mutation services already return). Frontend-API churn and the 13-locale translation duplication are real but survivable costs the 2.2 ground rules address directly.
 - **A built-in scheduler as the primary path.** HA's native time triggers via bundled blueprints; any convenience timer stays opt-in, default-off, and thin.
 - **A bundled notifier.** The user picks their own notify target in a blueprint or per-call option.
