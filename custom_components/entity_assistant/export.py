@@ -280,7 +280,7 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
 
     rows: list[dict[str, str]] = []
 
-    for device in sorted(dev_reg.devices.values(), key=lambda d: d.id):
+    for device in sorted(dev_reg.devices, key=lambda d: d.id):
         if device.disabled and not options.want_disabled:
             continue
 
@@ -291,11 +291,11 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
 
         floor = floor_reg.async_get_floor(area.floor_id) if area and area.floor_id else None
 
-        entry_titles = []
+        entry_titles: list[str] = []
         entry_domains: set[str] = set()
         any_entry = False
-        for entry_id in device.config_entries:
-            entry = hass.config_entries.async_get_entry(entry_id)
+        if device.config_entry_id:
+            entry = hass.config_entries.async_get_entry(device.config_entry_id)
             if entry:
                 any_entry = True
                 entry_titles.append(entry.title)
@@ -305,7 +305,7 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         available = available_counts.get(device.id, 0)
 
         reasons: list[str] = []
-        if device.config_entries and not any_entry:
+        if device.config_entry_id and not any_entry:
             reasons.append("orphaned")
         if total == 0:
             if not (entry_domains and entry_domains <= _SCANNER_ONLY_DOMAINS):
@@ -351,7 +351,7 @@ def _build_area_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[s
     label_reg = lr.async_get(hass)
 
     device_counts: dict[str, int] = {}
-    for device in dev_reg.devices.values():
+    for device in dev_reg.devices:
         if device.area_id:
             device_counts[device.area_id] = device_counts.get(device.area_id, 0) + 1
 
@@ -442,7 +442,7 @@ def _build_label_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict[
             entity_usage[label_id] = entity_usage.get(label_id, 0) + 1
 
     device_usage: dict[str, int] = {}
-    for device in dev_reg.devices.values():
+    for device in dev_reg.devices:
         for label_id in device.labels:
             device_usage[label_id] = device_usage.get(label_id, 0) + 1
 
@@ -627,9 +627,10 @@ def scan_orphaned(hass: HomeAssistant) -> tuple[list[str], list[str], list[str]]
             orphaned_entities.append(entity.entity_id)
 
     orphaned_devices: list[str] = []
-    for device in list(dev_reg.devices.values()):
-        if device.config_entries and not any(
-            hass.config_entries.async_get_entry(eid) for eid in device.config_entries
+    for device in list(dev_reg.devices):
+        if (
+            device.config_entry_id
+            and hass.config_entries.async_get_entry(device.config_entry_id) is None
         ):
             orphaned_devices.append(device.id)
 
@@ -637,7 +638,7 @@ def scan_orphaned(hass: HomeAssistant) -> tuple[list[str], list[str], list[str]]
     orphaned_device_set = set(orphaned_devices)
 
     device_area_counts: dict[str, int] = {}
-    for device in dev_reg.devices.values():
+    for device in dev_reg.devices:
         if device.id in orphaned_device_set:
             continue
         if device.area_id:
