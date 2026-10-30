@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -127,6 +128,51 @@ async def test_onboarding_skipped_when_already_onboarded(hass: HomeAssistant) ->
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
     mock_notify.assert_not_called()
+
+
+async def test_setup_removes_stale_entity_from_previous_version(hass: HomeAssistant) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={"onboarded": True}, unique_id=DOMAIN)
+    entry.add_to_hass(hass)
+    await async_setup_component(hass, "http", {"http": {}})
+
+    ent_reg = er.async_get(hass)
+    ghost = ent_reg.async_get_or_create(
+        "button",
+        DOMAIN,
+        f"{entry.entry_id}_remove_orphaned",
+        config_entry=entry,
+        suggested_object_id="entity_assistant_remove_orphaned_entries",
+    )
+    assert ent_reg.async_get(ghost.entity_id) is not None
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert ent_reg.async_get(ghost.entity_id) is None
+    assert ent_reg.async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_export_csv") is not None
+    assert (
+        ent_reg.async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_export_orphaned")
+        is not None
+    )
+
+
+async def test_setup_leaves_foreign_entities_alone(hass: HomeAssistant) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={"onboarded": True}, unique_id=DOMAIN)
+    entry.add_to_hass(hass)
+    await async_setup_component(hass, "http", {"http": {}})
+
+    ent_reg = er.async_get(hass)
+    foreign = ent_reg.async_get_or_create(
+        "sensor",
+        "some_other_integration",
+        "foreign_unique_id",
+        config_entry=entry,
+    )
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert ent_reg.async_get(foreign.entity_id) is not None
 
 
 async def test_get_download_url_service_returns_url(hass: HomeAssistant, setup_integration) -> None:

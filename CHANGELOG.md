@@ -3,6 +3,26 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 2.0.0rc3 — 2026-10-30
+
+Second release candidate on the 2.0 line. Folds in the 1.9.3 deprecation fix
+and clears a lingering registry entry left behind by pre-1.9.0 installations.
+
+- **Future-proofs the export path (#7).** All `device_registry.devices`
+  mapping access and `DeviceEntry.config_entries` reads in `export.py` moved
+  to the HA 2027.9/2027.10 replacements. Full detail is in the 1.9.3 entry
+  below.
+- **Cleans up stale platform entities left by previous versions.** On every
+  config entry setup, the integration now scans the entity registry for its
+  own entries and removes any whose `unique_id` isn't one the current build
+  registers. Fixes the ghost `button.entity_assistant_remove_orphaned_entries`
+  that pre-1.9.0 installs left behind when commit `8a11f48` removed the
+  button class — the button stayed in the UI as `unavailable, restored` and
+  did nothing when pressed, which read as "`remove_orphaned` doesn't work".
+  Current valid suffixes: `_export_csv`, `_export_orphaned`. Logs an INFO
+  line per removed entity. Only touches entities whose `platform ==
+  entity_assistant`; other integrations' entities are not affected.
+
 ## 1.9.3 — 2026-10-30
 
 Compatibility-only point release on the 1.9 line. Clears the Home Assistant

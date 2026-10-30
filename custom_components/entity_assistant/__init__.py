@@ -16,7 +16,7 @@ from homeassistant.core import (
     SupportsResponse,
     callback,
 )
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 import voluptuous as vol
 
@@ -88,6 +88,8 @@ from .store import EntityAssistantStore, async_get_store, async_remove_storage
 _LOGGER = logging.getLogger(__name__)
 
 _VIEW_REGISTERED = f"{DOMAIN}_view_registered"
+
+_CURRENT_ENTITY_UNIQUE_ID_SUFFIXES = frozenset({"_export_csv", "_export_orphaned"})
 
 REMOVE_ORPHANED_SCHEMA = vol.Schema({**MUTATION_FIELDS})
 
@@ -205,6 +207,23 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.version > 1:
         return False
     return True
+
+
+@callback
+def _async_cleanup_stale_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    ent_reg = er.async_get(hass)
+    expected = {f"{entry.entry_id}{suffix}" for suffix in _CURRENT_ENTITY_UNIQUE_ID_SUFFIXES}
+    for registry_entry in er.async_entries_for_config_entry(ent_reg, entry.entry_id):
+        if registry_entry.platform != DOMAIN:
+            continue
+        if registry_entry.unique_id in expected:
+            continue
+        _LOGGER.info(
+            "Removing stale %s (unique_id=%s) left by a previous version",
+            registry_entry.entity_id,
+            registry_entry.unique_id,
+        )
+        ent_reg.async_remove(registry_entry.entity_id)
 
 
 @callback
@@ -332,6 +351,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not hass.data.get(_VIEW_REGISTERED):
         hass.http.register_view(EntityExportView(hass))
         hass.data[_VIEW_REGISTERED] = True
+
+    _async_cleanup_stale_entities(hass, entry)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
