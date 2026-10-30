@@ -3,10 +3,11 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
-## 2.0.0rc3 — 2026-10-30
+## 2.0.0 — 2026-10-30
 
-Second release candidate on the 2.0 line. Folds in the 1.9.3 deprecation fix
-and clears a lingering registry entry left behind by pre-1.9.0 installations.
+Final cut of the 2.0 "import" milestone (see the rc1 entry below for the
+full feature set). Folds in the 1.9.3 deprecation fix and clears a lingering
+registry entry left behind by pre-1.9.0 installations.
 
 - **Future-proofs the export path (#7).** All `device_registry.devices`
   mapping access and `DeviceEntry.config_entries` reads in `export.py` moved
