@@ -3,6 +3,29 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 1.9.3 — 2026-10-30
+
+Compatibility-only point release on the 1.9 line. Clears the Home Assistant
+deprecation warnings coming out of `export.py` so the 1.9.x series stays quiet
+in the log through HA 2027.9 and 2027.10. No behavior changes, no new services,
+no schema changes — drop-in from 1.9.2. (Published out of chronological order
+alongside the 2.0 release candidates so users not ready for 2.0 can stay on 1.9
+without a deprecation cliff.)
+
+- **Future-proofs the export path (#7).** Two upcoming HA removals surfaced as
+  eight deprecation warnings from `export.py` on HA 2026.10:
+  - `device_registry.devices` as a mapping (`.values()` / `.get()`) is going
+    away in **HA 2027.9.0**. The device, area, label and orphan rollups now
+    iterate `dev_reg.devices` directly.
+  - `DeviceEntry.config_entries` is going away in **HA 2027.10.0** because a
+    device belongs to a single config entry. The config-entry title, the
+    scanner-only-domain check, and the orphaned-device scan now read
+    `DeviceEntry.config_entry_id` and do a single lookup.
+  - Export output is unchanged — same columns, same values, same snapshot
+    behavior. Only the API calls underneath changed.
+- **Thanks** to **@geobrando** for the clean report with log excerpts, line
+  numbers and the exact HA removal versions.
+
 ## 2.0.0rc2 — 2026-10-13
 
 Re-cut of 2.0.0rc1 — no functional change. rc1 was tagged on a commit whose
