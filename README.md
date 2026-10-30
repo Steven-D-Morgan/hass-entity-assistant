@@ -8,6 +8,15 @@
 [![Release](https://img.shields.io/github/v/release/Steven-D-Morgan/hass-entity-assistant?style=for-the-badge&color=41BDF5&label=Release)](https://github.com/Steven-D-Morgan/hass-entity-assistant/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/Steven-D-Morgan/hass-entity-assistant/total?style=for-the-badge&color=41BDF5&label=Downloads)](https://github.com/Steven-D-Morgan/hass-entity-assistant/releases)
 
+</div>
+
+> [!IMPORTANT]
+> ### $\color{red}{\textsf{Requires Home Assistant 2024.11.0 or newer}}$
+> $\color{red}{\textbf{Current release (1.9.2)}}$ — minimum Home Assistant **2024.11.0**
+> $\color{red}{\textbf{Release candidate (2.0.0rc2)}}$ — minimum Home Assistant **2024.11.0**
+
+<div align="center">
+
 A Home Assistant custom integration that exports your registry — entities,
 devices, or areas — to a CSV file, complete with `entity_id`, area, floor,
 labels, device metadata, current state, and more. Edit the export in any
