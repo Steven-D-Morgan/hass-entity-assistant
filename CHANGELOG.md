@@ -3,6 +3,29 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 2.0.1 — 2026-11-03
+
+Regression fix on 2.0.0 and the point-fix that shipped as 1.9.3. The
+`device_registry.devices` change in `export.py` was wrong: iterating
+`dev_reg.devices` directly on current Home Assistant yields *keys*
+(device_id strings), not `DeviceEntry` objects, so every device, area,
+label, and overview export raised `AttributeError: 'str' object has no
+attribute 'area_id'` (or `.id`, `.labels`). The config-entry half of
+that change (`device.config_entry_id` instead of iterating
+`device.config_entries`) was correct and is kept.
+
+- **Restored `dev_reg.devices.values()` at all five iteration sites** in
+  `export.py` — `_build_device_rows`, `_build_area_rows`,
+  `_build_label_rows`, and the two loops in `scan_orphaned`. Device,
+  area, label, and orphan exports work again on current HA.
+- **Deferred the HA 2027.9 deprecation:** the warning will be logged
+  again until HA provides a stable replacement iteration API; this will
+  be revisited before 2027.9. Users on 2.0.0 should upgrade — the old
+  code path was raising, not warning.
+- **Tests:** the CI test matrix that broke on 2.0.0 (37 failures in
+  `test_export.py`, `test_import.py`, `test_remove_orphaned.py`,
+  `test_spine.py`) passes again.
+
 ## 2.0.0 — 2026-10-30
 
 Final cut of the 2.0 "import" milestone (see the rc1 entry below for the
