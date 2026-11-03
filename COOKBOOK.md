@@ -6,8 +6,9 @@ option reference, see [README.md](README.md); for version history, see
 [CHANGELOG.md](CHANGELOG.md); for where the integration is going, see
 [ROADMAP.md](ROADMAP.md).
 
-Every recipe uses only what ships today (1.8.x). Forward-looking recipes —
-bulk edits, imports, `entity_id` renames — will land here as those features do.
+Every recipe uses only what ships today (2.0.x). Forward-looking recipes —
+`entity_id` renames, bulk enable/disable/hide via import, `categories` import —
+will land here as those features do.
 
 ## Slicing your export
 
@@ -260,9 +261,9 @@ This is the no-YAML path: set it once in the UI, then the dashboard button or a
 ## Bulk edits via import
 
 > [!NOTE]
-> The `import_changes` service is **2.0.0rc2 only** — a pre-release. It is not in
-> the current stable release (1.9.2). The recipes in this section need 2.0.0rc2
-> installed; every other recipe in this cookbook works on the stable release.
+> The `import_changes` service shipped in **2.0.0**. The recipes in this section
+> need 2.0.0 or later; every other recipe in this cookbook works on any 1.x
+> release too.
 
 ### Rename and relabel in a spreadsheet, then import
 
