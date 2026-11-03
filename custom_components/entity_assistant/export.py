@@ -294,8 +294,8 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         entry_titles: list[str] = []
         entry_domains: set[str] = set()
         any_entry = False
-        if device.config_entry_id:
-            entry = hass.config_entries.async_get_entry(device.config_entry_id)
+        for entry_id in device.config_entries:
+            entry = hass.config_entries.async_get_entry(entry_id)
             if entry:
                 any_entry = True
                 entry_titles.append(entry.title)
@@ -305,7 +305,7 @@ def _build_device_rows(hass: HomeAssistant, options: ExportOptions) -> list[dict
         available = available_counts.get(device.id, 0)
 
         reasons: list[str] = []
-        if device.config_entry_id and not any_entry:
+        if device.config_entries and not any_entry:
             reasons.append("orphaned")
         if total == 0:
             if not (entry_domains and entry_domains <= _SCANNER_ONLY_DOMAINS):
@@ -628,9 +628,8 @@ def scan_orphaned(hass: HomeAssistant) -> tuple[list[str], list[str], list[str]]
 
     orphaned_devices: list[str] = []
     for device in list(dev_reg.devices.values()):
-        if (
-            device.config_entry_id
-            and hass.config_entries.async_get_entry(device.config_entry_id) is None
+        if device.config_entries and not any(
+            hass.config_entries.async_get_entry(eid) for eid in device.config_entries
         ):
             orphaned_devices.append(device.id)
 

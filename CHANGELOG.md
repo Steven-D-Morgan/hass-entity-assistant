@@ -5,23 +5,32 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
 ## 2.0.1 — 2026-11-03
 
-Regression fix on 2.0.0 and the point-fix that shipped as 1.9.3. The
-`device_registry.devices` change in `export.py` was wrong: iterating
-`dev_reg.devices` directly on current Home Assistant yields *keys*
-(device_id strings), not `DeviceEntry` objects, so every device, area,
-label, and overview export raised `AttributeError: 'str' object has no
-attribute 'area_id'` (or `.id`, `.labels`). The config-entry half of
-that change (`device.config_entry_id` instead of iterating
-`device.config_entries`) was correct and is kept.
+Regression fix on 2.0.0 and the point-fix that shipped as 1.9.3.
+Commit `646fd8a` ("Fix deprecated device registry access in export.py")
+was premature on both fronts and both halves are reverted here. Users on
+2.0.0 (and 1.9.3) should upgrade — device/area/label exports and the
+orphan scan currently raise `AttributeError`, not warn.
 
 - **Restored `dev_reg.devices.values()` at all five iteration sites** in
   `export.py` — `_build_device_rows`, `_build_area_rows`,
-  `_build_label_rows`, and the two loops in `scan_orphaned`. Device,
-  area, label, and orphan exports work again on current HA.
-- **Deferred the HA 2027.9 deprecation:** the warning will be logged
-  again until HA provides a stable replacement iteration API; this will
-  be revisited before 2027.9. Users on 2.0.0 should upgrade — the old
-  code path was raising, not warning.
+  `_build_label_rows`, and the two loops in `scan_orphaned`. On current
+  Home Assistant, iterating `dev_reg.devices` directly yields keys
+  (device_id strings) rather than `DeviceEntry` objects, so every row
+  builder was raising `AttributeError: 'str' object has no attribute
+  'area_id'` (or `.id`, `.labels`).
+- **Restored iteration over `device.config_entries`** in
+  `_build_device_rows` and `scan_orphaned`. `DeviceEntry` does not yet
+  expose `config_entry_id` on current HA — accessing it raised
+  `AttributeError: 'DeviceEntry' object has no attribute
+  'config_entry_id'. Did you mean: 'config_entries'?`. The two sites
+  that read it now iterate `device.config_entries` the way they did on
+  1.9.2 and earlier.
+- **Deferred the HA 2027.9 / 2027.10 deprecations.** The underlying
+  warnings `#7` was chasing (mapping access on `device_registry.devices`
+  going away in HA 2027.9.0, and `DeviceEntry.config_entries` going away
+  in HA 2027.10.0) will log again until HA ships the replacement APIs;
+  this will be revisited before 2027.9. On today's HA, `.values()` and
+  `.config_entries` are still the correct patterns.
 - **Tests:** the CI test matrix that broke on 2.0.0 (37 failures in
   `test_export.py`, `test_import.py`, `test_remove_orphaned.py`,
   `test_spine.py`) passes again.
