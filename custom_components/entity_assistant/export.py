@@ -9,6 +9,7 @@ import io
 import json
 import logging
 import os
+from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, State, callback
@@ -25,6 +26,7 @@ import yaml
 
 from .const import (
     COLUMN_PRESETS,
+    EXPORT_SUBDIR,
     COLUMNS_BY_TYPE,
     DEFAULT_EXPORT_TYPE,
     DEFAULT_OUTPUT_FORMAT,
@@ -87,13 +89,15 @@ class ExportOptions:
 
 
 def resolve_path(hass: HomeAssistant, filename: str) -> str:
-    config_dir = os.path.realpath(hass.config.config_dir)
-    target = os.path.realpath(os.path.join(config_dir, filename))
-    if target != config_dir and not target.startswith(config_dir + os.sep):
+    name = (filename or "").strip()
+    if not name:
+        raise vol.Invalid("filename must not be empty")
+    if "/" in name or "\\" in name or ".." in Path(name).parts:
         raise vol.Invalid(
-            f"filename must resolve to a path inside the config directory ({config_dir})"
+            "filename must be a bare filename (no path separators or '..'); "
+            "exports always land in /config/" + EXPORT_SUBDIR + "/"
         )
-    return target
+    return os.path.join(hass.config.path(EXPORT_SUBDIR), name)
 
 
 def _label_names(label_reg: lr.LabelRegistry, label_ids: set[str] | None) -> str:

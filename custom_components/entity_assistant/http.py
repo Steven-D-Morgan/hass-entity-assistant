@@ -110,6 +110,9 @@ class EntityExportView(HomeAssistantView):
         self.hass = hass
 
     async def get(self, request: web.Request) -> web.Response:
+        user = request.get("hass_user")
+        if user is None or not user.is_admin:
+            return web.Response(status=403, text="Admin access required")
         options = options_from_query(request.query)
         try:
             columns, rows = build_export(self.hass, options)

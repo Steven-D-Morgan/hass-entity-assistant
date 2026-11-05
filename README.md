@@ -12,8 +12,7 @@
 
 > [!IMPORTANT]
 > ### $\color{red}{\textsf{Requires Home Assistant 2024.11.0 or newer}}$
-> $\color{red}{\textbf{Current release (1.9.2)}}$ — minimum Home Assistant **2024.11.0**
-> $\color{red}{\textbf{Release candidate (2.0.0rc2)}}$ — minimum Home Assistant **2024.11.0**
+> $\color{red}{\textbf{Current release (2.0.2)}}$ — minimum Home Assistant **2024.11.0**
 
 <div align="center">
 
@@ -121,16 +120,14 @@ have multiple reasons, comma-separated.
 
 ### Via HACS (recommended)
 
-1. In HACS, go to **Integrations → ⋮ → Custom repositories**.
-2. Add `https://github.com/Steven-D-Morgan/hass-entity-assistant` with category
-   **Integration**.
-3. Search for **Entity Assistant** in HACS, install it, and restart Home
+1. Open HACS, search for **Entity Assistant**, install it, and restart Home
    Assistant.
-4. Continue with **Add the integration** below.
+2. Continue with **Add the integration** below.
 
-Once this repository is added to the
-[HACS default store](https://hacs.xyz/), steps 1–2 won't be needed — you'll be
-able to find it directly.
+If Entity Assistant hasn't appeared in your HACS catalog yet, you can add it as
+a **Custom repository** instead: in HACS, **Integrations → ⋮ → Custom
+repositories**, add `https://github.com/Steven-D-Morgan/hass-entity-assistant`
+with category **Integration**, then install and restart as above.
 
 ### Manual
 
@@ -251,7 +248,7 @@ unless a row says otherwise.
 | `stale_only` | `false` | Only rows flagged stale (see [above](#finding-stale-entitiesdevices)) |
 | `stale_days` | `30` | Threshold for the `not_changed_<N>d` reason |
 | `utf8_bom` | `false` | UTF-8 BOM so Excel on Windows renders non-ASCII (CSV only) |
-| `filename` | `entity_export.csv` | **`export_csv` only** — output path in the config dir; subfolders auto-created; keep inside the config dir |
+| `filename` | `entity_export.csv` | **`export_csv` only** — bare filename (no path separators); the file lands in `/config/entity_assistant/<filename>`. Admin-only. |
 | `return_data` / `max_rows` | `false` / `1000` | **`export_csv` only** — return rows inline instead of writing a file, capped at `max_rows` |
 | `expires` | `300` | **`get_download_url` only** — signed-URL lifetime (seconds) |
 | `download_filename` | — | **`get_download_url` / HTTP** — browser save name; sanitized to a basename, extension from `output_format` |

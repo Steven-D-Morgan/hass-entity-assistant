@@ -43,6 +43,7 @@ ATTR_IMPORT_TYPE = "import_type"
 
 DEFAULT_FILENAME = "entity_export.csv"
 DEFAULT_STALE_FILENAME = "entity_export_stale.csv"
+EXPORT_SUBDIR = "entity_assistant"
 DEFAULT_EXPIRES = 120
 DEFAULT_STALE_DAYS = 30
 DEFAULT_MAX_ROWS = 1000

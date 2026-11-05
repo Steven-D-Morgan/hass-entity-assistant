@@ -253,6 +253,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DATA_STORE] = store
 
     async def handle_export_csv(call: ServiceCall) -> ServiceResponse:
+        await async_require_admin(hass, call.context)
         options = _options_from_call(call)
         if call.data[ATTR_RETURN_DATA]:
             columns, rows = build_export(hass, options)
@@ -268,8 +269,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         return {"path": path, "row_count": count}
 
-    @callback
-    def handle_get_download_url(call: ServiceCall) -> ServiceResponse:
+    async def handle_get_download_url(call: ServiceCall) -> ServiceResponse:
+        await async_require_admin(hass, call.context)
         options = _options_from_call(call)
         expires = call.data[ATTR_EXPIRES]
 

@@ -3,6 +3,64 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 2.0.2 — 2026-11-04
+
+Four fixes flagged in the HACS submission review round 2 on hacs/default#13008
+by `@frenck`. Three are hardening, the last is a doc catch-up.
+
+- **`export_csv` is now admin-only.** Pre-2.0.2, any logged-in user could call
+  `export_csv` with `filename: configuration.yaml`, `secrets.yaml` or
+  `.storage/core.config_entries` and `write_export` would open that path with
+  `"w"`, overwriting core files with the exported CSV. `handle_export_csv` now
+  calls `async_require_admin(hass, call.context)` at the top — covers both
+  the file-writing path and the `return_data: true` path (which also exposes
+  registry data that HA keeps admin-only).
+- **Exports are confined to `/config/entity_assistant/`.** `resolve_path` no
+  longer accepts relative subpaths or absolute paths. It accepts a **bare
+  filename** (no `/`, `\`, or `..`); anything else raises `vol.Invalid`.
+  The file is written to `hass.config.path("entity_assistant")/<filename>`,
+  which the integration creates on first write. Core config files can no
+  longer be targeted, period. **Breaking:** automations that passed
+  `filename: exports/entities.csv` or an absolute path must switch to a bare
+  filename; the file now lands in `/config/entity_assistant/` instead of
+  wherever the old path pointed.
+- **`get_download_url` is now admin-only.** Hands out a signed URL to the
+  registry export (config entry titles often contain account emails, plus
+  unique IDs and device details). Changed from `@callback` to `async` and
+  calls `async_require_admin` at the top.
+- **HTTP download endpoint checks admin.** `EntityExportView.get` now rejects
+  non-admin requests with a 403 before building the export. Works for
+  logged-in users and for signed URLs (HA attaches `request["hass_user"]`
+  for both).
+- **`resolve_path` no longer blocks the event loop.** The pre-2.0.2 version
+  called `os.path.realpath` twice (two stat walks) on the event loop from
+  `async_run_export` — fired on every button press and every service
+  call. The new version does pure string handling (no stat calls), which is
+  cheap enough that executor dispatch isn't needed. The actual file write
+  still happens in the executor, as before.
+- **README install section leads with HACS catalog search.** The pre-2.0.2
+  install flow walked users through adding the integration as a custom
+  repository first. Now that the hacs/default submission is in flight, the
+  canonical path is "open HACS, search for Entity Assistant, install." The
+  custom-repository instructions are still there as a fallback.
+- **README version banner updated to 2.0.2** — the stale
+  "Current release (1.9.2) / Release candidate (2.0.0rc2)" lines from before
+  the 2.0.0 cut are gone.
+
+### i18n
+
+Updated `strings.json` and `translations/en.json`:
+- `export_csv` description now says the file lands in `/config/entity_assistant/`
+  and the service is admin-only.
+- `filename` field description describes the bare-filename rule.
+The 12 non-English translations will carry the English string until a
+backfill lands.
+
+### Services YAML
+
+`services.yaml` `export_csv.filename` description and example rewritten to
+match the bare-filename rule.
+
 ## 2.0.1 — 2026-11-03
 
 Regression fix on 2.0.0 and the point-fix that shipped as 1.9.3.

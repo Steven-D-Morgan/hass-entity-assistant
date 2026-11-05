@@ -7,11 +7,11 @@ export_csv:
     filename:
       name: Filename
       description: >-
-        File to write, relative to the config directory. Must stay inside
-        the config directory.
+        Bare filename for the export file (no path separators or '..'). The
+        file is written to /config/entity_assistant/<filename>. Admin-only.
       required: false
       default: entity_export.csv
-      example: exports/entities.csv
+      example: entities.csv
       selector:
         text:
     return_data:

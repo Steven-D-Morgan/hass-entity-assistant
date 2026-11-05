@@ -32,7 +32,7 @@
   "services": {
     "export_csv": {
       "name": "Export to CSV",
-      "description": "Export entities, devices, or areas from the registry to a CSV file inside the configuration directory.",
+      "description": "Export entities, devices, or areas from the registry to a CSV file in /config/entity_assistant/. Admin-only.",
       "fields": {
         "return_data": {
           "name": "Return data",
@@ -44,7 +44,7 @@
         },
         "filename": {
           "name": "Filename",
-          "description": "File to write, relative to the config directory. Must stay inside the config directory."
+          "description": "Bare filename for the export file (no path separators or '..'). Written to /config/entity_assistant/<filename>."
         },
         "export_type": {
           "name": "Export type",

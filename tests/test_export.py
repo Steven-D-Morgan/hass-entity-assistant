@@ -484,21 +484,31 @@ async def test_build_label_rows_fields(hass: HomeAssistant) -> None:
     assert row["description"] == "Test zone"
 
 
-def test_resolve_path_inside_config(hass: HomeAssistant) -> None:
-    path = resolve_path(hass, "subdir/file.csv")
-    config_dir = os.path.realpath(hass.config.config_dir)
-    assert path.startswith(config_dir + os.sep)
+def test_resolve_path_bare_filename_lands_in_export_subdir(hass: HomeAssistant) -> None:
+    path = resolve_path(hass, "file.csv")
+    expected_dir = hass.config.path("entity_assistant")
+    assert path == os.path.join(expected_dir, "file.csv")
 
 
-def test_resolve_path_traversal_blocked(hass: HomeAssistant) -> None:
+def test_resolve_path_rejects_subpath(hass: HomeAssistant) -> None:
+    with pytest.raises(vol.Invalid):
+        resolve_path(hass, "subdir/file.csv")
+
+
+def test_resolve_path_rejects_traversal(hass: HomeAssistant) -> None:
     with pytest.raises(vol.Invalid):
         resolve_path(hass, "../../etc/passwd")
 
 
-def test_resolve_path_absolute_outside_blocked(hass: HomeAssistant) -> None:
+def test_resolve_path_rejects_absolute(hass: HomeAssistant) -> None:
     outside = "/tmp/evil.csv" if os.name != "nt" else "C:/Windows/evil.csv"
     with pytest.raises(vol.Invalid):
         resolve_path(hass, outside)
+
+
+def test_resolve_path_rejects_empty(hass: HomeAssistant) -> None:
+    with pytest.raises(vol.Invalid):
+        resolve_path(hass, "")
 
 
 def test_rows_to_csv_header_and_rows() -> None:
