@@ -15,15 +15,22 @@ by `@frenck`. Three are hardening, the last is a doc catch-up.
   calls `async_require_admin(hass, call.context)` at the top — covers both
   the file-writing path and the `return_data: true` path (which also exposes
   registry data that HA keeps admin-only).
-- **Exports are confined to `/config/entity_assistant/`.** `resolve_path` no
-  longer accepts relative subpaths or absolute paths. It accepts a **bare
-  filename** (no `/`, `\`, or `..`); anything else raises `vol.Invalid`.
-  The file is written to `hass.config.path("entity_assistant")/<filename>`,
-  which the integration creates on first write. Core config files can no
-  longer be targeted, period. **Breaking:** automations that passed
+- **Exports are confined to `/config/entity_assistant/`.** `resolve_path`
+  (export path) no longer accepts relative subpaths or absolute paths. It
+  accepts a **bare filename** (no `/`, `\`, or `..`); anything else raises
+  `vol.Invalid`. The file is written to
+  `hass.config.path("entity_assistant")/<filename>`, which the integration
+  creates on first write. Core config files can no longer be targeted,
+  period. **Breaking:** automations that passed
   `filename: exports/entities.csv` or an absolute path must switch to a bare
   filename; the file now lands in `/config/entity_assistant/` instead of
   wherever the old path pointed.
+- **Import file resolution kept its old semantics.** `import_changes` still
+  reads files from anywhere inside the config directory (so the "export,
+  edit, drop back in `/config`, import" workflow is unchanged). The import
+  side uses a new `resolve_import_path` helper with the pre-2.0.2
+  realpath+containment check — admin-only and executed inside the executor,
+  as before, so the event-loop concern from frenck's item 3 does not apply.
 - **`get_download_url` is now admin-only.** Hands out a signed URL to the
   registry export (config entry titles often contain account emails, plus
   unique IDs and device details). Changed from `@callback` to `async` and

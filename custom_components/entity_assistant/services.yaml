@@ -8,7 +8,7 @@ export_csv:
       name: Filename
       description: >-
         Bare filename for the export file (no path separators or '..'). The
-        file is written to /config/entity_assistant/<filename>. Admin-only.
+        file is written to /config/entity_assistant/ with that name. Admin-only.
       required: false
       default: entity_export.csv
       example: entities.csv

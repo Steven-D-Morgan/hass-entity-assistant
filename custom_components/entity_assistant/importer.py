@@ -42,7 +42,7 @@ from .const import (
     OBJECT_FLOOR,
     OBJECT_LABEL,
 )
-from .export import ExportOptions, build_export, resolve_path
+from .export import ExportOptions, build_export, resolve_import_path
 from .spine import async_commit_plan, async_require_admin
 
 PRODUCER = "import_changes"
@@ -184,7 +184,7 @@ def _detect_format(filename: str, text: str, fmt_opt: str) -> str:
 
 
 def read_import_file(hass: HomeAssistant, filename: str, fmt_opt: str) -> tuple[str, ParsedFile]:
-    path = resolve_path(hass, filename)
+    path = resolve_import_path(hass, filename)
     with open(path, encoding="utf-8-sig", newline="") as file:
         text = file.read()
     fmt = _detect_format(filename, text, fmt_opt)

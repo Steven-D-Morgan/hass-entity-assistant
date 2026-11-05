@@ -44,7 +44,7 @@
         },
         "filename": {
           "name": "Filename",
-          "description": "Bare filename for the export file (no path separators or '..'). Written to /config/entity_assistant/<filename>."
+          "description": "Bare filename for the export file (no path separators or '..'). The file is written to /config/entity_assistant/ with that name."
         },
         "export_type": {
           "name": "Export type",
