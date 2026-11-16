@@ -61,10 +61,12 @@ conditions:
 actions:
   - action: entity_assistant.export_csv
     data:
-      filename: "exports/entities_{{ now().strftime('%Y-%m-%d') }}.csv"
+      filename: "entities_{{ now().strftime('%Y-%m-%d') }}.csv"
 ```
 
-The `exports/` subfolder is created automatically inside `/config`.
+The file lands in `/config/entity_assistant/`, which the integration
+creates on first write. Since 2.0.2, `export_csv` takes a bare
+filename only — a path with `/` or `..` raises `vol.Invalid`.
 
 ### A CSV that opens cleanly in Excel
 

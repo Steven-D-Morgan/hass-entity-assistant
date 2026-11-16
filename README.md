@@ -12,7 +12,7 @@
 
 > [!IMPORTANT]
 > ### $\color{red}{\textsf{Requires Home Assistant 2024.11.0 or newer}}$
-> $\color{red}{\textbf{Current release (2.0.2)}}$ — minimum Home Assistant **2024.11.0**
+> $\color{red}{\textbf{Current release (2.0.3)}}$ — minimum Home Assistant **2024.11.0**
 
 <div align="center">
 

@@ -3,6 +3,34 @@
 Changelog for the Entity Assistant integration. Newest version at the top.
 Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
+## 2.0.3 — 2026-11-15
+
+Documentation catch-up on the 2.0.2 export-path confinement. Two places
+still pointed at the pre-2.0.2 `exports/` subfolder; one of them was a
+recipe that now raises `vol.Invalid` for anyone following it verbatim.
+No code changes, no behavior changes — upgrade whenever convenient.
+
+- **`import_changes.filename` example rewritten.** `services.yaml`
+  (Frenck's post-approval nit on hacs/default#13008) showed
+  `exports/entities.csv`. Changed to `entity_assistant/entities.csv`
+  so the service dialog's example matches the path exports now land at,
+  and the "export → edit → import from the same folder" workflow reads
+  the way it works.
+- **Cookbook "weekly snapshot" recipe fixed.** `COOKBOOK.md`'s dated
+  snapshot automation passed `filename: "exports/entities_{{ ... }}.csv"`,
+  which 2.0.2 made a hard error: `export_csv` now rejects anything
+  containing `/` or `..`. The template is now a bare
+  `entities_{{ ... }}.csv`, and the follow-up sentence describes the
+  real `/config/entity_assistant/` landing spot plus the bare-filename
+  rule so copy-pasters know why.
+- **Deprecation warnings on export.py stay deferred.** The HA 2027.9
+  (mapping access on `device_registry.devices`) and 2027.10
+  (`DeviceEntry.config_entries`) removals still log warnings; current HA
+  has not yet shipped the replacement APIs (iterating `dev_reg.devices`
+  returns keys, not entries; `DeviceEntry.config_entry_id` does not exist
+  yet). The 2.0.1 deferral stands — this will be revisited when HA ships
+  the replacements, well before 2027.9.
+
 ## 2.0.2 — 2026-11-04
 
 Four fixes flagged in the HACS submission review round 2 on hacs/default#13008
