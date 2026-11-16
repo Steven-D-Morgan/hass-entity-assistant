@@ -6,7 +6,8 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 ## 2.0.3 — 2026-11-15
 
 Two bug fixes around the 2.0.2 export-path confinement, plus the
-documentation catch-up that was already due.
+documentation catch-up that was already due, plus a test-infra fix for
+a pytest plugin-order flake that started failing CI on 2026-11-16.
 
 - **Export button no longer fails silently.** `button.py`'s
   `EntityExportButton.async_press` and `ExportOrphanedButton.async_press`
@@ -38,6 +39,17 @@ documentation catch-up that was already due.
   `entities_{{ ... }}.csv`, and the follow-up sentence describes the
   real `/config/entity_assistant/` landing spot plus the bare-filename
   rule so copy-pasters know why.
+- **CI: pin the `snapshot` fixture to `HomeAssistantSnapshotExtension`.**
+  `tests/conftest.py` now overrides the `snapshot` fixture to always use
+  the HA extension (dirname → `tests/snapshots/`). Pytest fixture
+  precedence is "last plugin registered wins," and pip's install order
+  flipped between 2026-11-09 and 2026-11-16 so that plain `syrupy`
+  started winning over `pytest_homeassistant_custom_component`. Syrupy's
+  default looks in `tests/__snapshots__/`, which does not exist in this
+  repo (the move to `tests/snapshots/` happened in commit `a9226a8`),
+  so all 10 snapshot tests failed with "Snapshot does not exist" on
+  every push. The explicit fixture override makes the choice
+  deterministic regardless of plugin load order.
 - **Deprecation warnings on export.py stay deferred.** The HA 2027.9
   (mapping access on `device_registry.devices`) and 2027.10
   (`DeviceEntry.config_entries`) removals still log warnings; current HA
