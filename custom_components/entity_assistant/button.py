@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
@@ -44,7 +45,10 @@ def _options_from_entry(entry: ConfigEntry) -> tuple[ExportOptions, str]:
         utf8_bom=opts.get(ATTR_UTF8_BOM, False),
         output_format=opts.get(ATTR_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT),
     )
-    filename: str = opts.get(ATTR_FILENAME, DEFAULT_FILENAME)
+    raw_filename: str = opts.get(ATTR_FILENAME, DEFAULT_FILENAME)
+    filename = os.path.basename(raw_filename.replace("\\", "/")) or DEFAULT_FILENAME
+    if filename != raw_filename:
+        _LOGGER.info("Normalized stored filename %r to %r", raw_filename, filename)
     return options, filename
 
 
@@ -83,6 +87,7 @@ class EntityExportButton(ButtonEntity):
                 self.hass, options, filename, triggered_by="button"
             )
         except Exception:
+            _LOGGER.exception("Export failed")
             return
         _LOGGER.info("Exported %d rows to %s", count, path)
 
@@ -108,5 +113,6 @@ class ExportOrphanedButton(ButtonEntity):
                 self.hass, options, DEFAULT_STALE_FILENAME, triggered_by="button"
             )
         except Exception:
+            _LOGGER.exception("Stale export failed")
             return
         _LOGGER.info("Exported %d stale rows to %s", count, path)

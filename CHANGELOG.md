@@ -5,11 +5,27 @@ Follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH.
 
 ## 2.0.3 — 2026-11-15
 
-Documentation catch-up on the 2.0.2 export-path confinement. Two places
-still pointed at the pre-2.0.2 `exports/` subfolder; one of them was a
-recipe that now raises `vol.Invalid` for anyone following it verbatim.
-No code changes, no behavior changes — upgrade whenever convenient.
+Two bug fixes around the 2.0.2 export-path confinement, plus the
+documentation catch-up that was already due.
 
+- **Export button no longer fails silently.** `button.py`'s
+  `EntityExportButton.async_press` and `ExportOrphanedButton.async_press`
+  wrapped `async_run_export` in a bare `except Exception: return`. Any
+  failure — a permission error, a disk-full `OSError`, the new
+  `vol.Invalid` from a stale stored filename — was swallowed with no
+  log, so users pressing the button saw nothing happen and had no way
+  to find out why. Both handlers now `_LOGGER.exception(...)` before
+  returning, and `sensor.entity_assistant_last_export` still records
+  the failure via `EVENT_EXPORT_FAILED` as it did before.
+- **Stored options filenames are normalized to bare basenames.** Users
+  who configured `filename: exports/entities.csv` in the options flow
+  pre-2.0.2 had the value persist through the upgrade; after 2.0.2 made
+  `export_csv` reject anything containing `/` or `..`, every button
+  press on those installs raised `vol.Invalid` (silently, per the bug
+  above). `_options_from_entry` now reduces the stored value to its
+  basename, and the options flow does the same on save so new input
+  with separators is cleaned up at the source. `DEFAULT_FILENAME` is
+  used when the reduction yields an empty string.
 - **`import_changes.filename` example rewritten.** `services.yaml`
   (Frenck's post-approval nit on hacs/default#13008) showed
   `exports/entities.csv`. Changed to `entity_assistant/entities.csv`
@@ -18,8 +34,7 @@ No code changes, no behavior changes — upgrade whenever convenient.
   the way it works.
 - **Cookbook "weekly snapshot" recipe fixed.** `COOKBOOK.md`'s dated
   snapshot automation passed `filename: "exports/entities_{{ ... }}.csv"`,
-  which 2.0.2 made a hard error: `export_csv` now rejects anything
-  containing `/` or `..`. The template is now a bare
+  which 2.0.2 made a hard error. The template is now a bare
   `entities_{{ ... }}.csv`, and the follow-up sentence describes the
   real `/config/entity_assistant/` landing spot plus the bare-filename
   rule so copy-pasters know why.
