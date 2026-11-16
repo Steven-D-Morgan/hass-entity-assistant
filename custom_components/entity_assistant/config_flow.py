@@ -51,9 +51,7 @@ class EntityAssistantOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
             raw = user_input.get(ATTR_FILENAME, DEFAULT_FILENAME)
-            user_input[ATTR_FILENAME] = (
-                os.path.basename(raw.replace("\\", "/")) or DEFAULT_FILENAME
-            )
+            user_input[ATTR_FILENAME] = os.path.basename(raw.replace("\\", "/")) or DEFAULT_FILENAME
             return self.async_create_entry(title="", data=user_input)
 
         current = self.config_entry.options
